@@ -1,0 +1,84 @@
+IMPORTANT NOTE:  The data for 1950–2005 results from a verification exercise conducted on the data for 1973-2005 and an extension of the database to cover the period 1950-1972 by the ICES Secretariat on the national submissions of catch data published by ICES in the annual volumes of the Bulletin Statistique and more recently in FishStat Plus format on the ICES website. The results of this exercise with proposals for changes to the original published data were sent to the national authorities in May 2009 for their advice and comments. Responses from the national authorities have been incorporated in this database. 
+________________________________________________________
+
+Fishery statistics for the International Council for the Exploration of the Sea (ICES) area have been published under the title Bulletin Statistique des Pêches Maritimes since 1903. In 1990 the title was changed to ICES Fisheries Statistics and the last publication was in 1992 with 1988 data. For the period 1999-2004 the data was published on a CD-ROM. Since 2004, Eurostat and ICES have worked together on the processing and publishing of these data. The data are held in a single database and can be accessed 
+either through the Eurostat website http://epp.eurostat.ec.europa.eu 
+or through the ICES website http://www.ices.dk 
+The data published on the ICES website are in the FAO FishStat Plus format. ICES thanks FAO for permission to use this software and expresses its gratitude to David Cross (late of Eurostat) for his assistance in reformatting the data.
+
+The catch data in ICES Fisheries Statistics are derived from STATLANT 27A forms officially submitted to either Eurostat or ICES by the national statistical offices of its member countries. These catch data cover the ICES Area (Northeast Atlantic, FAO Area 27). The statistics represent the nominal commercial catch (live weight equivalent of landings, discards excluded) of finfish, invertebrates, and seaweeds.
+
+The International Commission for the Conservation of Atlantic Tunas (ICCAT) holds data for the Atlantic tuna fisheries, also of those occurring in the Northeast Atlantic and there is an overlap between the ICCAT and ICES data.
+
+Additional information is given in other ICES publications, especially in the Reports of the Advisory Committee on Fishery Management, published in the ICES Cooperative Research Report series, and in the reports of the ICES fish stock assessment Working Groups. 
+
+There is concern with respect to the quality of some of the reported catch data. Scientists from member countries participating in ICES stock assessment Working Groups have been aware of this and have frequently used supplementary information when analysing the status of the stocks. Based on these analyses, management advice is formulated and provided by ICES to the various national governments, the EU and the Fishery Commissions. 
+
+In order to ascertain the catch statistics used in the assessments, users are therefore advised to consult the ACFM Reports (published in the ICES Cooperative Research Report series) or the reports of the relevant assessment Working Groups (available from the ICES Secretariat). For example, the catch statistics for 2001 as used by the assessment Working Groups in 2002 are to be found in ICES Cooperative Research Report, No. 255.
+
+
+
+COUNTRY NOTES
+
+Estonia.  See USSR below.
+
+Finland.  Data from 2000 onwards include recreational fishing.
+
+Faroe Islands.  National Summary data for 2000 have been used.
+
+France.  Between 1989 and 1999, the initial reports from the French authorities have been incomplete or have not conformed with ICES' requirements and have been subject to revisions. Provisional data for 1998 and National Summary data for 1999 have been used. Data for 2009 are Provisional.
+
+Germany.  The German Democratic Republic and the German Federal Republic submitted separate catch reports for the period up to and including 1990. After German re-unification end 1990, Germany has submitted a single catch report.
+
+Greenland.  Data from 1998 onwards are incomplete or not in conformity with ICES' requirements.
+
+Latvia.  See USSR below.
+
+Lithuania.  See USSR below.
+
+Norway.  The Norwegian data for 2007-2010 are provisional.
+	Catch data from 1972 were corrected in 2019 after a request by Norway: catches of Atlantic halibut, Atlantic herring, Atlantic redfishes nei, Blue whiting, Clupeoids nei, Ling, Raja rays nei and Tusk previously recorded in Area VIII (not specified), were transferred to Area VIa.
+
+Russian Federation.  See USSR below.
+
+United Kingdom.  England&Wales and Northern Ireland submitted separate catch reports up to 1988. From 1989 combined reports for these UK regions have been submitted. Scotland and the Isle of Man have submitted separate reports for the whole of the period since 1950. Guernsey (1975 onwards) and Jersey (1983 onwards) have submitted separate reports except for 1994 and 1996 when a single report for the Channel Islands was received.
+
+USSR.  Data up to 1988 include catches made by the present countries Estonia, Latvia, Lithuania, the Russian Federation and Ukraine. 
+Separate catch reports have been submitted by Latvia, Lithuania and Ukraine for 1988 onwards,  by Estonia for 1991 onwards  and for the Russian Federation for 1992 onwards. 
+
+Certain ICES non-member countries (for example, Bulgaria, Italy, Japan, Korea Republic, Panama, Romania, Taiwan and Ukraine) have submitted reports of catches in the Northeast Atlantic to FAO and, where appropriate, to ICCAT. In general the volume of these catches have been small and the reports of the fishing area are limited to the FAO major fishing area 27 with no sub-division by ICES division and sub-division.
+
+European Community.  The countries which are taken to be members of the European Community are those which are members as of today and, for the purposes of this software, are considered as being members for the whole of the period since 1950. 
+
+
+
+FISHING AREAS
+
+The fishing areas are recorded in this database as they have been reported by the national authorities. The result is that, particularly for the earlier years, the fishing areas may not be recorded as detailed as in the current ICES statistical system. 
+
+The map accompanying this software shows the divisions of the ICES area used for the submission of data up to 2003. However in 2004 many of the ICES divisions were subdivided with the primary objective of distinguishing between catches made in international and territorial waters. These subdivisions are too detailed to show in the accompanying map but may be consulted in EU Regulation (EC) 218/2009 published in Official Journal L87 of 31.03.2009 
+(http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2009:087:0042:0069:EN:PDF)
+
+
+
+UNITS
+
+The data are expressed in the live weight equivalent of the landings, in tonnes. As such, discarded catch and other quantities not landed are excluded from the data.
+
+In the database where USSR seaweed data are presented, it should be noted that they are expressed in terms of dry weight for the period 1977-1988, while for 1989 onwards the reported amounts are in wet weight units.
+
+
+
+SYMBOLS USED
+
+The following standard symbols are used in this issue:
+
+        <0.5    magnitude less than half the unit used in the table
+
+        -       magnitude known to be nil
+
+        ...     magnitude not available
+
+        nei     not elsewhere included
+
+        ns      not specified
