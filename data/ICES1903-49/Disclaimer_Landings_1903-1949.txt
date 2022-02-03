@@ -1,0 +1,60 @@
+1. FEEDBACK 
+
+Thank you for downloading data from the ICES Data Centre.
+If you experienced any problems or would like to provide feedback that will help us to improve our service, please email us at: catch.data@ices.dk
+
+2. IMPORTANT 
+
+This is the complete dataset with landings statistics per country, year, species and area for 1903-1949. 
+Please read this disclaimer before using these data as this file contains specific information about the use of these data, limitations and known issues. 
+This file contains contact information regarding the origins of these data (where supplied) as well as how to reference these data in a publication or data product. 
+
+By downloading data from the ICES website [www.ices.dk] you are agreeing to the terms and conditions of use as described in this document and any documents referred to in this text.
+
+3. ICES CONTACT
+
+For queries about this data download:
+Web  :  http://www.ices.dk/marine-data/dataset-collections/Pages/Fish-catch-and-stock-assessment.aspx
+E-mail:	catch.data@ices.dk 
+Tel  :	+45 3338 6700
+
+4. PROJECT/DOWNLOAD SPECIFIC INFORMATION
+
+Data from the official catch statistics are freely available for downloding.
+(see data access policy) http://www.ices.dk/datacentre/datapolicy.asp 
+
+The catch data are submitted by the national authorities responsible for fisheries data. 
+ 
+Fishery statistics for the International Council for the Exploration of the Sea (ICES) area have been published under the title "Bulletin Statistique des Pêches Maritimes" since 1904. In 1990 the title was changed to ICES Fisheries Statistics, and the last publication was in 1992 with 1988 data. After 1960s the catch data in ICES Fisheries Statistics are derived from STATLANT 27A forms officially submitted to either Eurostat or ICES by the national statistical offices of its member countries. 
+
+Current dataset is in Zip-format and contains figures per country, year, species and area for 1903-1949 in one spreadsheet. Included are also sheets providing overviews on the mapping of species, ICES areas and country codes. 
+Data from the original files per country has been joined together and where possible a unique common name, scientific name and code have been allocated for each species from the FAO ASFIS species list, http://www.fao.org/fishery/collection/asfis/en . The comments attached to individual values from the original files per country have also been extracted into the new Excel-file , and can be found in the sheet "country_notes".
+
+The statistics represent the nominal commercial catch (live weight equivalent of landings, discards excluded) of finfish, invertebrates, and seaweeds. 
+These catch data cover the ICES Area (Northeast Atlantic, FAO Area 27). 
+The data are expressed in the live weight equivalent of landings.
+The reporting units are metric tonnes. 
+Discarded catch and other quantities not landed are not included in the data. 
+
+Whilst the data have been extensively checked by the supplying countries and ICES, data presented in the database are not corrected for non-reported landings where such may have occurred. 
+
+
+5. DATA ACKNOWLEDGMENT
+
+In all instances, data downloaded and used in reports and products that are in part, or wholly, derived  from the ICES datasets should acknowledge the source of this dataset as:
+
+”ICES Historical Landings 1903-1949, (2014). ICES, Copenhagen”
+ 
+
+6. TERMS OF USE: DATA 
+
+ICES makes data available in an open, timely and easy way to users, but ICES remains dependent on data contributions.
+- Correct and appropriate data interpretation is solely the responsibility of data users.
+- Data Users must not expressly or otherwise imply ICES’ substantiation of their work, results, conclusions and/or recommendations.
+- Data sources must be duly acknowledged.
+- Data Users must respect any and all restrictions on the use or reproduction of data such as restrictions on use for commercial purposes.
+- Data Users are obliged to inform ICES of any suspected problems in the data.
+- Data Users are encouraged to inform ICES of possible sources of other relevant data.
+
+The full ICES data policy and terms of use can be viewed at:
+http://www.ices.dk/marine-data/guidelines-and-policy/Pages/ICES-data-policy.aspx
