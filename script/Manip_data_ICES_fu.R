@@ -217,7 +217,7 @@ plot_grid(MUR_TLWbyYearFrance, MUR_TLWbyYearwithoutFR, MUR_TLWbyYearFAO8, labels
 
 
 
-####---------------ICES 1905-2019_FAO_Area_7.d/4a.b.c(Manche/MerduNord)--------------#####
+####---------------ICES 1905-2019_FAO_Area_7.d/4a.b.c(Manche/MerduNord) 3.a?--------------#####
 
 
 ICES1903_2019_MUR_FAO7and4 <- ICES1903_2019_MUR %>% 
@@ -239,13 +239,13 @@ df5<-data.frame(Year5, TLWFAO7and4) # neccesary if I want the plot with geom_lin
 df5
 
 
-MUR_TLWbyYearFAO8<- ggplot(df5 , aes(x=Year, y=TLWFAO7and4)) +
+MUR_TLWbyYearFAO7and4<- ggplot(df5 , aes(x=Year5, y=TLWFAO7and4)) +
   geom_point()+
   labs(x = "Year", y = "TLW (tons)", 
        title = "TLW for Mullus surmuletus in FAO_area7 and 4 by year from 1905 to 2019")+
   geom_line()
 
-MUR_TLWbyYearFAO8
+MUR_TLWbyYearFAO7and4
 
 
 
@@ -271,3 +271,101 @@ c <- full_join(b,df4, by=c("Year1"="Year4"))
 d<- full_join(c,df5, by=c("Year1"="Year5"))
 
 View(d)
+
+####--------------------------ICES 1905-2019 Espagne----------------------#####
+
+
+ICES1903_2019_MUR_ES <- ICES1903_2019_MUR %>% 
+  filter(Country %in% c("ES","Spain")) #Select Spain
+ICES1903_2019_MUR_ES
+
+#sum landings just for Spain 
+ICES1903_2019_MUR_ES_TLWbyYear<-ICES1903_2019_MUR_ES%>%group_by(Year)%>% #do the sum of landings each year 
+  summarise(TLW=sum(TLW,na.rm=T))%>% #sum Landings just for Spain 
+  ungroup() 
+
+ICES1903_2019_MUR_ES_TLWbyYear
+
+#convert in data.frame 
+Year7 <- c(1950:2019) #no information between 1903:1949
+TLWES <- ICES1903_2019_MUR_ES_TLWbyYear$TLW
+df7<-data.frame(Year7, TLWES) # neccesary if I want the plot with geom_line()
+df7
+
+
+MUR_TLWbyYearSpain <- ggplot(df7 , aes(x=Year7, y=TLWES)) +
+  geom_point()+
+  labs(x = "Year", y = "TLW (tons)", 
+       title = "TLW for Mullus surmuletus Spain by year from 1950 to 2019")+
+  geom_line()
+
+MUR_TLWbyYearSpain
+
+#Graphs landings FR, ES et Autres pays 
+plot_grid(MUR_TLWbyYearFrance, MUR_TLWbyYearwithoutFR, MUR_TLWbyYearFAO8, MUR_TLWbyYearFAO7and4, MUR_TLWbyYearSpain, labels=c("FR", "nFR", "FAO8", "FAO7and4", "ES"), ncol = 2, nrow = 3)
+
+
+####--------------------------ICES 1905-2019 Netherlands----------------------#####
+
+
+ICES1903_2019_MUR_NT <- ICES1903_2019_MUR %>% 
+  filter(Country %in% c("NL","NLD", "Netherlands")) #Select Netherlands 
+ICES1903_2019_MUR_NT
+
+#sum landings just for Netherlands 
+ICES1903_2019_MUR_NT_TLWbyYear<-ICES1903_2019_MUR_NT%>%group_by(Year)%>% #do the sum of landings each year 
+  summarise(TLW=sum(TLW,na.rm=T))%>% #sum Landings just for Netherlands  
+  ungroup() 
+
+ICES1903_2019_MUR_NT_TLWbyYear
+
+#convert in data.frame 
+Year8 <- c(1906:1920,1922, 1950:2019) #no information between 1903:1949
+TLWNT <- ICES1903_2019_MUR_NT_TLWbyYear$TLW
+df8<-data.frame(Year8, TLWNT) # neccesary if I want the plot with geom_line()
+df8
+
+
+MUR_TLWbyYearNetherlands  <- ggplot(df8 , aes(x=Year8, y=TLWNT)) +
+  geom_point()+
+  labs(x = "Year", y = "TLW (tons)", 
+       title = "TLW for Mullus surmuletus  Netherlands by year from 1906 to 2019")+
+  geom_line()
+
+MUR_TLWbyYearNetherlands
+
+####--------------------------ICES 1905-2019 Great Britain----------------------#####
+
+
+ICES1903_2019_MUR_GB <- ICES1903_2019_MUR %>% 
+  filter(Country %in% c("GBE","Channel Is.- Guernsey", "Channel Is.- Jersey", "Channel Islands (ns)", 
+  "Ireland", "Isle of Man", "UK - Eng+Wales+N.Irl.", "UK - Eng+Wales+N.Irl.", "UK - England & Wales", 
+  "UK - Scotland", "GG", "GB", "IE", "JE")) #Select Great Britain 
+ICES1903_2019_MUR_GB
+
+#sum landings just for Great Britain 
+ICES1903_2019_MUR_GB_TLWbyYear<-ICES1903_2019_MUR_GB%>%group_by(Year)%>% #do the sum of landings each year 
+  summarise(TLW=sum(TLW,na.rm=T))%>% #sum Landings just for Netherlands  
+  ungroup() 
+
+View(ICES1903_2019_MUR_GB_TLWbyYear)
+
+#convert in data.frame 
+Year9 <- c(1905:1924,1950:2019) 
+TLWGB <- ICES1903_2019_MUR_GB_TLWbyYear$TLW
+df9<-data.frame(Year9, TLWGB) # neccesary if I want the plot with geom_line()
+df9
+
+
+MUR_TLWbyYearGreatBritain  <- ggplot(df9 , aes(x=Year9, y=TLWGB)) +
+  geom_point()+
+  labs(x = "Year", y = "TLW (tons)", 
+       title = "TLW for Mullus surmuletus Great Britain by year from 1905 to 2019")+
+  geom_line()
+
+MUR_TLWbyYearGreatBritain
+
+
+#Graphs landings FR, ES et Autres pays 
+plot_grid(MUR_TLWbyYearFrance, MUR_TLWbyYearwithoutFR, MUR_TLWbyYearFAO8, MUR_TLWbyYearFAO7and4, MUR_TLWbyYearSpain, MUR_TLWbyYearGreatBritain, MUR_TLWbyYearNetherlands, labels=c("FR", "nFR", "FAO8", "FAO7and4", "ES", "GB", "NT"), ncol = 3, nrow = 3)
+
