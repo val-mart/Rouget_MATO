@@ -367,5 +367,9 @@ MUR_TLWbyYearGreatBritain
 
 
 #Graphs landings FR, ES et Autres pays 
-plot_grid(MUR_TLWbyYearFrance, MUR_TLWbyYearwithoutFR, MUR_TLWbyYearFAO8, MUR_TLWbyYearFAO7and4, MUR_TLWbyYearSpain, MUR_TLWbyYearGreatBritain, MUR_TLWbyYearNetherlands, labels=c("FR", "nFR", "FAO8", "FAO7and4", "ES", "GB", "NT"), ncol = 3, nrow = 3)
+plot_grid(MUR_TLWbyYearFrance, MUR_TLWbyYearwithoutFR, MUR_TLWbyYearFAO8, MUR_TLWbyYearFAO7and4, 
+          MUR_TLWbyYearSpain, MUR_TLWbyYearGreatBritain, MUR_TLWbyYearNetherlands, 
+          labels=c("FR", "nFR", "FAO8", "FAO7and4", "ES", "GB", "NT"), ncol = 3, nrow = 3)
+
+
 
