@@ -46,13 +46,13 @@ table(DataMatu_MU$year,DataMatu_MU$area)
 hist(DataMatu_MU$lenCls)
 sd(DataMatu_MU$lenCls)
 mean(DataMatu_MU$lenCls)
-quantile(DataMatu_MU$lenCls,0.999) #=> 378
+quantile(DataMatu_MU$lenCls,0.99) #=> 378
 Probleme <- DataMatu_MU %>%
   filter(lenCls > 500) 
 #Il vaut mieux filtrer au dela de 500 mm
 
 DataMatu_MUR <- DataMatu_MU %>% 
- # filter(str_detect(area, "^27.")) %>%  
+  filter(str_detect(area, "^27.")) %>%  
   filter(lenCls <= 500)%>%
   filter(lenCls !="-1")%>%
   filter(lenCls !="")%>%
@@ -64,11 +64,12 @@ DataMatu_MUR <- DataMatu_MU %>%
   filter(sex != "-1")%>%
   filter(sex != "NON SEXE")%>%
   mutate(newarea = fct_collapse (area, "8a-b" =  c("27.8.a", "27.8.b","27.8.a,27.8.b"), 
-                                 "7d-e" =  c("27.7.d", "27.7.d,27.7.e", "27.7.e"), 
-                                 "7f-h et j " = c("27.7.g,27.7.h,27.7.j", "27.7.h", "27.7.f", 
-                                                      "27.7.g", "27.7.j"), 
-                                 "8c-d" =  c("27.8.c", "27.8.d"), 
-                                 "4b-c" =  c("27.4.b", "27.4.c")))
+                                 "7d" =  c("27.7.d"),
+                                 "4c" =  c("27.4.c"), 
+                                 "7e-h et j" = c("27.7.d,27.7.e", "27.7.e","27.7.g,27.7.h,27.7.j", 
+                                                 "27.7.h", "27.7.f", "27.7.g", "27.7.j"),
+                                 "4b" =  c("27.4.b"), 
+                                 "8c-d" = c("27.8.c", "27.8.d")))
 
 ggplot(DataMatu_MUR, mapping = aes(x = newarea)) + geom_bar()
 #Pas mal d'info pour 7.d-e, 8.a-b et 4.c-b #on va se concentrer dessus 
@@ -81,51 +82,51 @@ table(DataMatu_MUR$matScale,DataMatu_MUR$year)
 table(DataMatu_MUR$year,DataMatu_MUR$newarea)
 table(DataMatu_MUR$year,DataMatu_MUR$lenCls)
 View(table(DataMatu_MUR$newarea))
-
+View(table(DataMatu_MUR$year,DataMatu_MUR$neware))
 
 #---EVOLUTION DES STADES DE MATURITE DANS LE TEMPS ET EN FONCTION DES ZONES-----
 
 #-------------------------------Femelle-----------------------------------------
-#8.a et 8.b
+#8a-b
 ggplot(DataMatu_MUR %>% 
          filter(sex== "F") %>%
          filter(newarea =="8a-b"), mapping = aes(x = matStage)) +
   geom_bar()+
   facet_wrap(~year)
 
-#7.d et e
+#7d
 ggplot(DataMatu_MUR %>% 
          filter(sex== "F") %>%
-         filter(newarea =="7d-e"), mapping = aes(x = matStage)) +
+         filter(newarea =="7d"), mapping = aes(x = matStage)) +
   geom_bar()+
   facet_wrap(~year)
 
-#4.b et c
+#4c
 ggplot(DataMatu_MUR %>% 
          filter(sex== "F") %>%
-         filter(newarea =="4b-c"), mapping = aes(x = matStage)) +
+         filter(newarea =="4c"), mapping = aes(x = matStage)) +
   geom_bar()+
   facet_wrap(~year)
 
 #------------------------------------Male---------------------------------------
-#8.a et 8.b
+#8a-b
 ggplot(DataMatu_MUR %>% 
          filter(sex== "M") %>%
          filter(newarea =="8a-b"), mapping = aes(x = matStage)) +
   geom_bar()+
   facet_wrap(~year)
 
-#7.d et e
+#7d
 ggplot(DataMatu_MUR %>% 
          filter(sex== "M") %>%
-         filter(newarea =="7d-e"), mapping = aes(x = matStage)) +
+         filter(newarea =="7d"), mapping = aes(x = matStage)) +
   geom_bar()+
   facet_wrap(~year)
 
-#4.c et b
+#4c
 ggplot(DataMatu_MUR %>% 
          filter(sex== "M") %>%
-         filter(area =="4b-c"), mapping = aes(x = matStage)) +
+         filter(area =="4c"), mapping = aes(x = matStage)) +
   geom_bar()+
   facet_wrap(~year)
 
@@ -146,47 +147,47 @@ pb3 <-select(DataMatu_MUR2, sex, mat, lenCls, matStage)
 pb4 <- pb3 %>%
   filter(sex=="I")
 #-------------------------------Femelle-----------------------------------------
-#8.a et 8.b
+#8a-b
 ggplot(DataMatu_MUR2 %>% 
          filter(sex == "F") %>%
          filter(newarea == "8a-b"), mapping = aes(x = mat)) +
   geom_bar()+
   facet_wrap(~year)
 
-#7.d et e
+#7d
 ggplot(DataMatu_MUR2 %>% 
          filter(sex== "F") %>%
-         filter(newarea == "7d-e"), mapping = aes(x = mat)) +
+         filter(newarea == "7d"), mapping = aes(x = mat)) +
   geom_bar()+
   facet_wrap(~year)
 
-#4.b et c
+#4c
 ggplot(DataMatu_MUR2 %>% 
          filter(sex== "F") %>%
-         filter(newarea =="4b-c"), mapping = aes(x = mat)) +
+         filter(newarea =="4c"), mapping = aes(x = mat)) +
   geom_bar()+
   facet_wrap(~year)
 
 #---------------------------------Male------------------------------------------
 
-#8.a et 8.b
+#8a-b
 ggplot(DataMatu_MUR2 %>% 
          filter(sex == "M") %>%
          filter(newarea == "8a-b"), mapping = aes(x = mat)) +
   geom_bar()+
   facet_wrap(~year)
 
-#7.d et e
+#7d
 ggplot(DataMatu_MUR2 %>% 
          filter(sex== "M") %>%
-         filter(newarea == "7d-e"), mapping = aes(x = mat)) +
+         filter(newarea == "7d"), mapping = aes(x = mat)) +
   geom_bar()+
   facet_wrap(~year)
 
-#4.b et c
+#4c
 ggplot(DataMatu_MUR2 %>% 
          filter(sex== "M") %>%
-         filter(newarea =="4b-c"), mapping = aes(x = mat)) +
+         filter(newarea =="4c"), mapping = aes(x = mat)) +
   geom_bar()+
   facet_wrap(~year)
 
@@ -202,19 +203,19 @@ ggplot(DataMatu_MUR2 %>%
 #Toutes zones geographiques separees
 ggplot(DataMatu_MUR2%>%
          filter(sex== "F") %>%
-         filter(newarea %in% c("8a-b" , "7d-e" , "4b-c"))
+         filter(newarea %in% c("8a-b" , "7d" , "4c"))
        ,aes(x=lenCls,y=newarea,color=mat))+ #Couleur selon les stades de maturite
   geom_point()+
   facet_wrap(~year)
 
 ggplot(DataMatu_MUR2%>%
          filter(sex== "F") %>%
-         filter(newarea %in% c("8a-b" , "7d-e" , "4b-c"))
+         filter(newarea %in% c("8a-b" , "7d" , "4c"))
        ,aes(x=lenCls,y=mat,color=newarea))+     #Couleur selon les zones 
   geom_point()+
   facet_wrap(~year)
 
-#8.a et 8.b
+#8a-b
 ggplot(DataMatu_MUR2%>%
          filter(sex== "F") %>%
          filter(newarea =="8a-b")
@@ -223,18 +224,18 @@ ggplot(DataMatu_MUR2%>%
   facet_wrap(~year)
 
 
-#7.d et e
+#7d
 ggplot(DataMatu_MUR2 %>% 
          filter(sex== "F") %>%
-         filter(newarea == "7d-e")
+         filter(newarea == "7d")
        ,aes(x=lenCls,y=mat,color=mat))+
   geom_point()+
   facet_wrap(~year)
 
-#4.b et c 
+#4c 
 ggplot(DataMatu_MUR2%>%
          filter(sex== "F") %>%
-         filter(newarea =="4b-c")
+         filter(newarea =="4c")
        ,aes(x=lenCls,y=mat,color=mat))+
   geom_point()+
   facet_wrap(~year)
@@ -250,19 +251,19 @@ ggplot(DataMatu_MUR2 %>%
 #Toutes zones geographiques séparees
 ggplot(DataMatu_MUR2%>%
          filter(sex== "M") %>%
-         filter(newarea %in% c("8a-b" , "7d-e" , "4b-c"))
+         filter(newarea %in% c("8a-b" , "7d" , "4c"))
        ,aes(x=lenCls,y=newarea,color=mat))+ #Couleur selon les stades de maturite
   geom_point()+
   facet_wrap(~year)
 
 ggplot(DataMatu_MUR2%>%
          filter(sex== "M") %>%
-         filter(newarea %in% c("8a-b" , "7d-e" , "4b-c"))
+         filter(newarea %in% c("8a-b" , "7d" , "4c"))
        ,aes(x=lenCls,y=mat,color=newarea))+ #Couleur selon les zones
   geom_point()+
   facet_wrap(~year)
 
-#8.a et 8.b
+#8a-b
 ggplot(DataMatu_MUR2%>%
          filter(sex== "M") %>%
          filter(newarea =="8a-b")
@@ -270,18 +271,18 @@ ggplot(DataMatu_MUR2%>%
   geom_point()+
   facet_wrap(~year)
 
-#7.d et e
+#7d
 ggplot(DataMatu_MUR2 %>% 
          filter(sex== "M") %>%
-         filter(newarea == "7d-e")
+         filter(newarea == "7d")
        ,aes(x=lenCls,y=mat,color=mat))+
   geom_point()+
   facet_wrap(~year)
 
-#4.b et c
+#4c
 ggplot(DataMatu_MUR2%>%
          filter(sex== "M") %>%
-         filter(newarea =="4b-c")
+         filter(newarea =="4c")
        ,aes(x=lenCls,y=mat,color=mat))+
   geom_point()+
   facet_wrap(~year)
@@ -368,7 +369,7 @@ ggplot(data = DataMatu_MUR_F_ST_2,
        y = "Longueur totale de l'individu (mm)",
        color = "Maturite de l'individu")
 
-#8.a et 8.b
+#8a-b
 ggplot(data = DataMatu_MUR_F_ST_2 %>%
          filter(newarea == "8a-b"), 
        mapping = aes(x = year, y = meanLen, color=mat)) + 
@@ -376,7 +377,7 @@ ggplot(data = DataMatu_MUR_F_ST_2 %>%
   geom_line() +  
   geom_smooth()
 
-#8.a et 8.b (+ erreur standard)
+#8a-b (+ erreur standard)
 ggplot(data = DataMatu_MUR_F_ST_2 %>%
          filter(newarea == "8a-b"), 
        mapping = aes(x = year, y = meanLen, color=mat)) + 
@@ -385,53 +386,53 @@ ggplot(data = DataMatu_MUR_F_ST_2 %>%
   geom_smooth()+
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
-       subtitle = "Zones geographiques de peche : 8.a et 8.b",
+       subtitle = "Zones geographiques de peche : 8a-b",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
        color = "Maturite de l'individu")
 
-#7.d et e
+#7d
 ggplot(data = DataMatu_MUR_F_ST_2 %>%
-         filter(newarea == "7d-e"), 
+         filter(newarea == "7d"), 
        mapping = aes(x = year, y = meanLen, color=mat)) + 
   geom_point() +
   geom_line() +  
   geom_smooth()
 
-#7.d et e (+ erreur standard)
+#7d (+ erreur standard)
 ggplot(data = DataMatu_MUR_F_ST_2 %>%
-         filter(newarea == "7d-e"), 
+         filter(newarea == "7d"), 
        mapping = aes(x = year, y = meanLen, color=mat)) + 
   geom_point() +
   geom_line() +  
   geom_smooth()+
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5)+
   labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
-       subtitle = "Zones geographiques de peche : 7.d et e",
+       subtitle = "Zones geographiques de peche : 7d",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
        color = "Maturite de l'individu") 
 
-#4.b et c
+#4c
 ggplot(data = DataMatu_MUR_F_ST_2 %>%
-         filter(newarea =="4b-c"), 
+         filter(newarea =="4c"), 
        mapping = aes(x = year, y = meanLen, color=mat)) + 
   geom_point() +
   geom_line() +  
   geom_smooth()
 
-#4.b et c (+ erreur standard)
+#4c (+ erreur standard)
 ggplot(data = DataMatu_MUR_F_ST_2 %>%
-         filter(newarea =="4b-c"), 
+         filter(newarea =="4c"), 
        mapping = aes(x = year, y = meanLen, color=mat)) + 
   geom_point() +
   geom_line() +  
   geom_smooth() +
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
-       subtitle = "Zone geographique de peche : 4.c et b",
+       subtitle = "Zone geographique de peche : 4c",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
@@ -446,7 +447,7 @@ ggplot(data = DataMatu_MUR_F_ST_2,
   geom_line()
 
 
-#8.a et 8.b
+#8a-b
 ggplot(data = DataMatu_MUR_F_ST_2 %>%
          filter(newarea == "8a-b"), 
        mapping = aes(x = year, y = medianLen, color=mat)) + 
@@ -454,17 +455,17 @@ ggplot(data = DataMatu_MUR_F_ST_2 %>%
   geom_line() +  
   geom_smooth()
 
-#7.d et e
+#7d
 ggplot(data = DataMatu_MUR_F_ST_2 %>%
-         filter(newarea == "7d-e"), 
+         filter(newarea == "7d"), 
        mapping = aes(x = year, y = medianLen, color=mat)) + 
   geom_point() +
   geom_line() +  
   geom_smooth()
 
-#4.b et c
+#4c
 ggplot(data = DataMatu_MUR_F_ST_2 %>%
-         filter(newarea =="4b-c"), 
+         filter(newarea =="4c"), 
        mapping = aes(x = year, y = medianLen, color=mat)) + 
   geom_point() +
   geom_line() +  
@@ -542,7 +543,7 @@ ggplot(data = DataMatu_MUR_M_ST,
        y = "Longueur totale de l'individu (mm)",
        color = "Maturite de l'individu")
 
-#8.a et 8.b
+#8a-b
 ggplot(data = DataMatu_MUR_M_ST %>%
          filter(newarea == "8a-b"), 
        mapping = aes(x = year, y = meanLen, color=mat)) + 
@@ -550,7 +551,7 @@ ggplot(data = DataMatu_MUR_M_ST %>%
   geom_line() +  
   geom_smooth()
 
-#8.a et 8.b (+erreur standard)
+#8a-b (+erreur standard)
 ggplot(data = DataMatu_MUR_M_ST %>%
          filter(newarea == "8a-b"), 
        mapping = aes(x = year, y = meanLen, color=mat)) + 
@@ -559,54 +560,54 @@ ggplot(data = DataMatu_MUR_M_ST %>%
   geom_smooth()+
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2020",
-       subtitle = "Zones geographiques de peche : 8.a et 8.b",
+       subtitle = "Zones geographiques de peche : 8a-b",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
        color = "Maturite de l'individu")
 
-#7.d et e
+#7d
 ggplot(data = DataMatu_MUR_M_ST %>%
-         filter(newarea == "7d-e"), 
+         filter(newarea == "7d"), 
        mapping = aes(x = year, y = meanLen, color=mat)) + 
   geom_point() +
   geom_line() +  
   geom_smooth()
 
-#7.d et e (+erreur standard)
+#7d (+erreur standard)
 ggplot(data = DataMatu_MUR_M_ST %>%
-         filter(newarea == "7d-e"), 
+         filter(newarea == "7d"), 
        mapping = aes(x = year, y = meanLen, color=mat)) + 
   geom_point() +
   geom_line() +  
   geom_smooth()+
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5)+
   labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2020",
-       subtitle = "Zones geographiques de peche : 7.d et e",
+       subtitle = "Zones geographiques de peche : 7d",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
        color = "Maturite de l'individu") 
 
-#4.b et c
+#4c
 ggplot(data = DataMatu_MUR_M_ST %>%
-         filter(newarea =="4b-c"), 
+         filter(newarea =="4c"), 
        mapping = aes(x = year, y = meanLen, color=mat)) + 
   geom_point() +
   geom_line() +  
   geom_smooth()
 
 
-#4.c et b (+erreur standard)
+#4c (+erreur standard)
 ggplot(data = DataMatu_MUR_M_ST %>%
-         filter(newarea =="4b-c"), 
+         filter(newarea =="4c"), 
        mapping = aes(x = year, y = meanLen, color=mat)) + 
   geom_point() +
   geom_line() +  
   geom_smooth() +
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2020",
-       subtitle = "Zone geographique de peche : 4.c et b",
+       subtitle = "Zone geographique de peche : 4c",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
@@ -621,7 +622,7 @@ ggplot(data = DataMatu_MUR_M_ST,
   facet_wrap(~newarea)+
   geom_line()
 
-#8.a et 8.b
+#8a-b
 ggplot(data = DataMatu_MUR_M_ST %>%
          filter(newarea == "8a-b"), 
        mapping = aes(x = year, y = medianLen, color=mat)) + 
@@ -629,22 +630,21 @@ ggplot(data = DataMatu_MUR_M_ST %>%
   geom_line() +  
   geom_smooth()
 
-#7.d et e 
+#7d 
 ggplot(data = DataMatu_MUR_M_ST %>%
-         filter(newarea == "7d-e"), 
+         filter(newarea == "7d"), 
        mapping = aes(x = year, y = medianLen, color=mat)) + 
   geom_point() +
   geom_line() +  
   geom_smooth()
 
-#4.c et b
+#4c
 ggplot(data = DataMatu_MUR_M_ST %>%
-         filter(newarea =="4b-c"), 
+         filter(newarea =="4c"), 
        mapping = aes(x = year, y = medianLen, color=mat)) + 
   geom_point() +
   geom_line() +  
   geom_smooth()
-
 
 
 #---------------------------CALCUL DES L50--------------------------------------
@@ -685,18 +685,18 @@ L50_F_8ab <- Data_MUR_L50%>%
 rL50_F_8ab<-fl50(L50_F_8ab,niter=100,graph=T)
 b <- median(rL50_F_8ab$L50)
 
-#zone 7d-e 
+#zone 7d 
 L50_F_7de <- Data_MUR_L50%>%
   filter(sex=="F" | sex =="I")%>%
-  filter(newarea=="7d-e")%>%
+  filter(newarea=="7d")%>%
   mutate(mature=as.factor(mature)) 
 rL50_F_7de<-fl50(L50_F_7de,niter=100,graph=T)
 c <- median(rL50_F_7de$L50)
 
-#zone 4b-c 
+#zone 4c 
 L50_F_4bc <- Data_MUR_L50%>%
   filter(sex=="F" | sex =="I")%>%
-  filter(newarea=="4b-c")%>%
+  filter(newarea=="4c")%>%
   mutate(mature=as.factor(mature)) 
 rL50_F_4bc<-fl50(L50_F_4bc,niter=100,graph=T)
 d <- median(rL50_F_4bc$L50)
@@ -844,7 +844,7 @@ rL50_F_2020$L50
 s <- median(rL50_F_2020$L50)
 
 #------------Tableau et graphiques de la L50 en fonction des zones--------------- 
-area <- c("Toutes zones confondues", "zone 8a-b", "zone 7d-e", "zone 4b-c")
+area <- c("Toutes zones confondues", "zone 8a-b", "zone 7d", "zone 4c")
 L50area_F <- c(a, b, c, d)
 tabL50area_F <- data.frame(area, L50area_F)
 tabL50area_F 
@@ -883,18 +883,18 @@ L50_M_8ab <- Data_MUR_L50%>%
 rL50_M_8ab<-fl50(L50_M_8ab,niter=100,graph=T)
 b1 <- median(rL50_M_8ab$L50)
 
-#zone 7d-e 
+#zone 7d 
 L50_M_7de <- Data_MUR_L50%>%
   filter(sex=="M" | sex =="I")%>%
-  filter(newarea=="7d-e")%>%
+  filter(newarea=="7d")%>%
   mutate(mature=as.factor(mature)) 
 rL50_M_7de<-fl50(L50_M_7de,niter=100,graph=T)
 c1 <- median(rL50_M_7de$L50)
 
-#zone 4b-c 
+#zone 4c 
 L50_M_4bc <- Data_MUR_L50%>%
   filter(sex=="M" | sex =="I")%>%
-  filter(newarea=="4b-c")%>%
+  filter(newarea=="4c")%>%
   mutate(mature=as.factor(mature)) 
 rL50_M_4bc<-fl50(L50_M_4bc,niter=100,graph=T)
 d1 <- median(rL50_M_4bc$L50)
@@ -1038,7 +1038,7 @@ rL50_M_2020$L50
 s1 <- median(rL50_M_2020$L50)
 
 #------------Tableau et graphiques de la L50 en fonction des zones--------------- 
-area <- c("Toutes zones confondues", "zone 8a-b", "zone 7d-e", "zone 4b-c")
+area <- c("Toutes zones confondues", "zone 8a-b", "zone 7d", "zone 4c")
 L50area_M <- c(a1, b1, c1, d1)
 tabL50area_M <- data.frame(area, L50area_M)
 tabL50area_M 
@@ -1103,18 +1103,18 @@ a50_F_8ab <- Data_MUR_a50%>%
 ra50_F_8ab<-fa50(a50_F_8ab,niter=100,graph=T)
 b2 <- median(ra50_F_8ab$a50)
 
-#zone 7d-e 
+#zone 7d 
 a50_F_7de <- Data_MUR_a50%>%
   filter(sex=="F" | sex =="I")%>%
-  filter(newarea=="7d-e")%>%
+  filter(newarea=="7d")%>%
   mutate(mature=as.factor(mature)) 
 ra50_F_7de<-fa50(a50_F_7de,niter=100,graph=T)
 c2 <- median(ra50_F_7de$a50)
 
-#zone 4b-c 
+#zone 4c 
 a50_F_4bc <- Data_MUR_a50%>%
   filter(sex=="F" | sex =="I")%>%
-  filter(newarea=="4b-c")%>%
+  filter(newarea=="4c")%>%
   mutate(mature=as.factor(mature)) 
 ra50_F_4bc<-fa50(a50_F_4bc,niter=100,graph=T)
 d2 <- median(ra50_F_4bc$a50)
@@ -1262,7 +1262,7 @@ ra50_F_2020$a50
 s2 <- median(ra50_F_2020$a50)
 
 #------------Tableau et graphiques de la a50 en fonction des zones--------------- 
-area <- c("Toutes zones confondues", "zone 8a-b", "zone 7d-e", "zone 4b-c")
+area <- c("Toutes zones confondues", "zone 8a-b", "zone 7d", "zone 4c")
 a50area_F <- c(a2, b2, c2, d2)
 taba50area_F <- data.frame(area, a50area_F)
 taba50area_F 
@@ -1302,18 +1302,18 @@ a50_M_8ab <- Data_MUR_a50%>%
 ra50_M_8ab<-fa50(a50_M_8ab,niter=100,graph=T)
 b3 <- median(ra50_M_8ab$a50)
 
-#zone 7d-e 
+#zone 7d 
 a50_M_7de <- Data_MUR_a50%>%
   filter(sex=="M" | sex =="I")%>%
-  filter(newarea=="7d-e")%>%
+  filter(newarea=="7d")%>%
   mutate(mature=as.factor(mature)) 
 ra50_M_7de<-fa50(a50_M_7de,niter=100,graph=T)
 c3 <- median(ra50_M_7de$a50)
 
-#zone 4b-c 
+#zone 4c 
 a50_M_4bc <- Data_MUR_a50%>%
   filter(sex=="M" | sex =="I")%>%
-  filter(newarea=="4b-c")%>%
+  filter(newarea=="4c")%>%
   mutate(mature=as.factor(mature)) 
 ra50_M_4bc<-fa50(a50_M_4bc,niter=100,graph=T)
 d3 <- median(ra50_M_4bc$a50)
@@ -1461,7 +1461,7 @@ ra50_M_2020$a50
 s3 <- median(ra50_M_2020$a50)
 
 #------------Tableau et graphiques de l'a50 en fonction des zones--------------- 
-area <- c("Toutes zones confondues", "zone 8a-b", "zone 7d-e", "zone 4b-c")
+area <- c("Toutes zones confondues", "zone 8a-b", "zone 7d", "zone 4c")
 a50area_M <- c(a3, b3, c3, d3)
 taba50area_M <- data.frame(area, a50area_M)
 taba50area_M 
@@ -1475,14 +1475,18 @@ a50year_M <- c("", f3, "", h3, i3, "", k3, l3, m3, n3, o3, p3, q3, r3, "")
 taba50year_M <- data.frame(year, a50year_M )
 taba50year_M
 
+taba50year_M$a50year_M <- as.numeric(taba50year_M$a50year_M)
+
 plot(taba50year_M)
 
 ggplot(taba50year_M,aes(x=annee,y=a50year_M))+
-  geom_point()
+  geom_point()+
+  geom_path()+ 
+  geom_smooth(method = "loess")
 
+str(taba50year_M)
 
-
-
+??geom_smooth()
 
 
 
@@ -1616,16 +1620,16 @@ ggplot(data = DataMatu_MUR_F_NdeR %>%
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
        femelles matures et immatures entre 2006 et 2020",
-       subtitle = "Zones geographiques de peche : 8.a et 8.b",
+       subtitle = "Zones geographiques de peche : 8a-b",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
        y = "Longueur totale de l'individu (mm)",
        color = "Maturite de l'individu")
 
 
-#----------------------Zone geographique 4b-c-----------------------------------
+#----------------------Zone geographique 4c-----------------------------------
 ggplot(data = DataMatu_MUR_F_NdeR %>%
-         filter(newarea == "4b-c"), 
+         filter(newarea == "4c"), 
        mapping = aes(x = meanAge, y = meanLen, color=mat)) + 
   geom_point() +
   geom_line() +  
@@ -1633,15 +1637,15 @@ ggplot(data = DataMatu_MUR_F_NdeR %>%
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
        femelles matures et immatures entre 2006 et 2020",
-       subtitle = "Zones geographiques de peche : 4.b et 4.c",
+       subtitle = "Zones geographiques de peche : 4c",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
        y = "Longueur totale de l'individu (mm)",
        color = "Maturite de l'individu")
 
-#----------------------Zone geographique 7d-e-----------------------------------
+#----------------------Zone geographique 7d-----------------------------------
 ggplot(data = DataMatu_MUR_F_NdeR %>%
-         filter(newarea == "7d-e"), 
+         filter(newarea == "7d"), 
        mapping = aes(x = meanAge, y = meanLen, color=mat)) + 
   geom_point() +
   geom_line() +  
@@ -1649,7 +1653,7 @@ ggplot(data = DataMatu_MUR_F_NdeR %>%
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
        femelles matures et immatures entre 2006 et 2020",
-       subtitle = "Zones geographiques de peche : 7.d et 7.e",
+       subtitle = "Zones geographiques de peche : 7d",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
        y = "Longueur totale de l'individu (mm)",
@@ -1726,17 +1730,17 @@ ggplot(data = DataMatu_MUR_M_NdeR %>%
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
        males matures et immatures entre 2006 et 2020",
-       subtitle = "Zones geographiques de peche : 8.a et 8.b",
+       subtitle = "Zones geographiques de peche : 8a-b",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
        y = "Longueur totale de l'individu (mm)",
        color = "Maturite de l'individu")
 
-#----------------------Zone geographique 4b-c-----------------------------------
+#----------------------Zone geographique 4c-----------------------------------
 
 
 ggplot(data = DataMatu_MUR_M_NdeR %>%
-         filter(newarea == "4b-c"), 
+         filter(newarea == "4c"), 
        mapping = aes(x = meanAge, y = meanLen, color=mat)) + 
   geom_point() +
   geom_line() +  
@@ -1744,17 +1748,17 @@ ggplot(data = DataMatu_MUR_M_NdeR %>%
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
        males matures et immatures entre 2006 et 2020",
-       subtitle = "Zones geographiques de peche : 4.b et 4.c",
+       subtitle = "Zones geographiques de peche : 4c",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
        y = "Longueur totale de l'individu (mm)",
        color = "Maturite de l'individu")
 
-#----------------------Zone geographique 7d-e-----------------------------------
+#----------------------Zone geographique 7d-----------------------------------
 
 
 ggplot(data = DataMatu_MUR_M_NdeR %>%
-         filter(newarea == "7d-e"), 
+         filter(newarea == "7d"), 
        mapping = aes(x = meanAge, y = meanLen, color=mat)) + 
   geom_point() +
   geom_line() +  
@@ -1762,7 +1766,7 @@ ggplot(data = DataMatu_MUR_M_NdeR %>%
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
        males matures et immatures entre 2006 et 2020",
-       subtitle = "Zones geographiques de peche : 7.d et 7.e",
+       subtitle = "Zones geographiques de peche : 7d",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
        y = "Longueur totale de l'individu (mm)",
