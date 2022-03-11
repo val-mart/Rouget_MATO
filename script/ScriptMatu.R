@@ -74,6 +74,7 @@ DataMatu_MUR <- DataMatu_MU %>%
 ggplot(DataMatu_MUR, mapping = aes(x = newarea)) + geom_bar()
 #Pas mal d'info pour 7.d-e, 8.a-b et 4.c-b #on va se concentrer dessus 
 
+
 #Quelques tableaux 
 table(DataMatu_MUR$matStage,DataMatu_MUR$year)
 table(DataMatu_MUR$matScale,DataMatu_MUR$year)
@@ -81,8 +82,7 @@ table(DataMatu_MUR$matScale,DataMatu_MUR$year)
 
 table(DataMatu_MUR$year,DataMatu_MUR$newarea)
 table(DataMatu_MUR$year,DataMatu_MUR$lenCls)
-View(table(DataMatu_MUR$newarea))
-View(table(DataMatu_MUR$year,DataMatu_MUR$neware))
+#View(table(DataMatu_MUR$year,DataMatu_MUR$neware))
 
 #---EVOLUTION DES STADES DE MATURITE DANS LE TEMPS ET EN FONCTION DES ZONES-----
 
@@ -126,10 +126,12 @@ ggplot(DataMatu_MUR %>%
 #4c
 ggplot(DataMatu_MUR %>% 
          filter(sex== "M") %>%
-         filter(area =="4c"), mapping = aes(x = matStage)) +
+         filter(newarea =="4c"), mapping = aes(x = matStage)) +
   geom_bar()+
   facet_wrap(~year)
 
+
+#pas de mâle en 4.c
 
 #-----------------En simplifiant les stades de maturite-------------------------
 
@@ -140,12 +142,12 @@ DataMatu_MUR2 <- DataMatu_MUR %>%
                                     ifelse (matStage == "2a", "Immature", "Mature")))))
 #Tableaux stade de maturite
 table(DataMatu_MUR2$mat)
-table(DataMatu_MUR2$mat,DataMatu_MUR2$year)
+table(DataMatu_MUR2$mat,DataMatu_MUR2$newarea)
 
 
-pb3 <-select(DataMatu_MUR2, sex, mat, lenCls, matStage)
-pb4 <- pb3 %>%
-  filter(sex=="I")
+#pb3 <-select(DataMatu_MUR2, sex, mat, lenCls, matStage)
+#pb4 <- pb3 %>%
+#  filter(sex=="I")
 #-------------------------------Femelle-----------------------------------------
 #8a-b
 ggplot(DataMatu_MUR2 %>% 
@@ -510,7 +512,8 @@ DataMatu_MUR_M_ST <- DataMatu_MUR2 %>%
   filter(sex == "M") %>%
   group_by(newarea, mat, year, .add = TRUE) %>% 
   mutate(meanLen = mean (lenCls))%>% 
-  mutate(medianLen = median (lenCls))
+  mutate(medianLen = median (lenCls))%>% 
+  mutate(stdErrorLen = std.error(lenCls))
 
 table(DataMatu_MUR_M_ST$meanLen)
 table(DataMatu_MUR_M_ST$meanLen, DataMatu_MUR_M_ST$year)
@@ -650,12 +653,14 @@ ggplot(data = DataMatu_MUR_M_ST %>%
 #---------------------------CALCUL DES L50--------------------------------------
 
 #install.packages("sizeMat")
-library(sizeMat)
+#library(sizeMat)
 #install.packages("questionr")
-library("questionr")
+#library("questionr")
 
 
 #------------Tri des donnees pour rendre le jeu de donnees plus digerable------- 
+#Desactiver le package raster pour cette ligne sinon conflict pour la commande 
+#select entre les deux packages
 Data_MUR_L50 <- DataMatu_MUR2 %>%
   mutate(mat=ifelse(mat == "Immature", "0","1"))%>%  
   select(lenCls, mat, sex, year, newarea)%>% 
@@ -677,7 +682,7 @@ L50_F<- Data_MUR_L50%>%
 rL50_F<-fl50(L50_F,niter=100,graph=T)
 a <- median(rL50_F$L50)
 
-#zone 8a-b 
+#zone 8a-b - toutes années
 L50_F_8ab <- Data_MUR_L50%>%
   filter(sex=="F" | sex =="I")%>%
   filter(newarea=="8a-b")%>%
@@ -685,7 +690,7 @@ L50_F_8ab <- Data_MUR_L50%>%
 rL50_F_8ab<-fl50(L50_F_8ab,niter=100,graph=T)
 b <- median(rL50_F_8ab$L50)
 
-#zone 7d 
+#zone 7d - toutes années
 L50_F_7de <- Data_MUR_L50%>%
   filter(sex=="F" | sex =="I")%>%
   filter(newarea=="7d")%>%
@@ -693,7 +698,7 @@ L50_F_7de <- Data_MUR_L50%>%
 rL50_F_7de<-fl50(L50_F_7de,niter=100,graph=T)
 c <- median(rL50_F_7de$L50)
 
-#zone 4c 
+#zone 4c - toutes années
 L50_F_4bc <- Data_MUR_L50%>%
   filter(sex=="F" | sex =="I")%>%
   filter(newarea=="4c")%>%
