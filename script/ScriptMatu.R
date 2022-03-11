@@ -653,9 +653,62 @@ ggplot(data = DataMatu_MUR_M_ST %>%
 #---------------------------CALCUL DES L50--------------------------------------
 
 #install.packages("sizeMat")
-#library(sizeMat)
+library(sizeMat)
 #install.packages("questionr")
-#library("questionr")
+library("questionr")
+library(fmsb)
+library(tidyr)
+
+#function to compute L50{{{
+fl50<-function(data,niter=1000,graph=T){
+  #print(unique(data$year))
+  model_glm <- glm(mature ~ length, data = data, family = binomial(link = "logit"))
+  smry_model <- summary(model_glm)
+  n_coef   <- list()
+  for(i in seq_len(niter)){
+    new_data   <- data[sample(nrow(data), replace = TRUE), ]
+    model_boot <- glm(mature ~ length, data = new_data, family = binomial(link = "logit"))
+    glm_coef   <- coef(model_boot)
+    n_coef     <- rbind(n_coef, glm_coef)
+  }
+  A    <- as.numeric(n_coef[,1])
+  B    <- as.numeric(n_coef[,2])
+  L50  <- -A/B
+  create_length <- cbind(1, data$length)
+  x_fq     <- as.matrix(create_length) %*% t(as.matrix(cbind(A,B)))
+  pred_fq  <- 1 / (1 + exp(-x_fq))
+  qtl      <- round(matrixStats::rowQuantiles(pred_fq, probs = c(0.025, 0.5, 0.975)), 3)
+  fitted   <- qtl[, 2]
+  lower    <- qtl[, 1]
+  upper    <- qtl[, 3]
+  #output
+  x_input <- data$length
+  y_input <- as.numeric(as.character(data$mature))
+  m_p     <- tapply(y_input, x_input, mean)
+  wide    <- quantile(L50, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  # R-square Nagelkerke method
+  model1 <- glm(y_input ~ x_input, family = binomial(link = "logit"))
+  # R-square Nagelkerke method
+  R2     <- nagelkerkeR2(model1)
+  dat1<-data.frame(x=sort(unique(x_input)), y=m_p)#,year=rep(unique(data$year),each=length(m_p)))
+  dat2<-data.frame(x=sort(x_input))#,year=rep(unique(data$year),each=length(fitted)),fitted=sort(fitted),lower=sort(lower),upper=sort(upper))
+  #tidyr::pivot_longer(3:5)
+  estimate <- list(model = smry_model, parameters_A = A, parameters_B = B, L50 = L50, 
+                   lower = lower, fitted = fitted,  upper = upper,dat1=dat1,dat2=dat2,L50=L50,R2=R2)
+  if(graph){
+    plot(sort(unique(x_input)), m_p, xlab = "", ylab = "", pch = 19, col = "darkgrey")
+    lines(sort(x_input), sort(fitted), col = "blue", lwd = 1)
+    lines(sort(x_input), sort(lower), col = "blue", lwd = 1, lty = 2)
+    lines(sort(x_input), sort(upper), col = "blue", lwd = 1, lty = 2)
+    lines(c(wide[2], wide[2]), c(0, 0.5), col = "red", lwd = 1, lty = 2)
+    lines(c(0, wide[2]), c(0.5, 0.5), col = "red", lwd = 1, lty = 2)
+    points(wide[2], 0.5, pch = 19, col = "red", cex = 1.25)
+    legend("topleft", c(as.expression(bquote(bold(L[50] == .(round(wide[2], 1))))), 
+                        as.expression(bquote(bold(R^2 == .(round(R2, 2)))))), bty = "n")
+  }
+  return(estimate)
+}
+
 
 
 #------------Tri des donnees pour rendre le jeu de donnees plus digerable------- 
@@ -663,7 +716,7 @@ ggplot(data = DataMatu_MUR_M_ST %>%
 #select entre les deux packages
 Data_MUR_L50 <- DataMatu_MUR2 %>%
   mutate(mat=ifelse(mat == "Immature", "0","1"))%>%  
-  select(lenCls, mat, sex, year, newarea)%>% 
+  dplyr :: select(lenCls, mat, sex, year, newarea)%>% 
   rename.variable("lenCls", "length")%>%
   rename.variable("mat", "mature")%>% 
   drop_na()
@@ -680,7 +733,8 @@ L50_F<- Data_MUR_L50%>%
   filter(sex=="F" | sex =="I")%>%
   mutate(mature=as.factor(mature)) 
 rL50_F<-fl50(L50_F,niter=100,graph=T)
-a <- median(rL50_F$L50)
+a_l50_F <- median(rL50_F$L50)
+
 
 #zone 8a-b - toutes années
 L50_F_8ab <- Data_MUR_L50%>%
@@ -688,185 +742,562 @@ L50_F_8ab <- Data_MUR_L50%>%
   filter(newarea=="8a-b")%>%
   mutate(mature=as.factor(mature)) 
 rL50_F_8ab<-fl50(L50_F_8ab,niter=100,graph=T)
-b <- median(rL50_F_8ab$L50)
+b_l50_F <- median(rL50_F_8ab$L50)
+
+#table(L50_F_8ab$year, L50_F_8ab$mature)
 
 #zone 7d - toutes années
-L50_F_7de <- Data_MUR_L50%>%
+L50_F_7d <- Data_MUR_L50%>%
   filter(sex=="F" | sex =="I")%>%
   filter(newarea=="7d")%>%
   mutate(mature=as.factor(mature)) 
-rL50_F_7de<-fl50(L50_F_7de,niter=100,graph=T)
-c <- median(rL50_F_7de$L50)
+rL50_F_7d<-fl50(L50_F_7d,niter=100,graph=T)
+c_l50_F <- median(rL50_F_7d$L50)
+
+#table(L50_F_7d$year, L50_F_7d$mature)
 
 #zone 4c - toutes années
-L50_F_4bc <- Data_MUR_L50%>%
+L50_F_4c <- Data_MUR_L50%>%
   filter(sex=="F" | sex =="I")%>%
   filter(newarea=="4c")%>%
   mutate(mature=as.factor(mature)) 
-rL50_F_4bc<-fl50(L50_F_4bc,niter=100,graph=T)
-d <- median(rL50_F_4bc$L50)
+rL50_F_4c<-fl50(L50_F_4c,niter=100,graph=T)
+d_l50_F <- median(rL50_F_4c$L50)
 
-#-------Graphique de la proportion de mature/immature et valeur L50------------- 
-#---------------------pour chaque année 2006-2020-------------------------------
-
-#2006
-L50_F_2006 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2006")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2006<-fl50(L50_F_2006,niter=100,graph=T)
-rL50_F_2006$L50
-e <- median(rL50_F_2006$L50)
-
-#2007              
-L50_F_2007 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2007")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2007<-fl50(L50_F_2007,niter=100,graph=T)
-rL50_F_2007$L50
-f <- median(rL50_F_2007$L50)   #ne fonctionne pas, pas assez d'individus mature 
-
-#2008
-L50_F_2008 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2008")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2008<-fl50(L50_F_2008,niter=100,graph=T)
-rL50_F_2008$L50
-g <- median(rL50_F_2008$L50)
-
-#2009                             #ne fonctionne pas très bien, valeur eleve 382
-L50_F_2009 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2009")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2009<-fl50(L50_F_2009,niter=100,graph=T)
-rL50_F_2009$L50
-h <- median(rL50_F_2009$L50)
-
-#2010                        
-L50_F_2010 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2010")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2010<-fl50(L50_F_2010,niter=100,graph=T)
-rL50_F_2010$L50
-i <- median(rL50_F_2010$L50)
-
-#2011
-L50_F_2011 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2011")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2011<-fl50(L50_F_2011,niter=100,graph=T)
-rL50_F_2011$L50
-j <- median(rL50_F_2011$L50)
-
-#2012
-L50_F_2012 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2012")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2012<-fl50(L50_F_2012,niter=100,graph=T)
-rL50_F_2012$L50
-k <- median(rL50_F_2012$L50)
-
-#2013
-L50_F_2013 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2013")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2013<-fl50(L50_F_2013,niter=100,graph=T)
-rL50_F_2013$L50
-l <- median(rL50_F_2013$L50)
-
-#2014                             #Que des individus immatures  
-L50_F_2014 <- Data_MUR_L50%>%
-  filter(sex=="F"  | sex =="I")%>%
-  filter(year=="2014")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2014<-fl50(L50_F_2014,niter=100,graph=T)
-rL50_F_2014$L50
-m <- median(rL50_F_2014$L50)
-
-#pb2 <- Data_MUR_L50%>%
-#filter(sex=="F")%>%
-#filter(year=="2014")
-
-#2015                         #Pas assez d'individus matures 
-L50_F_2015 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2015")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2015<-fl50(L50_F_2015,niter=100,graph=T)
-rL50_F_2015$L50
-n <- median(rL50_F_2015$L50)
-
-#2016
-L50_F_2016 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2016")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2016<-fl50(L50_F_2016,niter=100,graph=T)
-rL50_F_2016$L50
-o <- median(rL50_F_2016$L50)
-
-#2017
-L50_F_2017 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2017")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2017<-fl50(L50_F_2017,niter=100,graph=T)
-rL50_F_2017$L50
-p <- median(rL50_F_2017$L50)
-
-#2018
-L50_F_2018 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2018")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2018<-fl50(L50_F_2018,niter=100,graph=T)
-rL50_F_2018$L50
-q <- median(rL50_F_2018$L50)
-
-#2019
-L50_F_2019 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2019")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2019<-fl50(L50_F_2019,niter=100,graph=T)
-rL50_F_2019$L50
-r <- median(rL50_F_2019$L50)
-
-#2020          ##ne fonctionne pas très bien, valeur eleve 495
-L50_F_2020 <- Data_MUR_L50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2020")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_F_2020<-fl50(L50_F_2020,niter=100,graph=T)
-rL50_F_2020$L50
-s <- median(rL50_F_2020$L50)
+#table(L50_F_4c$year, L50_F_4c$mature)
 
 #------------Tableau et graphiques de la L50 en fonction des zones--------------- 
 area <- c("Toutes zones confondues", "zone 8a-b", "zone 7d", "zone 4c")
-L50area_F <- c(a, b, c, d)
+L50area_F <- c(a_l50_F, b_l50_F, c_l50_F, d_l50_F)
 tabL50area_F <- data.frame(area, L50area_F)
 tabL50area_F 
 
 ggplot(tabL50area_F ,aes(x=area,y=L50area_F))+
   geom_point()
 
+
+
+#-------Graphique de la proportion de mature/immature et valeur L50------------- 
+#---------------------pour chaque année 2006-2020-------------------------------
+
+#---------------------------zone CIEM 8ab---------------------------------------
+
+#2006                                                        #ne fonctionne  pas 
+L50_F_2006_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2006")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2006_8ab <-fl50(L50_F_2006_8ab,niter=100,graph=T)
+rL50_F_2006_8ab$L50
+e_l50_F_8ab <- median(rL50_F_2006$L50) 
+
+#2007                                                         #ne fonctionne pas 
+L50_F_2007_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2007")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2007_8ab<-fl50(L50_F_2007_8ab,niter=100,graph=T)
+rL50_F_2007_8ab$L50
+f_l50_F_8ab <- median(rL50_F_2007_8ab$L50)    
+
+#2008                                               #ne fonctionne pas très bien 
+L50_F_2008_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2008")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2008_8ab<-fl50(L50_F_2008_8ab,niter=100,graph=T)
+rL50_F_2008_8ab$L50
+g_l50_F_8ab <- median(rL50_F_2008_8ab$L50)
+
+#2009                                               #ne fonctionne pas très bien  
+L50_F_2009_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2009")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2009_8ab<-fl50(L50_F_2009_8ab,niter=100,graph=T)
+rL50_F_2009_8ab$L50
+h_l50_F_8ab <- median(rL50_F_2009_8ab$L50)
+
+#2010                                               #ne fonctionne pas très bien      
+L50_F_2010_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2010")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2010_8ab<-fl50(L50_F_2010_8ab,niter=100,graph=T)
+rL50_F_2010_8ab$L50
+i_l50_F_8ab <- median(rL50_F_2010_8ab$L50)
+
+#2011                                               #ne fonctionne pas très bien 
+L50_F_2011_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2011")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2011_8ab<-fl50(L50_F_2011_8ab,niter=100,graph=T)
+rL50_F_2011_8ab$L50
+j_l50_F_8ab <- median(rL50_F_2011_8ab$L50)
+
+#2012                                                                        #OK
+L50_F_2012_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2012")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2012_8ab<-fl50(L50_F_2012_8ab,niter=100,graph=T)
+rL50_F_2012_8ab$L50
+k_l50_F_8ab <- median(rL50_F_2012_8ab$L50)
+
+#2013                                                                        #OK
+L50_F_2013_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2013")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2013_8ab<-fl50(L50_F_2013_8ab,niter=100,graph=T)
+rL50_F_2013_8ab$L50
+l_l50_F_8ab <- median(rL50_F_2013_8ab$L50)
+  
+#2014                                                         #ne fonctionne pas         
+L50_F_2014_8ab <- Data_MUR_L50%>%
+  filter(sex=="F"  | sex =="I")%>%
+  filter(year=="2014")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2014_8ab<-fl50(L50_F_2014_8ab,niter=100,graph=T)
+rL50_F_2014_8ab$L50
+m_l50_F_8ab <- median(rL50_F_2014_8ab$L50)
+
+#pb2 <- Data_MUR_L50%>%
+#filter(sex=="F")%>%
+#filter(year=="2014")
+
+#2015                                                         #ne fonctionne pas  
+L50_F_2015_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2015")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2015_8ab<-fl50(L50_F_2015_8ab,niter=100,graph=T)
+rL50_F_2015_8ab$L50
+n_l50_F_8ab <- median(rL50_F_2015_8ab$L50)
+
+#2016                                                                        #OK 
+L50_F_2016_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2016")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2016_8ab<-fl50(L50_F_2016_8ab,niter=100,graph=T)
+rL50_F_2016_8ab$L50
+o_l50_F_8ab <- median(rL50_F_2016_8ab$L50)
+
+#2017                                                                        #OK
+L50_F_2017_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2017")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2017_8ab<-fl50(L50_F_2017_8ab,niter=100,graph=T)
+rL50_F_2017_8ab$L50
+p_l50_F_8ab <- median(rL50_F_2017_8ab$L50)
+
+#2018                                               #ne fonctionne pas très bien 
+L50_F_2018_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2018")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2018_8ab<-fl50(L50_F_2018_8ab,niter=100,graph=T)
+rL50_F_2018_8ab$L50
+q_l50_F_8ab <- median(rL50_F_2018_8ab$L50)
+
+#2019                                                                        #OK
+L50_F_2019_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2019")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2019_8ab<-fl50(L50_F_2019_8ab,niter=100,graph=T)
+rL50_F_2019_8ab$L50
+r_l50_F_8ab <- median(rL50_F_2019_8ab$L50)
+
+#2020                                                #ne fonctione pas très bien 
+L50_F_2020_8ab <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2020")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2020_8ab<-fl50(L50_F_2020_8ab,niter=100,graph=T)
+rL50_F_2020_8ab$L50
+s_l50_F_8ab <- median(rL50_F_2020_8ab$L50)
+
 #------------Tableau et graphiques de la L50 en fonction du temps---------------- 
 year <- (2006:2020)
-L50year_F <- c(e, "", g, h, i, j, k, l, "", "", o, p, q, r, s)
-tabL50year_F <- data.frame(year, L50year_F )
-tabL50year_F
+L50year_F_8ab <- c("", "", "", "", "", "", k_l50_F_8ab, l_l50_F_8ab, "", "", o_l50_F_8ab, 
+                   p_l50_F_8ab, "", r_l50_F_8ab, "")
+tabL50year_F_8ab <- data.frame(year, L50year_F_8ab)
+tabL50year_F_8ab
 
-plot(tabL50year_F)
+plot(tabL50year_F_8ab)
 
-ggplot(tabL50year_F,aes(x=year,y=L50year_F))+
-  geom_point()
+ggplot(tabL50year_F_8ab,aes(x=year,y=L50year_F_8ab))+
+  geom_point()+
+  geom_path()+ 
+  geom_smooth(method = "loess")
+
+
+
+#---------------------------zone CIEM 7d----------------------------------------
+
+#2006                                                                        #OK
+L50_F_2006_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2006")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2006_7d <-fl50(L50_F_2006_7d,niter=100,graph=T)
+rL50_F_2006_7d$L50
+e_l50_F_7d <- median(rL50_F_2006_7d$L50) 
+
+#2007                                                          #ne fonctione pas
+L50_F_2007_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2007")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2007_7d<-fl50(L50_F_2007_7d,niter=100,graph=T)
+rL50_F_2007_7d$L50
+f_l50_F_7d <- median(rL50_F_2007_7d$L50)  
+
+#2008                                                          #ne fonctione pas
+L50_F_2008_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2008")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2008_7d<-fl50(L50_F_2008_7d,niter=100,graph=T)
+rL50_F_2008_7d$L50
+g_l50_F_7d <- median(rL50_F_2008_7d$L50)
+
+#2009                                                          #ne fonctione pas
+L50_F_2009_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2009")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2009_7d<-fl50(L50_F_2009_7d,niter=100,graph=T)
+rL50_F_2009_7d$L50
+h_l50_F_7d <- median(rL50_F_2009_7d$L50)
+
+#2010                                                                        #OK
+L50_F_2010_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2010")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2010_7d<-fl50(L50_F_2010_7d,niter=100,graph=T)
+rL50_F_2010_7d$L50
+i_l50_F_7d <- median(rL50_F_2010_7d$L50)
+
+#2011                                                                        #OK
+L50_F_2011_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2011")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2011_7d<-fl50(L50_F_2011_7d,niter=100,graph=T)
+rL50_F_2011_7d$L50
+j_l50_F_7d <- median(rL50_F_2011_7d$L50)
+
+#2012                                                                        #OK
+L50_F_2012_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2012")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2012_7d<-fl50(L50_F_2012_7d,niter=100,graph=T)
+rL50_F_2012_7d$L50
+k_l50_F_7d <- median(rL50_F_2012_7d$L50)
+
+#2013                                                         #ne fonctionne pas 
+L50_F_2013_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2013")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2013_7d<-fl50(L50_F_2013_7d,niter=100,graph=T)
+rL50_F_2013_7d$L50
+l_l50_F_7d <- median(rL50_F_2013_7d$L50)
+
+#2014                                                         #ne fonctionne pas 
+L50_F_2014_7d <- Data_MUR_L50%>%
+  filter(sex=="F"  | sex =="I")%>%
+  filter(year=="2014")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2014_7d<-fl50(L50_F_2014_7d,niter=100,graph=T)
+rL50_F_2014_7d$L50
+m_l50_F_7d <- median(rL50_F_2014_7d$L50)
+
+#pb2 <- Data_MUR_L50%>%
+#filter(sex=="F")%>%
+#filter(year=="2014")
+
+#2015                                                         #ne fonctionne pas 
+L50_F_2015_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2015")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2015_7d<-fl50(L50_F_2015_7d,niter=100,graph=T)
+rL50_F_2015_7d$L50
+n_l50_F_7d <- median(rL50_F_2015_7d$L50)
+
+#2016                                                                        #OK
+L50_F_2016_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2016")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2016_7d<-fl50(L50_F_2016_7d,niter=100,graph=T)
+rL50_F_2016_7d$L50
+o_l50_F_7d <- median(rL50_F_2016_7d$L50)
+
+#2017                                                                        #OK
+L50_F_2017_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2017")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2017_7d<-fl50(L50_F_2017_7d,niter=100,graph=T)
+rL50_F_2017_7d$L50
+p_l50_F_7d <- median(rL50_F_2017_7d$L50)
+
+#2018                                                                        #OK
+L50_F_2018_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2018")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2018_7d<-fl50(L50_F_2018_7d,niter=100,graph=T)
+rL50_F_2018_7d$L50
+q_l50_F_7d <- median(rL50_F_2018_7d$L50)
+
+#2019                                                         #ne fonctionne pas
+L50_F_2019_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2019")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2019_7d<-fl50(L50_F_2019_7d,niter=100,graph=T)
+rL50_F_2019_7d$L50
+r_l50_F_7d <- median(rL50_F_2019_7d$L50)
+
+#2020                                                         #ne fonctionne pas        
+L50_F_2020_7d <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2020")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2020_7d<-fl50(L50_F_2020_7d,niter=100,graph=T)
+rL50_F_2020_7d$L50
+s_l50_F_7d <- median(rL50_F_2020_7d$L50)
+
+
+
+#------------Tableau et graphiques de la L50 en fonction du temps---------------- 
+year <- (2006:2020)
+L50year_F_7d <- c(e_l50_F_7d, "", "", "", i_l50_F_7d, j_l50_F_7d, k_l50_F_7d, "", 
+                  "", "", o_l50_F_7d, p_l50_F_7d, q_l50_F_7d, "", "")
+tabL50year_F_7d <- data.frame(year, L50year_F_7d)
+tabL50year_F_7d
+
+plot(tabL50year_F_7d)
+
+ggplot(tabL50year_F_7d,aes(x=year,y=L50year_F_7d))+
+  geom_point()+
+  geom_path()+ 
+  geom_smooth(method = "loess")
+
+
+
+#---------------------------zone CIEM 4c----------------------------------------
+
+#2006                                                         #ne fonctionne pas
+L50_F_2006_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2006")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2006_4c <-fl50(L50_F_2006_4c,niter=100,graph=T)
+rL50_F_2006_4c$L50
+e_l50_F_4c <- median(rL50_F_2006_4c$L50)
+
+#2007                                                         #ne fonctionne pas
+L50_F_2007_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2007")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2007_4c<-fl50(L50_F_2007_4c,niter=100,graph=T)
+rL50_F_2007_4c$L50
+f_l50_F_4c <- median(rL50_F_2007_4c$L50)   
+
+#2008                                                         #ne fonctionne pas
+L50_F_2008_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2008")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2008_4c<-fl50(L50_F_2008_4c,niter=100,graph=T)
+rL50_F_2008_4c$L50
+g_l50_F_4c <- median(rL50_F_2008_4c$L50)
+
+#2009                                                         #ne fonctionne pas                          
+L50_F_2009_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2009")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2009_4c<-fl50(L50_F_2009_4c,niter=100,graph=T)
+rL50_F_2009_4c$L50
+h_l50_F_4c <- median(rL50_F_2009_4c$L50)
+
+#2010                                                         #ne fonctionne pas 
+L50_F_2010_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2010")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2010_4c<-fl50(L50_F_2010_4c,niter=100,graph=T)
+rL50_F_2010_4c$L50
+i_l50_F_4c <- median(rL50_F_2010_4c$L50)
+
+#2011                                                         #ne fonctionne pas
+L50_F_2011_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2011")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2011_4c<-fl50(L50_F_2011_4c,niter=100,graph=T)
+rL50_F_2011_4c$L50
+j_l50_F_4c <- median(rL50_F_2011_4c$L50)
+
+#2012                                                                        #OK
+L50_F_2012_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2012")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2012_4c<-fl50(L50_F_2012_4c,niter=100,graph=T)
+rL50_F_2012_4c$L50
+k_l50_F_4c <- median(rL50_F_2012_4c$L50)
+
+#2013                                                         #ne fonctionne pas
+L50_F_2013_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2013")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2013_4c<-fl50(L50_F_2013_4c,niter=100,graph=T)
+rL50_F_2013_4c$L50
+l_l50_F_4c <- median(rL50_F_2013$L50)
+
+#2014                                                         #ne fonctionne pas                            
+L50_F_2014_4c <- Data_MUR_L50%>%
+  filter(sex=="F"  | sex =="I")%>%
+  filter(year=="2014")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2014_4c<-fl50(L50_F_2014_4c,niter=100,graph=T)
+rL50_F_2014_4c$L50
+m_l50_F_4c <- median(rL50_F_2014_4c$L50)
+
+#pb2 <- Data_MUR_L50%>%
+#filter(sex=="F")%>%
+#filter(year=="2014")
+
+#2015                                                         #ne fonctionne pas                          
+L50_F_2015_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2015")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2015_4c<-fl50(L50_F_2015_4c,niter=100,graph=T)
+rL50_F_2015_4c$L50
+n_l50_F_4c <- median(rL50_F_2015_4c$L50)
+
+#2016                                                         #ne fonctionne pas
+L50_F_2016_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2016")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2016_4c<-fl50(L50_F_2016_4c,niter=100,graph=T)
+rL50_F_2016_4c$L50
+o_l50_F_4c <- median(rL50_F_2016_4c$L50)
+
+#2017                                                         #ne fonctionne pas
+L50_F_2017_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2017")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2017_4c<-fl50(L50_F_2017_4c,niter=100,graph=T)
+rL50_F_2017_4c$L50
+p_l50_F_4c <- median(rL50_F_2017_4c$L50)
+
+#2018                                                         #ne fonctionne pas
+L50_F_2018_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2018")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2018_4c<-fl50(L50_F_2018_4c,niter=100,graph=T)
+rL50_F_2018_4c$L50
+q_l50_F_4c <- median(rL50_F_2018_4c$L50)
+
+#2019                                                         #ne fonctionne pas
+L50_F_2019_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2019")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2019_4c<-fl50(L50_F_2019_4c,niter=100,graph=T)
+rL50_F_2019_4c$L50
+r_l50_F_4c <- median(rL50_F_2019_4c$L50)
+
+#2020                                                         #ne fonctionne pas        
+L50_F_2020_4c <- Data_MUR_L50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2020")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_F_2020_4c<-fl50(L50_F_2020_4c,niter=100,graph=T)
+rL50_F_2020_4c$L50
+s_l50_F_4c <- median(rL50_F_2020$L50)
+
+
+
+#------------Tableau et graphiques de la L50 en fonction du temps---------------- 
+year <- (2006:2020)
+L50year_F_4c <- c("", "", "", "", "","", k_l50_F_4c, "", "", "", "", "", "", "", "")
+tabL50year_F_4c <- data.frame(year, L50year_F_4c)
+tabL50year_F_4c
+
+plot(tabL50year_F_4c)
+
+ggplot(tabL50year_F_4c,aes(x=year,y=L50year_F_4c))+
+  geom_point()+
+  geom_path()+ 
+  geom_smooth(method = "loess")
+
+
 
 #------------------------------------Male---------------------------------------
 
@@ -878,190 +1309,565 @@ L50_M<- Data_MUR_L50%>%
   filter(sex=="M" | sex =="I")%>%
   mutate(mature=as.factor(mature)) 
 rL50_M<-fl50(L50_M,niter=100,graph=T)
-a1 <- median(rL50_M$L50)
+a_l50_M <- median(rL50_M$L50)
 
-#zone 8a-b 
+
+#zone 8a-b - toutes années
 L50_M_8ab <- Data_MUR_L50%>%
   filter(sex=="M" | sex =="I")%>%
   filter(newarea=="8a-b")%>%
   mutate(mature=as.factor(mature)) 
 rL50_M_8ab<-fl50(L50_M_8ab,niter=100,graph=T)
-b1 <- median(rL50_M_8ab$L50)
+b_l50_M <- median(rL50_M_8ab$L50)
 
-#zone 7d 
-L50_M_7de <- Data_MUR_L50%>%
+#table(L50_M_8ab$year, L50_M_8ab$mature)
+
+#zone 7d - toutes années
+L50_M_7d <- Data_MUR_L50%>%
   filter(sex=="M" | sex =="I")%>%
   filter(newarea=="7d")%>%
   mutate(mature=as.factor(mature)) 
-rL50_M_7de<-fl50(L50_M_7de,niter=100,graph=T)
-c1 <- median(rL50_M_7de$L50)
+rL50_M_7d<-fl50(L50_M_7d,niter=100,graph=T)
+c_l50_M <- median(rL50_M_7d$L50)
 
-#zone 4c 
-L50_M_4bc <- Data_MUR_L50%>%
+#table(L50_M_7d$year, L50_M_7d$mature)
+
+#zone 4c - toutes années
+L50_M_4c <- Data_MUR_L50%>%
   filter(sex=="M" | sex =="I")%>%
   filter(newarea=="4c")%>%
   mutate(mature=as.factor(mature)) 
-rL50_M_4bc<-fl50(L50_M_4bc,niter=100,graph=T)
-d1 <- median(rL50_M_4bc$L50)
+rL50_M_4c<-fl50(L50_M_4c,niter=100,graph=T)
+d_l50_M <- median(rL50_M_4c$L50)
 
-#-------Graphique de la proportion de mature/immature et valeur L50------------- 
-#---------------------pour chaque année 2006-2020-------------------------------
-
-#2006              #Pas tres fonctionel
-L50_M_2006 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2006")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2006<-fl50(L50_M_2006,niter=100,graph=T)
-rL50_M_2006$L50
-e1 <- median(rL50_M_2006$L50)
-
-#2007 
-L50_M_2007 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2007")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2007<-fl50(L50_M_2007,niter=100,graph=T)
-rL50_M_2007$L50
-f1 <- median(rL50_M_2007$L50)
-
-#2008
-L50_M_2008 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2008")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2008<-fl50(L50_M_2008,niter=100,graph=T)
-rL50_M_2008$L50
-g1 <- median(rL50_M_2008$L50)
-
-#2009                
-L50_M_2009 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2009")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2009<-fl50(L50_M_2009,niter=100,graph=T)
-rL50_M_2009$L50
-h1 <- median(rL50_M_2009$L50)
-
-#2010                       
-L50_M_2010 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2010")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2010<-fl50(L50_M_2010,niter=100,graph=T)
-rL50_M_2010$L50
-i1 <- median(rL50_M_2010$L50)
-
-#2011
-L50_M_2011 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2011")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2011<-fl50(L50_M_2011,niter=100,graph=T)
-rL50_M_2011$L50
-j1 <- median(rL50_M_2011$L50)
-
-#2012
-L50_M_2012 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2012")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2012<-fl50(L50_M_2012,niter=100,graph=T)
-rL50_M_2012$L50
-k1 <- median(rL50_M_2012$L50)
-
-#2013
-L50_M_2013 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2013")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2013<-fl50(L50_M_2013,niter=100,graph=T)
-rL50_M_2013$L50
-l1 <- median(rL50_M_2013$L50)
-
-#2014               
-L50_M_2014 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2014")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2014<-fl50(L50_M_2014,niter=100,graph=T)
-rL50_M_2014$L50
-m1 <- median(rL50_M_2014$L50)
-
-#2015            
-L50_M_2015 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2015")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2015<-fl50(L50_M_2015,niter=100,graph=T)
-rL50_M_2015$L50
-n1 <- median(rL50_M_2015$L50)
-
-#2016            #Pas très fonctionnel 
-L50_M_2016 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2016")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2016<-fl50(L50_M_2016,niter=100,graph=T)
-rL50_M_2016$L50
-o1 <- median(rL50_M_2016$L50)
-
-#2017                 #Pas très fonctionnel 
-L50_M_2017 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2017")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2017<-fl50(L50_M_2017,niter=100,graph=T)
-rL50_M_2017$L50
-p1 <- median(rL50_M_2017$L50)
-
-#2018             #Pas très fonctionnel
-L50_M_2018 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2018")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2018<-fl50(L50_M_2018,niter=100,graph=T)
-rL50_M_2018$L50
-q1 <- median(rL50_M_2018$L50)
-
-#2019            #Pas très fonctionnel
-L50_M_2019 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2019")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2019<-fl50(L50_M_2019,niter=100,graph=T)
-rL50_M_2019$L50
-r1 <- median(rL50_M_2019$L50)
-
-#2020                   #Eleve 603
-L50_M_2020 <- Data_MUR_L50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2020")%>%
-  mutate(mature=as.factor(mature)) 
-rL50_M_2020<-fl50(L50_M_2020,niter=100,graph=T)
-rL50_M_2020$L50
-s1 <- median(rL50_M_2020$L50)
+table(L50_M_4c$year, L50_M_4c$mature)
 
 #------------Tableau et graphiques de la L50 en fonction des zones--------------- 
 area <- c("Toutes zones confondues", "zone 8a-b", "zone 7d", "zone 4c")
-L50area_M <- c(a1, b1, c1, d1)
+L50area_M <- c(a_l50_M, b_l50_M, c_l50_M, d_l50_M)
 tabL50area_M <- data.frame(area, L50area_M)
 tabL50area_M 
 
 ggplot(tabL50area_M ,aes(x=area,y=L50area_M))+
   geom_point()
 
+
+
+#-------Graphique de la proportion de mature/immature et valeur L50------------- 
+#---------------------pour chaque année 2006-2020-------------------------------
+
+#---------------------------zone CIEM 8ab---------------------------------------
+
+#2006                                                         #ne fonctionne pas
+L50_M_2006_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2006")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2006_8ab <-fl50(L50_M_2006_8ab,niter=100,graph=T)
+rL50_M_2006_8ab$L50
+e_l50_M_8ab <- median(rL50_M_2006$L50) 
+
+#2007                                                         #ne fonctionne pas          
+L50_M_2007_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2007")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2007_8ab<-fl50(L50_M_2007_8ab,niter=100,graph=T)
+rL50_M_2007_8ab$L50
+f_l50_M_8ab <- median(rL50_M_2007_8ab$L50) 
+
+#2008                                               #ne fonctionne pas tres bien 
+L50_M_2008_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2008")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2008_8ab<-fl50(L50_M_2008_8ab,niter=100,graph=T)
+rL50_M_2008_8ab$L50
+g_l50_M_8ab <- median(rL50_M_2008_8ab$L50)
+
+#2009                                               #ne fonctionne pas tres bien 
+L50_M_2009_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2009")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2009_8ab<-fl50(L50_M_2009_8ab,niter=100,graph=T)
+rL50_M_2009_8ab$L50
+h_l50_M_8ab <- median(rL50_M_2009_8ab$L50)
+
+#2010                                               #ne fonctionne pas tres bien 
+L50_M_2010_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2010")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2010_8ab<-fl50(L50_M_2010_8ab,niter=100,graph=T)
+rL50_M_2010_8ab$L50
+i_l50_M_8ab <- median(rL50_M_2010_8ab$L50)
+
+#2011                                               #ne fonctionne pas tres bien
+L50_M_2011_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2011")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2011_8ab<-fl50(L50_M_2011_8ab,niter=100,graph=T)
+rL50_M_2011_8ab$L50
+j_l50_M_8ab <- median(rL50_M_2011_8ab$L50)
+
+#2012                                                                        #OK
+L50_M_2012_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2012")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2012_8ab<-fl50(L50_M_2012_8ab,niter=100,graph=T)
+rL50_M_2012_8ab$L50
+k_l50_M_8ab <- median(rL50_M_2012_8ab$L50)
+
+#2013                                               #ne fonctionne pas tres bien
+L50_M_2013_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2013")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2013_8ab<-fl50(L50_M_2013_8ab,niter=100,graph=T)
+rL50_M_2013_8ab$L50
+l_l50_M_8ab <- median(rL50_M_2013$L50)
+
+#2014                                                         #ne fonctionne pas                         
+L50_M_2014_8ab <- Data_MUR_L50%>%
+  filter(sex=="M"  | sex =="I")%>%
+  filter(year=="2014")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2014_8ab<-fl50(L50_M_2014_8ab,niter=100,graph=T)
+rL50_M_2014_8ab$L50
+m_l50_M_8ab <- median(rL50_M_2014_8ab$L50)
+
+#pb2 <- Data_MUR_L50%>%
+#filter(sex=="M")%>%
+#filter(year=="2014")
+
+#2015                                                         #ne fonctionne pas                         
+L50_M_2015_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2015")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2015_8ab<-fl50(L50_M_2015_8ab,niter=100,graph=T)
+rL50_M_2015_8ab$L50
+n_l50_M_8ab <- median(rL50_M_2015_8ab$L50)
+
+#2016                                               #ne fonctionne pas tres bien
+L50_M_2016_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2016")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2016_8ab<-fl50(L50_M_2016_8ab,niter=100,graph=T)
+rL50_M_2016_8ab$L50
+o_l50_M_8ab <- median(rL50_M_2016_8ab$L50)
+
+#2017                                                                        #OK
+L50_M_2017_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2017")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2017_8ab<-fl50(L50_M_2017_8ab,niter=100,graph=T)
+rL50_M_2017_8ab$L50
+p_l50_M_8ab <- median(rL50_M_2017_8ab$L50)
+
+#2018                                                         #ne fonctionne pas
+L50_M_2018_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2018")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2018_8ab<-fl50(L50_M_2018_8ab,niter=100,graph=T)
+rL50_M_2018_8ab$L50
+q_l50_M_8ab <- median(rL50_M_2018_8ab$L50)
+
+#2019                                               #ne fonctionne pas tres bien
+L50_M_2019_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2019")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2019_8ab<-fl50(L50_M_2019_8ab,niter=100,graph=T)
+rL50_M_2019_8ab$L50
+r_l50_M_8ab <- median(rL50_M_2019$L50)
+
+#2020                                                         #ne fonctionne pas 
+L50_M_2020_8ab <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2020")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2020_8ab<-fl50(L50_M_2020_8ab,niter=100,graph=T)
+rL50_M_2020_8ab$L50
+s_l50_M_8ab <- median(rL50_M_2020$L50)
+
 #------------Tableau et graphiques de la L50 en fonction du temps---------------- 
 year <- (2006:2020)
-L50tyear_M <- c("", f1, g1, h1, i1, j1, k1, l1, m1, n1, o1, p1, q1, r1, "")
-tabL50year_M <- data.frame(year, L50tyear_M)
-tabL50year_M
+L50year_M_8ab <- c("", "","", "", "", "", k_l50_M_8ab, "", "", "", "", p_l50_M_8ab, "", "", "")
+tabL50year_M_8ab <- data.frame(year, L50year_M_8ab)
+tabL50year_M_8ab
 
-plot(tabL50year_M)
-ggplot(tabL50year_M,aes(x=year,y=L50tyear_M))+
-  geom_point()
+plot(tabL50year_M_8ab)
+
+ggplot(tabL50year_M_8ab,aes(x=year,y=L50year_M_8ab))+
+  geom_point()+
+  geom_path()+ 
+  geom_smooth(method = "loess")
+
+#---------------------------zone CIEM 7d----------------------------------------
+
+#2006                                                         #ne fonctionne pas
+L50_M_2006_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2006")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2006_7d <-fl50(L50_M_2006_7d,niter=100,graph=T)
+rL50_M_2006_7d$L50
+e_l50_M_7d <- median(rL50_M_2006_7d$L50) 
+
+#2007                                                         #ne fonctionne pas              
+L50_M_2007_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2007")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2007_7d<-fl50(L50_M_2007_7d,niter=100,graph=T)
+rL50_M_2007_7d$L50
+f_l50_M_7d <- median(rL50_M_2007_7d$L50)   
+
+#2008                                                         #ne fonctionne pas
+L50_M_2008_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2008")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2008_7d<-fl50(L50_M_2008_7d,niter=100,graph=T)
+rL50_M_2008_7d$L50
+g_l50_M_7d <- median(rL50_M_2008_7d$L50)
+
+#2009                                                         #ne fonctionne pas                            
+L50_M_2009_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2009")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2009_7d<-fl50(L50_M_2009_7d,niter=100,graph=T)
+rL50_M_2009_7d$L50
+h_l50_M_7d <- median(rL50_M_2009_7d$L50)
+
+#2010                                                                        #OK                      
+L50_M_2010_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2010")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2010_7d<-fl50(L50_M_2010_7d,niter=100,graph=T)
+rL50_M_2010_7d$L50
+i_l50_M_7d <- median(rL50_M_2010_7d$L50)
+
+#2011                                                                        #OK
+L50_M_2011_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2011")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2011_7d<-fl50(L50_M_2011_7d,niter=100,graph=T)
+rL50_M_2011_7d$L50
+j_l50_M_7d <- median(rL50_M_2011_7d$L50)
+
+#2012                                                                        #OK
+L50_M_2012_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2012")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2012_7d<-fl50(L50_M_2012_7d,niter=100,graph=T)
+rL50_M_2012_7d$L50
+k_l50_M_7d <- median(rL50_M_2012_7d$L50)
+
+#2013                                               #ne fonctionne pas tres bien 
+L50_M_2013_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2013")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2013_7d<-fl50(L50_M_2013_7d,niter=100,graph=T)
+rL50_M_2013_7d$L50
+l_l50_M_7d <- median(rL50_M_2013_7d$L50)
+
+#2014                                                                        #OK                          
+L50_M_2014_7d <- Data_MUR_L50%>%
+  filter(sex=="M"  | sex =="I")%>%
+  filter(year=="2014")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2014_7d<-fl50(L50_M_2014_7d,niter=100,graph=T)
+rL50_M_2014_7d$L50
+m_l50_M_7d <- median(rL50_M_2014_7d$L50)
+
+#pb2 <- Data_MUR_L50%>%
+#filter(sex=="M")%>%
+#filter(year=="2014")
+
+#2015                                                         #ne fonctionne pas                           
+L50_M_2015_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2015")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2015_7d<-fl50(L50_M_2015_7d,niter=100,graph=T)
+rL50_M_2015_7d$L50
+n_l50_M_7d <- median(rL50_M_2015_7d$L50)
+
+#2016                                                         #ne fonctionne pas
+L50_M_2016_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2016")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2016_7d<-fl50(L50_M_2016_7d,niter=100,graph=T)
+rL50_M_2016_7d$L50
+o_l50_M_7d <- median(rL50_M_2016_7d$L50)
+
+#2017                                                         #ne fonctionne pas
+L50_M_2017_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2017")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2017_7d<-fl50(L50_M_2017_7d,niter=100,graph=T)
+rL50_M_2017_7d$L50
+p_l50_M_7d <- median(rL50_M_2017_7d$L50)
+
+#2018                                                         #ne fonctionne pas
+L50_M_2018_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2018")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2018_7d<-fl50(L50_M_2018_7d,niter=100,graph=T)
+rL50_M_2018_7d$L50
+q_l50_M_7d <- median(rL50_M_2018_7d$L50)
+
+#2019                                                         #ne fonctionne pas
+L50_M_2019_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2019")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2019_7d<-fl50(L50_M_2019_7d,niter=100,graph=T)
+rL50_M_2019_7d$L50
+r_l50_M_7d <- median(rL50_M_2019_7d$L50)
+
+#2020                                                         #ne fonctionne pas        
+L50_M_2020_7d <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2020")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2020_7d<-fl50(L50_M_2020_7d,niter=100,graph=T)
+rL50_M_2020_7d$L50
+s_l50_M_7d <- median(rL50_M_2020_7d$L50)
 
 
+
+#------------Tableau et graphiques de la L50 en fonction du temps---------------- 
+year <- (2006:2020)
+L50year_M_7d <- c("", "", "", "", i_l50_M_7d, j_l50_M_7d, k_l50_M_7d, "", m_l50_M_7d, "", "", "", "", "", "")
+tabL50year_M_7d <- data.frame(year, L50year_M_7d)
+tabL50year_M_7d
+
+plot(tabL50year_M_7d)
+
+ggplot(tabL50year_M_7d,aes(x=year,y=L50year_M_7d))+
+  geom_point()+
+  geom_path()+ 
+  geom_smooth(method = "loess")
+
+
+
+#---------------------------zone CIEM 4c----------------------------------------
+
+#2006                                                         #ne fonctionne pas
+L50_M_2006_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2006")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2006_4c <-fl50(L50_M_2006_4c,niter=100,graph=T)
+rL50_M_2006_4c$L50
+e_l50_M_4c <- median(rL50_M_2006$L50) 
+
+#2007                                               #ne fonctionne pas tres bien            
+L50_M_2007_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2007")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2007_4c<-fl50(L50_M_2007_4c,niter=100,graph=T)
+rL50_M_2007_4c$L50
+f_l50_M_4c <- median(rL50_M_2007_4c$L50)    
+
+#2008                                                         #ne fonctionne pas 
+L50_M_2008_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2008")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2008_4c<-fl50(L50_M_2008_4c,niter=100,graph=T)
+rL50_M_2008_4c$L50
+g_l50_M_4c <- median(rL50_M_2008_4c$L50)
+
+#2009                                                         #ne fonctionne pas                       
+L50_M_2009_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2009")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2009_4c<-fl50(L50_M_2009_4c,niter=100,graph=T)
+rL50_M_2009_4c$L50
+h_l50_M_4c <- median(rL50_M_2009_4c$L50)
+
+#2010                                                         #ne fonctionne pas                         
+L50_M_2010_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2010")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2010_4c<-fl50(L50_M_2010_4c,niter=100,graph=T)
+rL50_M_2010_4c$L50
+i_l50_M_4c <- median(rL50_M_2010_4c$L50)
+
+#2011                                                         #ne fonctionne pas 
+L50_M_2011_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2011")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2011_4c<-fl50(L50_M_2011_4c,niter=100,graph=T)
+rL50_M_2011_4c$L50
+j_l50_M_4c <- median(rL50_M_2011_4c$L50)
+
+#2012                                                         #ne fonctionne pas 
+L50_M_2012_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2012")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2012_4c<-fl50(L50_M_2012_4c,niter=100,graph=T)
+rL50_M_2012_4c$L50
+k_l50_M_4c <- median(rL50_M_2012_4c$L50)
+
+#2013                                                         #ne fonctionne pas 
+L50_M_2013_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2013")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2013_4c<-fl50(L50_M_2013_4c,niter=100,graph=T)
+rL50_M_2013_4c$L50
+l_l50_M_4c <- median(rL50_M_2013$L50)
+
+#2014                             
+L50_M_2014_4c <- Data_MUR_L50%>%
+  filter(sex=="M"  | sex =="I")%>%
+  filter(year=="2014")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2014_4c<-fl50(L50_M_2014_4c,niter=100,graph=T)
+rL50_M_2014_4c$L50
+m_l50_M_4c <- median(rL50_M_2014_4c$L50)
+
+#pb2 <- Data_MUR_L50%>%
+#filter(sex=="M")%>%
+#filter(year=="2014")
+
+#2015                                                         #ne fonctionne pas                         
+L50_M_2015_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2015")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2015_4c<-fl50(L50_M_2015_4c,niter=100,graph=T)
+rL50_M_2015_4c$L50
+n_l50_M_4c <- median(rL50_M_2015_4c$L50)
+
+#2016                                                         #ne fonctionne pas 
+L50_M_2016_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2016")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2016_4c<-fl50(L50_M_2016_4c,niter=100,graph=T)
+rL50_M_2016_4c$L50
+o_l50_M_4c <- median(rL50_M_2016_4c$L50)
+
+#2017                                                         #ne fonctionne pas 
+L50_M_2017_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2017")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2017_4c<-fl50(L50_M_2017_4c,niter=100,graph=T)
+rL50_M_2017_4c$L50
+p_l50_M_4c <- median(rL50_M_2017_4c$L50)
+
+#2018                                                         #ne fonctionne pas 
+L50_M_2018_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2018")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2018_4c<-fl50(L50_M_2018_4c,niter=100,graph=T)
+rL50_M_2018_4c$L50
+q_l50_M_4c <- median(rL50_M_2018_4c$L50)
+
+#2019                                                         #ne fonctionne pas 
+L50_M_2019_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2019")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2019_4c<-fl50(L50_M_2019_4c,niter=100,graph=T)
+rL50_M_2019_4c$L50
+r_l50_M_4c <- median(rL50_M_2019_4c$L50)
+ 
+#2020                                                         #ne fonctionne pas  
+L50_M_2020_4c <- Data_MUR_L50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2020")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+rL50_M_2020_4c<-fl50(L50_M_2020_4c,niter=100,graph=T)
+rL50_M_2020_4c$L50
+s_l50_M_4c <- median(rL50_M_2020_4c$L50)
+
+
+
+#------------Tableau et graphiques de la L50 en fonction du temps---------------- 
+year <- (2006:2020)
+L50year_M_4c <- c("", "", "", "", "", "", "", "", "", "", "" , "", "", "", "", "")
+tabL50year_M_4c <- data.frame(year, L50year_M_4c)
+tabL50year_M_4c
+
+plot(tabL50year_M_4c)
+
+ggplot(tabL50year_M_4c,aes(x=year,y=L50year_M_4c))+
+  geom_point()+
+  geom_path()+ 
+  geom_smooth(method = "loess")
 
 #redflag dans le tableau, on fera un lissage dans le graphique 
 #ajouter le nb de mature/immature pour chaque individu 
@@ -1076,6 +1882,54 @@ library(sizeMat)
 #install.packages("questionr")
 library("questionr")
 
+fa50<-function(data,niter=1000,graph=T){
+  #print(unique(data$year))
+  model_glm <- glm(mature ~ age, data = data, family = binomial(link = "logit"))
+  smry_model <- summary(model_glm)
+  n_coef   <- list()
+  for(i in seq_len(niter)){
+    new_data   <- data[sample(nrow(data), replace = TRUE), ]
+    model_boot <- glm(mature ~ age, data = new_data, family = binomial(link = "logit"))
+    glm_coef   <- coef(model_boot)
+    n_coef     <- rbind(n_coef, glm_coef)
+  }
+  A    <- as.numeric(n_coef[,1])
+  B    <- as.numeric(n_coef[,2])
+  a50  <- -A/B
+  create_x <- cbind(1, data$age)
+  x_fq     <- as.matrix(create_x) %*% t(as.matrix(cbind(A,B)))
+  pred_fq  <- 1 / (1 + exp(-x_fq))
+  qtl      <- round(matrixStats::rowQuantiles(pred_fq, probs = c(0.025, 0.5, 0.975)), 3)
+  fitted   <- qtl[, 2]
+  lower    <- qtl[, 1]
+  upper    <- qtl[, 3]
+  #output
+  x_input <- data$age
+  y_input <- as.numeric(as.character(data$mature))
+  m_p     <- tapply(y_input, x_input, mean)
+  wide    <- quantile(a50, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  # R-square Nagelkerke method
+  model1 <- glm(y_input ~ x_input, family = binomial(link = "logit"))
+  # R-square Nagelkerke method
+  R2     <- nagelkerkeR2(model1)
+  dat1<-data.frame(x=sort(unique(x_input)), y=m_p)#,year=rep(unique(data$year),each=age(m_p)))
+  dat2<-data.frame(x=sort(x_input))#,year=rep(unique(data$year),each=age(fitted)),fitted=sort(fitted),lower=sort(lower),upper=sort(upper))
+  #tidyr::pivot_longer(3:5)
+  estimate <- list(model = smry_model, parameters_A = A, parameters_B = B, a50 = a50, 
+                   lower = lower, fitted = fitted,  upper = upper,dat1=dat1,dat2=dat2,a50=a50,R2=R2)
+  if(graph){
+    plot(sort(unique(x_input)), m_p, xlab = "", ylab = "", pch = 19, col = "darkgrey")
+    lines(sort(x_input), sort(fitted), col = "blue", lwd = 1)
+    lines(sort(x_input), sort(lower), col = "blue", lwd = 1, lty = 2)
+    lines(sort(x_input), sort(upper), col = "blue", lwd = 1, lty = 2)
+    lines(c(wide[2], wide[2]), c(0, 0.5), col = "red", lwd = 1, lty = 2)
+    lines(c(0, wide[2]), c(0.5, 0.5), col = "red", lwd = 1, lty = 2)
+    points(wide[2], 0.5, pch = 19, col = "red", cex = 1.25)
+    legend("topleft", c(as.expression(bquote(bold(L[50] == .(round(wide[2], 1))))), 
+                        as.expression(bquote(bold(R^2 == .(round(R2, 2)))))), bty = "n")
+  }
+  return(estimate)
+}
 
 #------------Tri des donnees pour rendre le jeu de donnees plus digerable------- 
 Data_MUR_a50 <- DataMatu_MUR2 %>%
@@ -1089,6 +1943,9 @@ table(Data_MUR_a50$newarea)
 table(Data_MUR_a50$year)
 table(Data_MUR_a50$year, Data_MUR_a50$age)
 
+
+
+
 #----------------------------------Femelle--------------------------------------
 #-------Graphique de la proportion de mature/immature et valeur a50------------- 
 #------------------------en fonction des zones---------------------------------- 
@@ -1098,196 +1955,567 @@ a50_F<- Data_MUR_a50%>%
   filter(sex=="F" | sex =="I")%>%
   mutate(mature=as.factor(mature)) 
 ra50_F<-fa50(a50_F,niter=100,graph=T)
-a2 <- median(ra50_F$a50)
+a_a50_F <- median(ra50_F$a50)
 
-#zone 8a-b 
+#zone 8a-b - toutes années
 a50_F_8ab <- Data_MUR_a50%>%
   filter(sex=="F" | sex =="I")%>%
   filter(newarea=="8a-b")%>%
   mutate(mature=as.factor(mature)) 
 ra50_F_8ab<-fa50(a50_F_8ab,niter=100,graph=T)
-b2 <- median(ra50_F_8ab$a50)
+b_a50_F <- median(ra50_F_8ab$a50)
 
-#zone 7d 
-a50_F_7de <- Data_MUR_a50%>%
+#zone 7d - toutes années
+a50_F_7d <- Data_MUR_a50%>%
   filter(sex=="F" | sex =="I")%>%
   filter(newarea=="7d")%>%
   mutate(mature=as.factor(mature)) 
-ra50_F_7de<-fa50(a50_F_7de,niter=100,graph=T)
-c2 <- median(ra50_F_7de$a50)
+ra50_F_7d<-fa50(a50_F_7d,niter=100,graph=T)
+c_a50_F <- median(ra50_F_7d$a50)
 
-#zone 4c 
-a50_F_4bc <- Data_MUR_a50%>%
+#zone 4c - toutes années
+a50_F_4c <- Data_MUR_a50%>%
   filter(sex=="F" | sex =="I")%>%
   filter(newarea=="4c")%>%
   mutate(mature=as.factor(mature)) 
-ra50_F_4bc<-fa50(a50_F_4bc,niter=100,graph=T)
-d2 <- median(ra50_F_4bc$a50)
-
-#-------Graphique de la proportion de mature/immature et valeur a50------------- 
-#---------------------pour chaque année 2006-2020-------------------------------
-
-#2006
-a50_F_2006 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2006")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2006<-fa50(a50_F_2006,niter=100,graph=T)
-ra50_F_2006$a50
-e2 <- median(ra50_F_2006$a50)
-
-#2007              
-a50_F_2007 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2007")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2007<-fa50(a50_F_2007,niter=100,graph=T)
-ra50_F_2007$a50
-f2 <- median(ra50_F_2007$a50)   #ne fonctionne pas, pas assez d'individus mature 
-
-#2008
-a50_F_2008 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2008")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2008<-fa50(a50_F_2008,niter=100,graph=T)
-ra50_F_2008$a50
-g2 <- median(ra50_F_2008$a50)
-
-#2009                             #ne fonctionne pas très bien, valeur eleve 4.3
-a50_F_2009 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2009")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2009<-fa50(a50_F_2009,niter=100,graph=T)
-ra50_F_2009$a50
-h2 <- median(ra50_F_2009$a50)
-
-#2010                        
-a50_F_2010 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2010")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2010<-fa50(a50_F_2010,niter=100,graph=T)
-ra50_F_2010$a50
-i2 <- median(ra50_F_2010$a50)
-
-#2011
-a50_F_2011 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2011")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2011<-fa50(a50_F_2011,niter=100,graph=T)
-ra50_F_2011$a50
-j2 <- median(ra50_F_2011$a50)
-
-#2012
-a50_F_2012 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2012")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2012<-fa50(a50_F_2012,niter=100,graph=T)
-ra50_F_2012$a50
-k2 <- median(ra50_F_2012$a50)
-
-#2013
-a50_F_2013 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2013")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2013<-fa50(a50_F_2013,niter=100,graph=T)
-ra50_F_2013$a50
-l2 <- median(ra50_F_2013$a50)
-
-#2014                             #Que des individus immatures  
-a50_F_2014 <- Data_MUR_a50%>%
-  filter(sex=="F"  | sex =="I")%>%
-  filter(year=="2014")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2014<-fa50(a50_F_2014,niter=100,graph=T)
-ra50_F_2014$a50
-m2 <- median(ra50_F_2014$a50)
-
-#pb2 <- Data_MUR_a50%>%
-#filter(sex=="F")%>%
-#filter(year=="2014")
-
-#2015                         #Pas assez d'individus matures 
-a50_F_2015 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2015")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2015<-fa50(a50_F_2015,niter=100,graph=T)
-ra50_F_2015$a50
-n2 <- median(ra50_F_2015$a50)
-
-#2016
-a50_F_2016 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2016")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2016<-fa50(a50_F_2016,niter=100,graph=T)
-ra50_F_2016$a50
-o2 <- median(ra50_F_2016$a50)
-
-#2017
-a50_F_2017 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2017")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2017<-fa50(a50_F_2017,niter=100,graph=T)
-ra50_F_2017$a50
-p2 <- median(ra50_F_2017$a50)
-
-#2018
-a50_F_2018 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2018")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2018<-fa50(a50_F_2018,niter=100,graph=T)
-ra50_F_2018$a50
-q2 <- median(ra50_F_2018$a50)
-
-#2019
-a50_F_2019 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2019")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2019<-fa50(a50_F_2019,niter=100,graph=T)
-ra50_F_2019$a50
-r2 <- median(ra50_F_2019$a50)
-
-#2020          ##ne fonctionne pas très bien, valeur eleve 495
-a50_F_2020 <- Data_MUR_a50%>%
-  filter(sex=="F" | sex =="I")%>%
-  filter(year=="2020")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_F_2020<-fa50(a50_F_2020,niter=100,graph=T)
-ra50_F_2020$a50
-s2 <- median(ra50_F_2020$a50)
+ra50_F_4c<-fa50(a50_F_4c,niter=100,graph=T)
+d_a50_F <- median(ra50_F_4c$a50)
 
 #------------Tableau et graphiques de la a50 en fonction des zones--------------- 
 area <- c("Toutes zones confondues", "zone 8a-b", "zone 7d", "zone 4c")
-a50area_F <- c(a2, b2, c2, d2)
+a50area_F <- c(a_a50_F, b_a50_F, c_a50_F, d_a50_F)
 taba50area_F <- data.frame(area, a50area_F)
 taba50area_F 
 
 ggplot(taba50area_F ,aes(x=area,y=a50area_F))+
   geom_point()
 
+
+
+#-------Graphique de la proportion de mature/immature et valeur a50------------- 
+#---------------------pour chaque année 2006-2020-------------------------------
+
+#---------------------------zone CIEM 8ab---------------------------------------
+
+#2006
+a50_F_2006_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2006")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2006_8ab <-fa50(a50_F_2006_8ab,niter=100,graph=T)
+ra50_F_2006_8ab$a50
+e_a50_F_8ab <- median(ra50_F_2006$a50) 
+
+#2007              
+a50_F_2007_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2007")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2007_8ab<-fa50(a50_F_2007_8ab,niter=100,graph=T)
+ra50_F_2007_8ab$a50
+f_a50_F_8ab <- median(ra50_F_2007_8ab$a50)    
+
+#2008
+a50_F_2008_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2008")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2008_8ab<-fa50(a50_F_2008_8ab,niter=100,graph=T)
+ra50_F_2008_8ab$a50
+g_a50_F_8ab <- median(ra50_F_2008_8ab$a50)
+
+#2009                            
+a50_F_2009_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2009")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2009_8ab<-fa50(a50_F_2009_8ab,niter=100,graph=T)
+ra50_F_2009_8ab$a50
+h_a50_F_8ab <- median(ra50_F_2009_8ab$a50)
+
+#2010                        
+a50_F_2010_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2010")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2010_8ab<-fa50(a50_F_2010_8ab,niter=100,graph=T)
+ra50_F_2010_8ab$a50
+i_a50_F_8ab <- median(ra50_F_2010_8ab$a50)
+
+#2011
+a50_F_2011_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2011")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2011_8ab<-fa50(a50_F_2011_8ab,niter=100,graph=T)
+ra50_F_2011_8ab$a50
+j_a50_F_8ab <- median(ra50_F_2011_8ab$a50)
+
+#2012
+a50_F_2012_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2012")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2012_8ab<-fa50(a50_F_2012_8ab,niter=100,graph=T)
+ra50_F_2012_8ab$a50
+k_a50_F_8ab <- median(ra50_F_2012_8ab$a50)
+
+#2013
+a50_F_2013_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2013")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2013_8ab<-fa50(a50_F_2013_8ab,niter=100,graph=T)
+ra50_F_2013_8ab$a50
+l_a50_F_8ab <- median(ra50_F_2013$a50)
+
+#2014                              
+a50_F_2014_8ab <- Data_MUR_a50%>%
+  filter(sex=="F"  | sex =="I")%>%
+  filter(year=="2014")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2014_8ab<-fa50(a50_F_2014_8ab,niter=100,graph=T)
+ra50_F_2014_8ab$a50
+m_a50_F_8ab <- median(ra50_F_2014_8ab$a50)
+
+#pb2 <- Data_MUR_a50%>%
+#filter(sex=="F")%>%
+#filter(year=="2014")
+
+#2015                         
+a50_F_2015_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2015")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2015_8ab<-fa50(a50_F_2015_8ab,niter=100,graph=T)
+ra50_F_2015_8ab$a50
+n_a50_F_8ab <- median(ra50_F_2015_8ab$a50)
+
+#2016
+a50_F_2016_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2016")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2016_8ab<-fa50(a50_F_2016_8ab,niter=100,graph=T)
+ra50_F_2016_8ab$a50
+o_a50_F_8ab <- median(ra50_F_2016_8ab$a50)
+
+#2017
+a50_F_2017_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2017")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2017_8ab<-fa50(a50_F_2017_8ab,niter=100,graph=T)
+ra50_F_2017_8ab$a50
+p_a50_F_8ab <- median(ra50_F_2017_8ab$a50)
+
+#2018
+a50_F_2018_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2018")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2018_8ab<-fa50(a50_F_2018_8ab,niter=100,graph=T)
+ra50_F_2018_8ab$a50
+q_a50_F_8ab <- median(ra50_F_2018_8ab$a50)
+
+#2019
+a50_F_2019_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2019")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2019_8ab<-fa50(a50_F_2019_8ab,niter=100,graph=T)
+ra50_F_2019_8ab$a50
+r_a50_F_8ab <- median(ra50_F_2019$a50)
+
+#2020         
+a50_F_2020_8ab <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2020")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2020_8ab<-fa50(a50_F_2020_8ab,niter=100,graph=T)
+ra50_F_2020_8ab$a50
+s_a50_F_8ab <- median(ra50_F_2020$a50)
+
 #------------Tableau et graphiques de la a50 en fonction du temps---------------- 
 year <- (2006:2020)
-a50year_F <- c(e2, "", g2, h2, i2, j2, k2, l2, "", "", o2, p2, q2, r2, s2)
-taba50year_F <- data.frame(year, a50year_F )
-taba50year_F
+a50year_F_8ab <- c("", "", "", "", "", j_a50_F_8ab, k_a50_F_8ab, l_a50_F_8ab, "", "", o_a50_F_8ab, 
+                   p_a50_F_8ab, "", r_a50_F_8ab, "")
+taba50year_F_8ab <- data.frame(year, a50year_F_8ab)
+taba50year_F_8ab
 
-plot(taba50year_F)
+plot(taba50year_F_8ab)
 
-ggplot(taba50year_F,aes(x=annee,y=a50year_F))+
-  geom_point()
+ggplot(taba50year_F_8ab,aes(x=year,y=a50year_F_8ab))+
+  geom_point()+
+  geom_path()+ 
+  geom_smooth(method = "loess")
 
 
-#-----------------------------------Male----------------------------------------
+
+#---------------------------zone CIEM 7d----------------------------------------
+
+#2006
+a50_F_2006_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2006")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2006_7d <-fa50(a50_F_2006_7d,niter=100,graph=T)
+ra50_F_2006_7d$a50
+e_a50_F_7d <- median(ra50_F_2006$a50) 
+
+#2007              
+a50_F_2007_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2007")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2007_7d<-fa50(a50_F_2007_7d,niter=100,graph=T)
+ra50_F_2007_7d$a50
+f_a50_F_7d <- median(ra50_F_2007_7d$a50)  
+
+#2008
+a50_F_2008_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2008")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2008_7d<-fa50(a50_F_2008_7d,niter=100,graph=T)
+ra50_F_2008_7d$a50
+g_a50_F_7d <- median(ra50_F_2008_7d$a50)
+
+#2009                            
+a50_F_2009_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2009")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2009_7d<-fa50(a50_F_2009_7d,niter=100,graph=T)
+ra50_F_2009_7d$a50
+h_a50_F_7d <- median(ra50_F_2009_7d$a50)
+
+#2010                        
+a50_F_2010_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2010")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2010_7d<-fa50(a50_F_2010_7d,niter=100,graph=T)
+ra50_F_2010_7d$a50
+i_a50_F_7d <- median(ra50_F_2010_7d$a50)
+
+#2011
+a50_F_2011_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2011")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2011_7d<-fa50(a50_F_2011_7d,niter=100,graph=T)
+ra50_F_2011_7d$a50
+j_a50_F_7d <- median(ra50_F_2011_7d$a50)
+
+#2012
+a50_F_2012_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2012")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2012_7d<-fa50(a50_F_2012_7d,niter=100,graph=T)
+ra50_F_2012_7d$a50
+k_a50_F_7d <- median(ra50_F_2012_7d$a50)
+
+#2013
+a50_F_2013_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2013")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2013_7d<-fa50(a50_F_2013_7d,niter=100,graph=T)
+ra50_F_2013_7d$a50
+l_a50_F_7d <- median(ra50_F_2013$a50)
+
+#2014                            
+a50_F_2014_7d <- Data_MUR_a50%>%
+  filter(sex=="F"  | sex =="I")%>%
+  filter(year=="2014")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2014_7d<-fa50(a50_F_2014_7d,niter=100,graph=T)
+ra50_F_2014_7d$a50
+m_a50_F_7d <- median(ra50_F_2014_7d$a50)
+
+#pb2 <- Data_MUR_a50%>%
+#filter(sex=="F")%>%
+#filter(year=="2014")
+
+#2015                          
+a50_F_2015_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2015")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2015_7d<-fa50(a50_F_2015_7d,niter=100,graph=T)
+ra50_F_2015_7d$a50
+n_a50_F_7d <- median(ra50_F_2015_7d$a50)
+
+#2016
+a50_F_2016_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2016")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2016_7d<-fa50(a50_F_2016_7d,niter=100,graph=T)
+ra50_F_2016_7d$a50
+o_a50_F_7d <- median(ra50_F_2016_7d$a50)
+
+#2017
+a50_F_2017_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2017")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2017_7d<-fa50(a50_F_2017_7d,niter=100,graph=T)
+ra50_F_2017_7d$a50
+p_a50_F_7d <- median(ra50_F_2017_7d$a50)
+
+#2018
+a50_F_2018_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2018")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2018_7d<-fa50(a50_F_2018_7d,niter=100,graph=T)
+ra50_F_2018_7d$a50
+q_a50_F_7d <- median(ra50_F_2018_7d$a50)
+
+#2019
+a50_F_2019_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2019")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2019_7d<-fa50(a50_F_2019_7d,niter=100,graph=T)
+ra50_F_2019_7d$a50
+r_a50_F_7d <- median(ra50_F_2019$a50)
+
+#2020         
+a50_F_2020_7d <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2020")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2020_7d<-fa50(a50_F_2020_7d,niter=100,graph=T)
+ra50_F_2020_7d$a50
+s_a50_F_7d <- median(ra50_F_2020$a50)
+
+
+
+#------------Tableau et graphiques de la a50 en fonction du temps---------------- 
+year <- (2006:2020)
+a50year_F_7d <- c(e_a50_F_7d, "", "", "", i_a50_F_7d, j_a50_F_7d, k_a50_F_7d, "", 
+                  "", "", o_a50_F_7d, p_a50_F_7d, q_a50_F_7d, "", "")
+taba50year_F_7d <- data.frame(year, a50year_F_7d)
+taba50year_F_7d
+
+plot(taba50year_F_7d)
+
+ggplot(taba50year_F_7d,aes(x=year,y=a50year_F_7d))+
+  geom_point()+
+  geom_path()+ 
+  geom_smooth(method = "loess")
+
+
+
+#---------------------------zone CIEM 4c----------------------------------------
+
+#2006
+a50_F_2006_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2006")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2006_4c <-fa50(a50_F_2006_4c,niter=100,graph=T)
+ra50_F_2006_4c$a50
+e_a50_F_4c <- median(ra50_F_2006$a50)
+
+#2007              
+a50_F_2007_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2007")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2007_4c<-fa50(a50_F_2007_4c,niter=100,graph=T)
+ra50_F_2007_4c$a50
+f_a50_F_4c <- median(ra50_F_2007_4c$a50)   
+
+#2008
+a50_F_2008_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2008")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2008_4c<-fa50(a50_F_2008_4c,niter=100,graph=T)
+ra50_F_2008_4c$a50
+g_a50_F_4c <- median(ra50_F_2008_4c$a50)
+
+#2009                            
+a50_F_2009_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2009")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2009_4c<-fa50(a50_F_2009_4c,niter=100,graph=T)
+ra50_F_2009_4c$a50
+h_a50_F_4c <- median(ra50_F_2009_4c$a50)
+
+#2010                        
+a50_F_2010_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2010")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2010_4c<-fa50(a50_F_2010_4c,niter=100,graph=T)
+ra50_F_2010_4c$a50
+i_a50_F_4c <- median(ra50_F_2010_4c$a50)
+
+#2011
+a50_F_2011_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2011")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2011_4c<-fa50(a50_F_2011_4c,niter=100,graph=T)
+ra50_F_2011_4c$a50
+j_a50_F_4c <- median(ra50_F_2011_4c$a50)
+
+#2012
+a50_F_2012_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2012")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2012_4c<-fa50(a50_F_2012_4c,niter=100,graph=T)
+ra50_F_2012_4c$a50
+k_a50_F_4c <- median(ra50_F_2012_4c$a50)
+
+#2013
+a50_F_2013_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2013")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2013_4c<-fa50(a50_F_2013_4c,niter=100,graph=T)
+ra50_F_2013_4c$a50
+l_a50_F_4c <- median(ra50_F_2013$a50)
+
+#2014                            
+a50_F_2014_4c <- Data_MUR_a50%>%
+  filter(sex=="F"  | sex =="I")%>%
+  filter(year=="2014")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2014_4c<-fa50(a50_F_2014_4c,niter=100,graph=T)
+ra50_F_2014_4c$a50
+m_a50_F_4c <- median(ra50_F_2014_4c$a50)
+
+#pb2 <- Data_MUR_a50%>%
+#filter(sex=="F")%>%
+#filter(year=="2014")
+
+#2015                          
+a50_F_2015_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2015")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2015_4c<-fa50(a50_F_2015_4c,niter=100,graph=T)
+ra50_F_2015_4c$a50
+n_a50_F_4c <- median(ra50_F_2015_4c$a50)
+
+#2016
+a50_F_2016_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2016")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2016_4c<-fa50(a50_F_2016_4c,niter=100,graph=T)
+ra50_F_2016_4c$a50
+o_a50_F_4c <- median(ra50_F_2016_4c$a50)
+
+#2017
+a50_F_2017_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2017")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2017_4c<-fa50(a50_F_2017_4c,niter=100,graph=T)
+ra50_F_2017_4c$a50
+p_a50_F_4c <- median(ra50_F_2017_4c$a50)
+
+#2018
+a50_F_2018_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2018")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2018_4c<-fa50(a50_F_2018_4c,niter=100,graph=T)
+ra50_F_2018_4c$a50
+q_a50_F_4c <- median(ra50_F_2018_4c$a50)
+
+#2019
+a50_F_2019_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2019")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2019_4c<-fa50(a50_F_2019_4c,niter=100,graph=T)
+ra50_F_2019_4c$a50
+r_a50_F_4c <- median(ra50_F_2019$a50)
+
+#2020          
+a50_F_2020_4c <- Data_MUR_a50%>%
+  filter(sex=="F" | sex =="I")%>%
+  filter(year=="2020")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_F_2020_4c<-fa50(a50_F_2020_4c,niter=100,graph=T)
+ra50_F_2020_4c$a50
+s_a50_F_4c <- median(ra50_F_2020$a50)
+
+
+
+#------------Tableau et graphiques de la a50 en fonction du temps---------------- 
+year <- (2006:2020)
+a50year_F_4c <- c(e_a50_F_4c, "", "", "", i_a50_F_4c, j_a50_F_4c, k_a50_F_4c, "", "", "", 
+                  o_a50_F_4c, p_a50_F_4c, q_a50_F_4c, "", "")
+taba50year_F_4c <- data.frame(year, a50year_F_4c)
+taba50year_F_4c
+
+plot(taba50year_F_4c)
+
+ggplot(taba50year_F_4c,aes(x=year,y=a50year_F_4c))+
+  geom_point()+
+  geom_path()+ 
+  geom_smooth(method = "loess")
+
+
+
+#------------------------------------Male---------------------------------------
 
 #-------Graphique de la proportion de mature/immature et valeur a50------------- 
 #------------------------en fonction des zones---------------------------------- 
@@ -1297,201 +2525,575 @@ a50_M<- Data_MUR_a50%>%
   filter(sex=="M" | sex =="I")%>%
   mutate(mature=as.factor(mature)) 
 ra50_M<-fa50(a50_M,niter=100,graph=T)
-a3 <- median(ra50_M$a50)
+a_a50_M <- median(ra50_M$a50)
 
-#zone 8a-b 
+#zone 8a-b - toutes années
 a50_M_8ab <- Data_MUR_a50%>%
   filter(sex=="M" | sex =="I")%>%
   filter(newarea=="8a-b")%>%
   mutate(mature=as.factor(mature)) 
 ra50_M_8ab<-fa50(a50_M_8ab,niter=100,graph=T)
-b3 <- median(ra50_M_8ab$a50)
+b_a50_M <- median(ra50_M_8ab$a50)
 
-#zone 7d 
-a50_M_7de <- Data_MUR_a50%>%
+#zone 7d - toutes années
+a50_M_7d <- Data_MUR_a50%>%
   filter(sex=="M" | sex =="I")%>%
   filter(newarea=="7d")%>%
   mutate(mature=as.factor(mature)) 
-ra50_M_7de<-fa50(a50_M_7de,niter=100,graph=T)
-c3 <- median(ra50_M_7de$a50)
+ra50_M_7d<-fa50(a50_M_7d,niter=100,graph=T)
+c_a50_M <- median(ra50_M_7d$a50)
 
-#zone 4c 
-a50_M_4bc <- Data_MUR_a50%>%
+#zone 4c - toutes années
+a50_M_4c <- Data_MUR_a50%>%
   filter(sex=="M" | sex =="I")%>%
   filter(newarea=="4c")%>%
   mutate(mature=as.factor(mature)) 
-ra50_M_4bc<-fa50(a50_M_4bc,niter=100,graph=T)
-d3 <- median(ra50_M_4bc$a50)
+ra50_M_4c<-fa50(a50_M_4c,niter=100,graph=T)
+d_a50_M <- median(ra50_M_4c$a50)
 
-#-------Graphique de la proportion de mature/immature et valeur a50------------- 
-#---------------------pour chaque année 2006-2020-------------------------------
-
-#2006              #Pas fonctionel = pas d'immature
-a50_M_2006 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2006")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2006<-fa50(a50_M_2006,niter=100,graph=T)
-ra50_M_2006$a50
-e3 <- median(ra50_M_2006$a50)
-
-#2007              #ne fonctionne pas très bien = pas assez d'individus mature
-a50_M_2007 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2007")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2007<-fa50(a50_M_2007,niter=100,graph=T)
-ra50_M_2007$a50
-f3 <- median(ra50_M_2007$a50)    
-
-#2008                      #Pas fonctionel = peu d'immature
-a50_M_2008 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2008")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2008<-fa50(a50_M_2008,niter=100,graph=T)
-ra50_M_2008$a50
-g3 <- median(ra50_M_2008$a50)
-
-#2009                             
-a50_M_2009 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2009")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2009<-fa50(a50_M_2009,niter=100,graph=T)
-ra50_M_2009$a50
-h3 <- median(ra50_M_2009$a50)
-
-#2010                        
-a50_M_2010 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2010")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2010<-fa50(a50_M_2010,niter=100,graph=T)
-ra50_M_2010$a50
-i3 <- median(ra50_M_2010$a50)
-
-#2011                     #Pas fonctionel = peu d'immature
-a50_M_2011 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2011")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2011<-fa50(a50_M_2011,niter=100,graph=T)
-ra50_M_2011$a50
-j3 <- median(ra50_M_2011$a50)
-
-#2012                     #Pas fonctionel = peu d'immature
-a50_M_2012 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2012")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2012<-fa50(a50_M_2012,niter=100,graph=T)
-ra50_M_2012$a50
-k3 <- median(ra50_M_2012$a50)
-
-#2013
-a50_M_2013 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2013")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2013<-fa50(a50_M_2013,niter=100,graph=T)
-ra50_M_2013$a50
-l3 <- median(ra50_M_2013$a50)
-
-#2014                               
-a50_M_2014 <- Data_MUR_a50%>%
-  filter(sex=="M"  | sex =="I")%>%
-  filter(year=="2014")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2014<-fa50(a50_M_2014,niter=100,graph=T)
-ra50_M_2014$a50
-m3 <- median(ra50_M_2014$a50)
-
-#pb2 <- Data_MUR_a50%>%
-#filter(sex=="M")%>%
-#filter(year=="2014")
-
-#2015                         #Pas très fonctionel = peu d'immature
-a50_M_2015 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2015")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2015<-fa50(a50_M_2015,niter=100,graph=T)
-ra50_M_2015$a50
-n3 <- median(ra50_M_2015$a50)
-
-#2016                          #Pas fonctionel = peu d'immature
-a50_M_2016 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2016")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2016<-fa50(a50_M_2016,niter=100,graph=T)
-ra50_M_2016$a50
-o3 <- median(ra50_M_2016$a50)
-
-#2017
-a50_M_2017 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2017")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2017<-fa50(a50_M_2017,niter=100,graph=T)
-ra50_M_2017$a50
-p3 <- median(ra50_M_2017$a50)
-
-#2018                     #Pas fonctionel
-a50_M_2018 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2018")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2018<-fa50(a50_M_2018,niter=100,graph=T)
-ra50_M_2018$a50
-q3 <- median(ra50_M_2018$a50)
-
-#2019
-a50_M_2019 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2019")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2019<-fa50(a50_M_2019,niter=100,graph=T)
-ra50_M_2019$a50
-r3 <- median(ra50_M_2019$a50)
-
-#2020          ##ne fonctionne pas, valeur eleve 19.5
-a50_M_2020 <- Data_MUR_a50%>%
-  filter(sex=="M" | sex =="I")%>%
-  filter(year=="2020")%>%
-  mutate(mature=as.factor(mature)) 
-ra50_M_2020<-fa50(a50_M_2020,niter=100,graph=T)
-ra50_M_2020$a50
-s3 <- median(ra50_M_2020$a50)
-
-#------------Tableau et graphiques de l'a50 en fonction des zones--------------- 
+#------------Tableau et graphiques de la a50 en fonction des zones--------------- 
 area <- c("Toutes zones confondues", "zone 8a-b", "zone 7d", "zone 4c")
-a50area_M <- c(a3, b3, c3, d3)
+a50area_M <- c(a_a50_M, b_a50_M, c_a50_M, d_a50_M)
 taba50area_M <- data.frame(area, a50area_M)
 taba50area_M 
 
 ggplot(taba50area_M ,aes(x=area,y=a50area_M))+
   geom_point()
 
-#------------Tableau et graphiques de l'a50 en fonction du temps---------------- 
+
+
+#-------Graphique de la proportion de mature/immature et valeur a50------------- 
+#---------------------pour chaque année 2006-2020-------------------------------
+
+#---------------------------zone CIEM 8ab---------------------------------------
+
+#2006
+a50_M_2006_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2006")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2006_8ab <-fa50(a50_M_2006_8ab,niter=100,graph=T)
+ra50_M_2006_8ab$a50
+e_a50_M_8ab <- median(ra50_M_2006$a50) 
+
+#2007              
+a50_M_2007_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2007")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2007_8ab<-fa50(a50_M_2007_8ab,niter=100,graph=T)
+ra50_M_2007_8ab$a50
+f_a50_M_8ab <- median(ra50_M_2007_8ab$a50) 
+
+#2008
+a50_M_2008_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2008")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2008_8ab<-fa50(a50_M_2008_8ab,niter=100,graph=T)
+ra50_M_2008_8ab$a50
+g_a50_M_8ab <- median(ra50_M_2008_8ab$a50)
+
+#2009                             
+a50_M_2009_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2009")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2009_8ab<-fa50(a50_M_2009_8ab,niter=100,graph=T)
+ra50_M_2009_8ab$a50
+h_a50_M_8ab <- median(ra50_M_2009_8ab$a50)
+
+#2010                        
+a50_M_2010_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2010")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2010_8ab<-fa50(a50_M_2010_8ab,niter=100,graph=T)
+ra50_M_2010_8ab$a50
+i_a50_M_8ab <- median(ra50_M_2010_8ab$a50)
+
+#2011
+a50_M_2011_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2011")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2011_8ab<-fa50(a50_M_2011_8ab,niter=100,graph=T)
+ra50_M_2011_8ab$a50
+j_a50_M_8ab <- median(ra50_M_2011_8ab$a50)
+
+#2012
+a50_M_2012_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2012")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2012_8ab<-fa50(a50_M_2012_8ab,niter=100,graph=T)
+ra50_M_2012_8ab$a50
+k_a50_M_8ab <- median(ra50_M_2012_8ab$a50)
+
+#2013
+a50_M_2013_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2013")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2013_8ab<-fa50(a50_M_2013_8ab,niter=100,graph=T)
+ra50_M_2013_8ab$a50
+l_a50_M_8ab <- median(ra50_M_2013$a50)
+
+#2014                               
+a50_M_2014_8ab <- Data_MUR_a50%>%
+  filter(sex=="M"  | sex =="I")%>%
+  filter(year=="2014")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2014_8ab<-fa50(a50_M_2014_8ab,niter=100,graph=T)
+ra50_M_2014_8ab$a50
+m_a50_M_8ab <- median(ra50_M_2014_8ab$a50)
+
+#pb2 <- Data_MUR_a50%>%
+#filter(sex=="M")%>%
+#filter(year=="2014")
+
+#2015                         
+a50_M_2015_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2015")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2015_8ab<-fa50(a50_M_2015_8ab,niter=100,graph=T)
+ra50_M_2015_8ab$a50
+n_a50_M_8ab <- median(ra50_M_2015_8ab$a50)
+
+#2016
+a50_M_2016_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2016")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2016_8ab<-fa50(a50_M_2016_8ab,niter=100,graph=T)
+ra50_M_2016_8ab$a50
+o_a50_M_8ab <- median(ra50_M_2016_8ab$a50)
+
+#2017
+a50_M_2017_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2017")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2017_8ab<-fa50(a50_M_2017_8ab,niter=100,graph=T)
+ra50_M_2017_8ab$a50
+p_a50_M_8ab <- median(ra50_M_2017_8ab$a50)
+
+#2018
+a50_M_2018_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2018")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2018_8ab<-fa50(a50_M_2018_8ab,niter=100,graph=T)
+ra50_M_2018_8ab$a50
+q_a50_M_8ab <- median(ra50_M_2018_8ab$a50)
+
+#2019
+a50_M_2019_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2019")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2019_8ab<-fa50(a50_M_2019_8ab,niter=100,graph=T)
+ra50_M_2019_8ab$a50
+r_a50_M_8ab <- median(ra50_M_2019$a50)
+
+#2020          
+a50_M_2020_8ab <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2020")%>%
+  filter(newarea=="8a-b")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2020_8ab<-fa50(a50_M_2020_8ab,niter=100,graph=T)
+ra50_M_2020_8ab$a50
+s_a50_M_8ab <- median(ra50_M_2020$a50)
+
+#------------Tableau et graphiques de la a50 en fonction du temps---------------- 
 year <- (2006:2020)
-a50year_M <- c("", f3, "", h3, i3, "", k3, l3, m3, n3, o3, p3, q3, r3, "")
-taba50year_M <- data.frame(year, a50year_M )
-taba50year_M
+a50year_M_8ab <- c("", "", g_a50_M_8ab, h_a50_M_8ab, "", "", k_a50_M_8ab, "", "", "", "", p_a50_M_8ab, "", "", "")
+taba50year_M_8ab <- data.frame(year, a50year_M_8ab)
+taba50year_M_8ab
 
-taba50year_M$a50year_M <- as.numeric(taba50year_M$a50year_M)
+plot(taba50year_M_8ab)
 
-plot(taba50year_M)
-
-ggplot(taba50year_M,aes(x=annee,y=a50year_M))+
+ggplot(taba50year_M_8ab,aes(x=year,y=a50year_M_8ab))+
   geom_point()+
   geom_path()+ 
   geom_smooth(method = "loess")
 
-str(taba50year_M)
 
-??geom_smooth()
+
+#---------------------------zone CIEM 7d----------------------------------------
+
+#2006
+a50_M_2006_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2006")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2006_7d <-fa50(a50_M_2006_7d,niter=100,graph=T)
+ra50_M_2006_7d$a50
+e_a50_M_7d <- median(ra50_M_2006$a50) 
+
+#2007              
+a50_M_2007_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2007")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2007_7d<-fa50(a50_M_2007_7d,niter=100,graph=T)
+ra50_M_2007_7d$a50
+f_a50_M_7d <- median(ra50_M_2007_7d$a50)   
+
+#2008
+a50_M_2008_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2008")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2008_7d<-fa50(a50_M_2008_7d,niter=100,graph=T)
+ra50_M_2008_7d$a50
+g_a50_M_7d <- median(ra50_M_2008_7d$a50)
+
+#2009                             
+a50_M_2009_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2009")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2009_7d<-fa50(a50_M_2009_7d,niter=100,graph=T)
+ra50_M_2009_7d$a50
+h_a50_M_7d <- median(ra50_M_2009_7d$a50)
+
+#2010                        
+a50_M_2010_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2010")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2010_7d<-fa50(a50_M_2010_7d,niter=100,graph=T)
+ra50_M_2010_7d$a50
+i_a50_M_7d <- median(ra50_M_2010_7d$a50)
+
+#2011
+a50_M_2011_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2011")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2011_7d<-fa50(a50_M_2011_7d,niter=100,graph=T)
+ra50_M_2011_7d$a50
+j_a50_M_7d <- median(ra50_M_2011_7d$a50)
+
+#2012
+a50_M_2012_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2012")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2012_7d<-fa50(a50_M_2012_7d,niter=100,graph=T)
+ra50_M_2012_7d$a50
+k_a50_M_7d <- median(ra50_M_2012_7d$a50)
+
+#2013
+a50_M_2013_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2013")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2013_7d<-fa50(a50_M_2013_7d,niter=100,graph=T)
+ra50_M_2013_7d$a50
+l_a50_M_7d <- median(ra50_M_2013$a50)
+
+#2014                              
+a50_M_2014_7d <- Data_MUR_a50%>%
+  filter(sex=="M"  | sex =="I")%>%
+  filter(year=="2014")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2014_7d<-fa50(a50_M_2014_7d,niter=100,graph=T)
+ra50_M_2014_7d$a50
+m_a50_M_7d <- median(ra50_M_2014_7d$a50)
+
+#pb2 <- Data_MUR_a50%>%
+#filter(sex=="M")%>%
+#filter(year=="2014")
+
+#2015                           
+a50_M_2015_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2015")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2015_7d<-fa50(a50_M_2015_7d,niter=100,graph=T)
+ra50_M_2015_7d$a50
+n_a50_M_7d <- median(ra50_M_2015_7d$a50)
+
+#2016
+a50_M_2016_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2016")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2016_7d<-fa50(a50_M_2016_7d,niter=100,graph=T)
+ra50_M_2016_7d$a50
+o_a50_M_7d <- median(ra50_M_2016_7d$a50)
+
+#2017
+a50_M_2017_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2017")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2017_7d<-fa50(a50_M_2017_7d,niter=100,graph=T)
+ra50_M_2017_7d$a50
+p_a50_M_7d <- median(ra50_M_2017_7d$a50)
+
+#2018
+a50_M_2018_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2018")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2018_7d<-fa50(a50_M_2018_7d,niter=100,graph=T)
+ra50_M_2018_7d$a50
+q_a50_M_7d <- median(ra50_M_2018_7d$a50)
+
+#2019
+a50_M_2019_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2019")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2019_7d<-fa50(a50_M_2019_7d,niter=100,graph=T)
+ra50_M_2019_7d$a50
+r_a50_M_7d <- median(ra50_M_2019$a50)
+
+#2020          
+a50_M_2020_7d <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2020")%>%
+  filter(newarea=="7d")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2020_7d<-fa50(a50_M_2020_7d,niter=100,graph=T)
+ra50_M_2020_7d$a50
+s_a50_M_7d <- median(ra50_M_2020$a50)
+
+
+
+#------------Tableau et graphiques de la a50 en fonction du temps---------------- 
+year <- (2006:2020)
+a50year_M_7d <- c("", "", "", "", i_a50_M_7d, j_a50_M_7d, k_a50_M_7d, "", m_a50_M_7d, "", "", "", "", "", "")
+taba50year_M_7d <- data.frame(year, a50year_M_7d)
+taba50year_M_7d
+
+plot(taba50year_M_7d)
+
+ggplot(taba50year_M_7d,aes(x=year,y=a50year_M_7d))+
+  geom_point()+
+  geom_path()+ 
+  geom_smooth(method = "loess")
+
+
+
+#---------------------------zone CIEM 4c----------------------------------------
+
+#2006
+a50_M_2006_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2006")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2006_4c <-fa50(a50_M_2006_4c,niter=100,graph=T)
+ra50_M_2006_4c$a50
+e_a50_M_4c <- median(ra50_M_2006$a50) 
+
+#2007              
+a50_M_2007_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2007")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2007_4c<-fa50(a50_M_2007_4c,niter=100,graph=T)
+ra50_M_2007_4c$a50
+f_a50_M_4c <- median(ra50_M_2007_4c$a50)    
+
+#2008
+a50_M_2008_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2008")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2008_4c<-fa50(a50_M_2008_4c,niter=100,graph=T)
+ra50_M_2008_4c$a50
+g_a50_M_4c <- median(ra50_M_2008_4c$a50)
+
+#2009                             
+a50_M_2009_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2009")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2009_4c<-fa50(a50_M_2009_4c,niter=100,graph=T)
+ra50_M_2009_4c$a50
+h_a50_M_4c <- median(ra50_M_2009_4c$a50)
+
+#2010                        
+a50_M_2010_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2010")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2010_4c<-fa50(a50_M_2010_4c,niter=100,graph=T)
+ra50_M_2010_4c$a50
+i_a50_M_4c <- median(ra50_M_2010_4c$a50)
+
+#2011
+a50_M_2011_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2011")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2011_4c<-fa50(a50_M_2011_4c,niter=100,graph=T)
+ra50_M_2011_4c$a50
+j_a50_M_4c <- median(ra50_M_2011_4c$a50)
+
+#2012
+a50_M_2012_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2012")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2012_4c<-fa50(a50_M_2012_4c,niter=100,graph=T)
+ra50_M_2012_4c$a50
+k_a50_M_4c <- median(ra50_M_2012_4c$a50)
+
+#2013
+a50_M_2013_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2013")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2013_4c<-fa50(a50_M_2013_4c,niter=100,graph=T)
+ra50_M_2013_4c$a50
+l_a50_M_4c <- median(ra50_M_2013$a50)
+
+#2014                             
+a50_M_2014_4c <- Data_MUR_a50%>%
+  filter(sex=="M"  | sex =="I")%>%
+  filter(year=="2014")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2014_4c<-fa50(a50_M_2014_4c,niter=100,graph=T)
+ra50_M_2014_4c$a50
+m_a50_M_4c <- median(ra50_M_2014_4c$a50)
+
+#pb2 <- Data_MUR_a50%>%
+#filter(sex=="M")%>%
+#filter(year=="2014")
+
+#2015                         
+a50_M_2015_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2015")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2015_4c<-fa50(a50_M_2015_4c,niter=100,graph=T)
+ra50_M_2015_4c$a50
+n_a50_M_4c <- median(ra50_M_2015_4c$a50)
+
+#2016
+a50_M_2016_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2016")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2016_4c<-fa50(a50_M_2016_4c,niter=100,graph=T)
+ra50_M_2016_4c$a50
+o_a50_M_4c <- median(ra50_M_2016_4c$a50)
+
+#2017
+a50_M_2017_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2017")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2017_4c<-fa50(a50_M_2017_4c,niter=100,graph=T)
+ra50_M_2017_4c$a50
+p_a50_M_4c <- median(ra50_M_2017_4c$a50)
+
+#2018
+a50_M_2018_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2018")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2018_4c<-fa50(a50_M_2018_4c,niter=100,graph=T)
+ra50_M_2018_4c$a50
+q_a50_M_4c <- median(ra50_M_2018_4c$a50)
+
+#2019
+a50_M_2019_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2019")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2019_4c<-fa50(a50_M_2019_4c,niter=100,graph=T)
+ra50_M_2019_4c$a50
+r_a50_M_4c <- median(ra50_M_2019$a50)
+
+#2020          
+a50_M_2020_4c <- Data_MUR_a50%>%
+  filter(sex=="M" | sex =="I")%>%
+  filter(year=="2020")%>%
+  filter(newarea=="4c")%>%
+  mutate(mature=as.factor(mature)) 
+ra50_M_2020_4c<-fa50(a50_M_2020_4c,niter=100,graph=T)
+ra50_M_2020_4c$a50
+s_a50_M_4c <- median(ra50_M_2020$a50)
+
+
+
+#------------Tableau et graphiques de la a50 en fonction du temps---------------- 
+year <- (2006:2020)
+a50year_M_4c <- c("", f_a50_M_4c, g_a50_M_4c, "", "", "", "", "", "", n_a50_M_4c, "" , "", "", "", "")
+taba50year_M_4c <- data.frame(year, a50year_M_4c)
+taba50year_M_4c
+
+plot(taba50year_M_4c)
+
+ggplot(taba50year_M_4c,aes(x=year,y=a50year_M_4c))+
+  geom_point()+
+  geom_path()+ 
+  geom_smooth(method = "loess")
+
+#redflag dans le tableau, on fera un lissage dans le graphique 
+#ajouter le nb de mature/immature pour chaque individu 
+#mettre un critère ? 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
