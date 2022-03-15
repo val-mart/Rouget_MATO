@@ -34,7 +34,7 @@ Data_chl_2008_2019 <- stack(Data_chl_2008_2019)
 Data_chl_1997_2007<- "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/dataset-oc-atl-chl-multi_cci-l4-chl_1km_monthly-rep-v02_1997_2007.nc"
 Data_chl_1997_2007 <- stack(Data_chl_1997_2007)
 
-plot(Data_chl_1997_2007)
+plot(log10(Data_chl_1997_2007))
 
 
 #Trouver des infos sur les donnees
@@ -464,32 +464,37 @@ result_chl_1997_2021_4c7d <- rbind(result_chl_1997_2007_4c7d, result_chl_2008_20
 result_chl_1997_2021_4c7d <- mutate(result_chl_1997_2021_4c7d, div = "4c7d")
 result_chl_1997_2021_4c7d
 
-result_chl_1997_2021 <- rbind(result_chl_1997_2021_8ab, result_chl_1997_2021_4c7d)
-result_chl_1997_2021
+#suppression des annees 1997 ET 2021 qui ne sont pas completes
+result_chl_1998_2020_8ab <- result_chl_1997_2021_8ab[-c(1,25), ]
+result_chl_1998_2020_8ab
 
-#--------------------VOIR POUR SUPPRIMER LES LIGNES DES ANNEES 1997 ET 2021 !!!!!!!--------------------------
+result_chl_1998_2020_4c7d <- result_chl_1997_2021_4c7d[-c(1,25), ]
+result_chl_1998_2020_4c7d
+
+result_chl_1998_2020 <- rbind(result_chl_1998_2020_8ab, result_chl_1998_2020_4c7d)
+result_chl_1998_2020
 
 #-----------------------Graphiques series temporelles moyenne SST 8ab/4c7d-----------------------------------
 
 
 
-#1982 à 2020
-ggplot(result_chl_1997_2021, 
+#1998 à 2020
+ggplot(result_chl_1998_2020, 
        mapping = aes(x = year, y = Mean_chl, color=div)) +
   geom_point() +
   geom_line() +   
   geom_smooth() + 
   geom_errorbar(aes(ymin = Mean_chl - Ecart_Type_chl, ymax = Mean_chl + Ecart_Type_chl), width = 0.5) + 
   ylim(-2.5, 15) +
-  labs(title = "Evolution de la moyenne de la concentration en Chl a dans le Golf de Gascogne et Manche/Mer du Nord  entre 1982 et 2020",
+  labs(title = "Evolution de la moyenne de la concentration en Chl a dans le Golf de Gascogne et Manche/Mer du Nord entre 1998 et 2020",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") + 
-  scale_x_continuous(limits=c(1997, 2021), breaks = seq(1997, 2021, 5))
+  scale_x_continuous(limits=c(1998, 2020), breaks = seq(1998, 2020, 5))
 
 
 #2006 à 2020
-ggplot(result_chl_1997_2021, 
+ggplot(result_chl_1998_2020, 
        mapping = aes(x = year, y = Mean_chl, color=div)) +
   geom_point() +
   geom_line() +   
@@ -500,7 +505,7 @@ ggplot(result_chl_1997_2021,
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") + 
-  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
 
 
 #
@@ -518,9 +523,6 @@ corSST_1982_2020_4c7d
 corSST_1982_2020_8ab <-cor.test(result_SST_1982_2020_8ab$year, result_SST_1982_2020_8ab$Mean_SST, method="spearman")
 corSST_1982_2020_8ab
 
-#les deux zones 
-corSST_1982_2020 <-cor.test(result_SST_1982_2020$year, result_SST_1982_2020$Mean_SST, method="spearman", exact=FALSE)
-corSST_1982_2020
 
 # #-------------------------------------------Chlorophylle a----------------------------------------------------------- 
 #4c7d
@@ -531,10 +533,8 @@ corChl_1997_2021_4c7d
 corChl_1997_2021_8ab <-cor.test(result_chl_1997_2021_8ab$year, result_chl_1997_2021_8ab$Mean_chl, method="spearman")
 corChl_1997_2021_8ab
 
-#les deux zones
-corChl_1997_2021 <-cor.test(result_chl_1997_2021$year, result_chl_1997_2021$Mean_chl, method="spearman", exact=FALSE)
-corChl_1997_2021
 
+#
 
 
 
