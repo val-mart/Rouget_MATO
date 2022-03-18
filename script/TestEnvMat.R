@@ -1,4 +1,4 @@
-# TRAITEMENT DE FICHIER netcdf (SST et PP) DANS L'2TUDE DU ROUGET BARBERT 
+# TRAITEMENT DE FICHIER netcdf (SST et PP) DANS L ETUDE DU ROUGET BARBERT 
 #UN EXEMPLE A L AIDE DU PACKAE raster
 
 
@@ -19,22 +19,33 @@ Data_SST_1990_2005 <- stack(Data_SST_1990_2005)
 Data_SST_1982_1989 <- "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/cmems-IFREMER-ATL-SST-L4-REP-OBS_FULL_TIME_SERIE_1982_1989.nc"
 Data_SST_1982_1989 <- stack(Data_SST_1982_1989)
 
+
+#library(spatialEco)
+#r <- stack(Data_SST_2006_2020, Data_SST_1990_2005, Data_SST_1982_1989) 
+#Data_SST_1982_2020 <- spatialEco::combine(r)
+#Data_SST_1982_2020_C <- Data_SST_1982_2020 - 273.15
+#levelplot(Data_SST_1982_2020_C)
+#mData_SST_1982_2020_C<-mean(Data_SST_2006_2020,na.rm=T)
+#levelplot()
+
 load("C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/div.rdata")
 plot(div)
 plot(div["F_DIVISION"])
 
 
-Data_chl_2020_2021<- "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/dataset-oc-atl-chl-multi_cci-l4-chl_1km_monthly-rep-v02_2020_2021.nc"
+Data_chl_2020_2021 <- "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/dataset-oc-atl-chl-multi_cci-l4-chl_1km_monthly-rep-v02_2020_2021.nc"
 Data_chl_2020_2021 <- stack(Data_chl_2020_2021)
-Data_chl_2020_2021 
 
-Data_chl_2008_2019<- "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/dataset-oc-atl-chl-multi_cci-l4-chl_1km_monthly-rep-v02_2008_2019.nc"
+Data_chl_2008_2019 <- "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/dataset-oc-atl-chl-multi_cci-l4-chl_1km_monthly-rep-v02_2008_2019.nc"
 Data_chl_2008_2019 <- stack(Data_chl_2008_2019)
 
-Data_chl_1997_2007<- "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/dataset-oc-atl-chl-multi_cci-l4-chl_1km_monthly-rep-v02_1997_2007.nc"
+Data_chl_1997_2007 <- "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/dataset-oc-atl-chl-multi_cci-l4-chl_1km_monthly-rep-v02_1997_2007.nc"
 Data_chl_1997_2007 <- stack(Data_chl_1997_2007)
 
-plot(log10(Data_chl_1997_2007))
+
+#Data_chl_2020_2021_log <- log10(Data_chl_2020_2021)
+#Data_chl_2008_2019_log <- log10(Data_chl_2008_2019)
+#Data_chl_1997_2007_log <- log10(Data_chl_1997_2007)
 
 
 #Trouver des infos sur les donnees
@@ -65,7 +76,7 @@ plot(log10(Data_chl_1997_2007))
 
 #subtr permet de decouper ces noms pour avoir l annee ou le mois ou autre
 #substr("X2009.01.01",2,5) #renvoit les carateres 2 a 8 de la chaîne de caracteres 
-#consideree (pour considere que l'annee)
+#consideree (pour considere que l annee)
 #stackApply permet d appliquer un operateur statistique sur un ensemble de
 #cartes defini par un vecteur passe dans le deuxieme argument de la fonction
 #ici dans ce cas precis : cacul de la moyenne annuelle
@@ -74,7 +85,7 @@ plot(log10(Data_chl_1997_2007))
 #Data_SST_2006_2020_month_100<-stackApply(DataTemp[[1:100]],substr(names(Data_SST_2006_2020)[1:100],7,8),mean)
 #levelplot(Data_SST_2006_2020_month_100)
 
-#ou faire des regoupement pour n'avoir que janvier 2006
+#ou faire des regoupement pour n avoir que janvier 2006
 #id <- substr(names(Data_SST_2006_2020), 2,8)
 #id2 <- which(id == "2006.01")
 #id[id2]
@@ -86,7 +97,7 @@ plot(log10(Data_chl_1997_2007))
 
 #---------CALCUL D UNE VALEUR MOYENNE PAR REGROUPEMET DE CARTES : ICI PAR ANNEE--------------
 #ex : "X2006.01.02" <- ne garder que du caractere 2 a 5
-#D'abord conversion des kelvin en celsius 
+#D abord conversion des kelvin en celsius 
 Data_SST_2006_2020_C <- Data_SST_2006_2020 - 273.15
 Data_SST_1990_2005_C <- Data_SST_1990_2005 - 273.15
 Data_SST_1982_1989_C <- Data_SST_1982_1989 - 273.15
@@ -104,12 +115,12 @@ for(id2 in 2006:2020){                                                          
   i <- id2 -2005                                                                                                            #permet de donner le numero de la ligne dans le tableau 
   #id2<-2007                                                                                                                #exemple avec une annee pour tester 
   divnum <- div8ab                                                                                                          #selection de la zone a extraire 
-  id <- substr(names(Data_SST_2006_2020_C), 2,5)                                                                            #indique ce qu'il faut selectionner dans le nom de ma map 
-  idyear <- which(id == id2)                                                                                                #indique qu'une partie du nom de ma map doit correspondre a mon année 
-  map_mean_SST <- stackApply(Data_SST_2006_2020_C[[idyear]],substr(names(Data_SST_2006_2020_C)[idyear], 2,5),mean)                 #selectionne les maps correspondantes et calcule une map moyenne pour chaque année 
+  id <- substr(names(Data_SST_2006_2020_C), 2,5)                                                                            #indique ce qu il faut selectionner dans le nom de ma map 
+  idyear <- which(id == id2)                                                                                                #indique qu une partie du nom de ma map doit correspondre a mon annee 
+  map_mean_SST <- stackApply(Data_SST_2006_2020_C[[idyear]],substr(names(Data_SST_2006_2020_C)[idyear], 2,5),mean)                 #selectionne les maps correspondantes et calcule une map moyenne pour chaque annee 
     result_SST_2006_2020_8ab$Mean_SST[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                               #calcule la moyenne de ces maps moyennes et les mets dans la bonne colonne  
-    result_SST_2006_2020_8ab$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                          #calcule l'ecart-type de ces maps moyennes t les mets dans la bonne colonne
-    result_SST_2006_2020_8ab$year[i] <- id2                                                                                          #met l'annee dans la colonne correspondante 
+    result_SST_2006_2020_8ab$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                          #calcule l ecart-type de ces maps moyennes t les mets dans la bonne colonne
+    result_SST_2006_2020_8ab$year[i] <- id2                                                                                          #met l annee dans la colonne correspondante 
 }
 result_SST_2006_2020_8ab
 plot(result_SST_2006_2020_8ab$year, result_SST_2006_2020_8ab$Mean_SST)
@@ -148,7 +159,7 @@ result_SST_1982_1989_8ab
 plot(result_SST_1990_2005_8ab$year, result_SST_1990_2005_8ab$Mean_SST)
 
 
-#Fusion des 3 tableaux ensemble pour rassembler de 1982 à 2020
+#Fusion des 3 tableaux ensemble pour rassembler de 1982 a 2020
 
 result_SST_1982_2020_8ab <- rbind(result_SST_1982_1989_8ab, result_SST_1990_2005_8ab, result_SST_2006_2020_8ab)
 result_SST_1982_2020_8ab
@@ -156,7 +167,7 @@ result_SST_1982_2020_8ab <- mutate(result_SST_1982_2020_8ab, div = "8ab")
 result_SST_1982_2020_8ab
 
 #-----------------------Graphiques series temporelles moyenne SST 8ab-----------------------------------
-#1982 à 2020
+#1982 a 2020
 ggplot(result_SST_1982_2020_8ab, 
        mapping = aes(x = year, y = Mean_SST)) +
   geom_point() +
@@ -166,13 +177,13 @@ ggplot(result_SST_1982_2020_8ab,
   ylim(0, 18) +
   labs(title = "Evolution de la moyenne de la SST dans le Golf de Gascogne entre 1982 et 2020",
        subtitle = "Zones geographiques de pêche : 8a et 8b ",
-       caption = "Barres d'erreur: écart-type",
+       caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") + 
   scale_x_continuous(limits=c(1982, 2020), breaks = seq(1982, 2020, 5))
 
 
-#2006 à 2020
+#2006 a 2020
 ggplot(result_SST_2006_2020_8ab, 
        mapping = aes(x = year, y = Mean_SST)) +
   geom_point() +
@@ -182,7 +193,7 @@ ggplot(result_SST_2006_2020_8ab,
   ylim(0, 17) +
   labs(title = "Evolution de la moyenne de la SST dans le Golf de Gascogne entre 2006 et 2020",
        subtitle = "Zones geographiques de pêche : 8a et 8b ",
-       caption = "Barres d'erreur: écart-type",
+       caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") + 
   scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
@@ -246,7 +257,7 @@ result_SST_1982_1989_4c7d
 plot(result_SST_1982_1989_4c7d$year, result_SST_1982_1989_4c7d$Mean_SST)
 
 
-#Fusion des 3 tableaux ensemble pour rassembler de 1982 à 2020
+#Fusion des 3 tableaux ensemble pour rassembler de 1982 a 2020
 
 result_SST_1982_2020_4c7d <- rbind(result_SST_1982_1989_4c7d, result_SST_1990_2005_4c7d, result_SST_2006_2020_4c7d)
 result_SST_1982_2020_4c7d
@@ -262,7 +273,7 @@ result_SST_1982_2020
 
 
 #-----------------------Graphiques series temporelles moyenne SST 4c7d-----------------------------------
-#1982 à 2020
+#1982 a 2020
 ggplot(result_SST_1982_2020_4c7d, 
        mapping = aes(x = year, y = Mean_SST)) +
   geom_point() +
@@ -272,13 +283,13 @@ ggplot(result_SST_1982_2020_4c7d,
   ylim(0, 18) +
   labs(title = "Evolution de la moyenne de la SST en Manche/Mer du Nord  entre 1982 et 2020",
        subtitle = "Zones geographiques de pêche : 4c et 7d ",
-       caption = "Barres d'erreur: écart-type",
+       caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") + 
   scale_x_continuous(limits=c(1982, 2020), breaks = seq(1982, 2020, 5))
 
 
-#2006 à 2020
+#2006 a 2020
 ggplot(result_SST_2006_2020_4c7d, 
        mapping = aes(x = year, y = Mean_SST)) +
   geom_point() +
@@ -288,7 +299,7 @@ ggplot(result_SST_2006_2020_4c7d,
   ylim(0, 17) +
   labs(title = "Evolution de la moyenne de la SST en Manche/Mer du Nord entre 2006 et 2020",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
-       caption = "Barres d'erreur: écart-type",
+       caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") + 
   scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
@@ -299,7 +310,7 @@ ggplot(result_SST_2006_2020_4c7d,
 
 
 
-#1982 à 2020
+#1982 a 2020
 ggplot(result_SST_1982_2020, 
        mapping = aes(x = year, y = Mean_SST, color=div)) +
   geom_point() +
@@ -308,13 +319,13 @@ ggplot(result_SST_1982_2020,
   geom_errorbar(aes(ymin = Mean_SST - Ecart_Type_SST, ymax = Mean_SST + Ecart_Type_SST), width = 0.5) + 
   ylim(0, 18) +
   labs(title = "Evolution de la moyenne de la SST dans le Golf de Gascogne et Manche/Mer du Nord  entre 1982 et 2020",
-       caption = "Barres d'erreur: écart-type",
+       caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") + 
   scale_x_continuous(limits=c(1982, 2020), breaks = seq(1982, 2020, 5))
 
 
-#2006 à 2020
+#2006 a 2020
 ggplot(result_SST_1982_2020, 
        mapping = aes(x = year, y = Mean_SST, color=div)) +
   geom_point() +
@@ -323,7 +334,7 @@ ggplot(result_SST_1982_2020,
   geom_errorbar(aes(ymin = Mean_SST - Ecart_Type_SST, ymax = Mean_SST + Ecart_Type_SST), width = 0.5) + 
   ylim(0, 17) +
   labs(title = "Evolution de la moyenne de la SST dans le Golf de Gascogne et Manche/Mer du Nord entre 2006 et 2020",
-       caption = "Barres d'erreur: écart-type",
+       caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") + 
   scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
@@ -364,22 +375,21 @@ for(id2 in 2020:2021){
 result_chl_2020_2021_8ab
 plot(result_chl_2020_2021_8ab$year, result_chl_2020_2021_8ab$Mean_chl)
 
-
 #2008_2019
-result_chl_2008_2019_8ab <-data.frame(year=rep(NA,12),Mean_chl=rep(NA,12), Ecart_Type_chl=rep(NA,12))                     
+result_chl_2008_2019_8a_log <-data.frame(year=rep(NA,12),Mean_chl=rep(NA,12), Ecart_Type_chl=rep(NA,12))                     
 for(id2 in 2008:2019){                                                                                                      
   i <- id2 -2007                                                                                                            
   #id2<-2020                                                                                                                 
   divnum <- div8ab                                                                                                           
-  id <- substr(names(Data_chl_2008_2019), 2,5)                                                                            
+  id <- substr(names(Data_chl_2008_2019_log), 2,5)                                                                            
   idyear <- which(id == id2)                                                                                               
-  map_mean_chl <- stackApply(Data_chl_2008_2019[[idyear]],substr(names(Data_chl_2008_2019)[idyear], 2,5),mean)                 
-  result_chl_2008_2019_8ab$Mean_chl[i] <- raster::extract(map_mean_chl,  divnum, fun=mean,na.rm=T)                                
-  result_chl_2008_2019_8ab$Ecart_Type_chl[i]  <- raster::extract(map_mean_chl,  divnum, fun=sd,na.rm=T)                         
-  result_chl_2008_2019_8ab$year[i] <- id2                                                                                           
+  map_mean_chl <- stackApply(Data_chl_2008_2019_log[[idyear]],substr(names(Data_chl_2008_2019_log)[idyear], 2,5),mean)                 
+  result_chl_2008_2019_8ab_log$Mean_chl[i] <- raster::extract(map_mean_chl,  divnum, fun=mean,na.rm=T)                                
+  result_chl_2008_2019_8ab_log$Ecart_Type_chl[i]  <- raster::extract(map_mean_chl,  divnum, fun=sd,na.rm=T)                         
+  result_chl_2008_2019_8ab_log$year[i] <- id2                                                                                           
 }
-result_chl_2008_2019_8ab
-plot(result_chl_2008_2019_8ab$year, result_chl_2008_2019_8ab$Mean_chl)
+result_chl_2008_2019_8ab_log
+plot(result_chl_2008_2019_8ab_log$year, result_chl_2008_2019_8ab_log$Mean_chl)
 
 #1997_2007
 result_chl_1997_2007_8ab <-data.frame(year=rep(NA,11),Mean_chl=rep(NA,11), Ecart_Type_chl=rep(NA,11))                     
@@ -474,11 +484,35 @@ result_chl_1998_2020_4c7d
 result_chl_1998_2020 <- rbind(result_chl_1998_2020_8ab, result_chl_1998_2020_4c7d)
 result_chl_1998_2020
 
+
+result_chl_1998_2020_log <- result_chl_1998_2020 %>% 
+  mutate (Mean_chl_log = log(result_chl_1998_2020$Mean_chl)) %>%
+  mutate (Ecart_Type_chl_log = log(result_chl_1998_2020$Ecart_Type_chl))
+result_chl_1998_2020_log
+
+
+
+result_chl_1998_2020_8ab_log <- result_chl_1998_2020_8ab %>% 
+  mutate (Mean_chl_log = log(result_chl_1998_2020_8ab$Mean_chl)) %>%
+  mutate (Ecart_Type_chl_log = log(result_chl_1998_2020_8ab$Ecart_Type_chl))
+result_chl_1998_2020_8ab_log
+plot(result_chl_1998_2020_8ab_log$Mean_chl)
+plot(result_chl_1998_2020_8ab_log$Mean_chl_log)
+
+result_chl_1998_2020_4c7d_log <- result_chl_1998_2020_4c7d %>% 
+  mutate (Mean_chl_log = log(result_chl_1998_2020_4c7d$Mean_chl)) %>%
+  mutate (Ecart_Type_chl_log = log(result_chl_1998_2020_4c7d$Ecart_Type_chl))
+result_chl_1998_2020_4c7d_log
+plot(result_chl_1998_2020_4c7d_log$Mean_chl)
+plot(result_chl_1998_2020_4c7d_log$Mean_chl_log)
+
+
+
+
+
 #-----------------------Graphiques series temporelles moyenne SST 8ab/4c7d-----------------------------------
 
-
-
-#1998 à 2020
+#1998 a 2020
 ggplot(result_chl_1998_2020, 
        mapping = aes(x = year, y = Mean_chl, color=div)) +
   geom_point() +
@@ -487,13 +521,13 @@ ggplot(result_chl_1998_2020,
   geom_errorbar(aes(ymin = Mean_chl - Ecart_Type_chl, ymax = Mean_chl + Ecart_Type_chl), width = 0.5) + 
   ylim(-2.5, 15) +
   labs(title = "Evolution de la moyenne de la concentration en Chl a dans le Golf de Gascogne et Manche/Mer du Nord entre 1998 et 2020",
-       caption = "Barres d'erreur: écart-type",
+       caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
-       y = "Temperature moyenne de surface (°C)") + 
+       y = "Concentration en chlorophylle a (mg/m-3)") + 
   scale_x_continuous(limits=c(1998, 2020), breaks = seq(1998, 2020, 5))
 
 
-#2006 à 2020
+#2006 a 2020
 ggplot(result_chl_1998_2020, 
        mapping = aes(x = year, y = Mean_chl, color=div)) +
   geom_point() +
@@ -502,17 +536,46 @@ ggplot(result_chl_1998_2020,
   geom_errorbar(aes(ymin = Mean_chl - Ecart_Type_chl, ymax = Mean_chl + Ecart_Type_chl), width = 0.5) + 
   ylim(-2.5, 15) +
   labs(title = "Evolution de la moyenne de la concentration en Chl a dans le Golf de Gascogne et Manche/Mer du Nord entre 2006 et 2020",
-       caption = "Barres d'erreur: écart-type",
+       caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
-       y = "Temperature moyenne de surface (°C)") + 
+       y = "Concentration en chlorophylle a (mg/m-3)") + 
   scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
 
+#1998 a 2020 LOG
+ggplot(result_chl_1998_2020_log, 
+       mapping = aes(x = year, y = Mean_chl_log, color=div)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  #geom_errorbar(aes(ymin = Mean_chl_log - Ecart_Type_chl_log, ymax = Mean_chl_log + Ecart_Type_chl_log), width = 0.5) + 
+  ylim(-1, 2.5) +
+  labs(title = "Evolution de la moyenne de la concentration en Chl (log10) a dans le Golf de Gascogne et Manche/Mer du Nord entre 1998 et 2020",
+       caption = "Barres d erreur: ecart-type",
+       x = "Temps (an)",
+       y = "Concentration en chlorophylle a (log10)") + 
+  scale_x_continuous(limits=c(1998, 2020), breaks = seq(1998, 2020, 5))
 
+
+#2006 a 2020 LOG
+ggplot(result_chl_1998_2020_log, 
+       mapping = aes(x = year, y = Mean_chl_log, color=div)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  #geom_errorbar(aes(ymin = Mean_chl_log - Ecart_Type_chl_log, ymax = Mean_chl_log + Ecart_Type_chl_log), width = 0.5) + 
+  ylim(-1, 2.5) +
+  labs(title = "Evolution de la moyenne de la concentration en Chl (log10) a dans le Golf de Gascogne et Manche/Mer du Nord entre 2006 et 2020",
+       caption = "Barres d erreur: ecart-type",
+       x = "Temps (an)",
+       y = "Concentration en chlorophylle a (log10)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
 #
+plot(result_chl_1998_2020$Mean_chl)
+plot(result_chl_1998_2020_log$Mean_chl_log)
+plot(result_chl_1998_2020_8ab$Mean_chl)
 
 
-
-#----------------------Test de corrélation de Spearman : donne une idée de la tendance--------------------------
+#----------------------Test de correlation de Spearman : donne une idee de la tendance--------------------------
 
 #-----------------------------------------------SST---------------------------------------------------------------
 #4c7d
@@ -526,12 +589,76 @@ corSST_1982_2020_8ab
 
 # #-------------------------------------------Chlorophylle a----------------------------------------------------------- 
 #4c7d
-corChl_1997_2021_4c7d <-cor.test(result_chl_1997_2021_4c7d$year, result_chl_1997_2021_4c7d$Mean_chl, method="spearman")
-corChl_1997_2021_4c7d
+corChl_1998_2020_4c7d <-cor.test(result_chl_1998_2020_4c7d$year, result_chl_1998_2020_4c7d$Mean_chl, method="spearman")
+corChl_1998_2020_4c7d
+
+corChl_1998_2020_4c7d_log <- cor.test(result_chl_1998_2020_4c7d_log$year, result_chl_1998_2020_4c7d_log$Mean_chl_log, method ="spearman")
+corChl_1998_2020_4c7d
 
 #8ab
-corChl_1997_2021_8ab <-cor.test(result_chl_1997_2021_8ab$year, result_chl_1997_2021_8ab$Mean_chl, method="spearman")
-corChl_1997_2021_8ab
+corChl_1998_2020_8ab <-cor.test(result_chl_1998_2020_8ab$year, result_chl_1998_2020_8ab$Mean_chl, method="spearman")
+corChl_1998_2020_8ab
+
+corChl_1998_2020_8ab_log <- cor.test(result_chl_1998_2020_8ab_log$year, result_chl_1998_2020_8ab_log$Mean_chl_log, method ="spearman")
+corChl_1998_2020_8ab
+
+
+
+#---------------------------TRAITEMENT DES DONNEES NAO DANS L ETUDE DU ROUGET BARBERT--------------------------------------
+
+#Extraction donnees
+Data_NAO_1821_2021 <- read.table("C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/NAO/nao.dat.txt", quote="\"", comment.char="")
+
+#Ajout de nom de colonnes 
+colnames(Data_NAO_1821_2021) <- c("Year", "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december", "annual")
+Data_NAO_1821_2021
+
+#Creation d un nouveau jeu de donnees sans la valeur annuelle et calcul de la valeur moyenne manuellement pour comparer 
+#et avoir 
+
+#install.packages("matrixStats")
+
+Data_NAO_1821_2021_2 <-  sapply(Data_NAO_1821_2021,as.character)
+Data_NAO_1821_2021_2 <- ifelse(Data_NAO_1821_2021_2=="-99.99",NA, Data_NAO_1821_2021_2)
+Data_NAO_1821_2021_2 <-  apply(Data_NAO_1821_2021_2,2, as.numeric)
+Data_NAO_1821_2021_2 <- data.frame(Data_NAO_1821_2021_2)
+Data_NAO_1821_2021_2 
+
+Data_NAO_1821_2021_2 <- Data_NAO_1821_2021_2%>%
+  dplyr::mutate(Annual_mean = rowMeans(Data_NAO_1821_2021_2[,2:13]))
+Data_NAO_1821_2021_2 
+
+a <- ifelse(Data_NAO_1821_2021_2$Annual_mean <= 0, "blue","red" )
+
+#1821_2021
+ggplot(Data_NAO_1821_2021_2, 
+       mapping = aes(x = Year, y = Annual_mean)) +
+  geom_point(color=a) +
+  geom_line() +   
+  geom_smooth() + 
+  #geom_errorbar(aes(ymin = Mean_chl - Ecart_Type_chl, ymax = Mean_chl + Ecart_Type_chl), width = 0.5) + 
+  ylim(-3, 3) +
+  labs(title = "Evolution de l'indice NAO entre 1821 et 2021",
+       #caption = "Barres d erreur: ecart-type",
+       x = "Temps (an)",
+       y = "") + 
+  scale_x_continuous(limits=c(1821, 2021), breaks = seq(1820, 2020, 10))+ 
+  theme_bw()
+
+#2006_2021
+ggplot(Data_NAO_1821_2021_2, 
+       mapping = aes(x = Year, y = Annual_mean)) +
+  geom_point(color=a) +
+  geom_line() +   
+  geom_smooth() + 
+  #geom_errorbar(aes(ymin = Mean_chl - Ecart_Type_chl, ymax = Mean_chl + Ecart_Type_chl), width = 0.5) + 
+  ylim(-3, 3) +
+  labs(title = "Evolution de l'indice NAO entre 2006 et 2020",
+       #caption = "Barres d erreur: ecart-type",
+       x = "Temps (an)",
+       y = "") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020))+ 
+  theme_bw()
 
 
 #
@@ -554,7 +681,28 @@ corChl_1997_2021_8ab
 
 
 
-#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -643,7 +791,7 @@ library(maptools) ; library(maps)
 library(sf) # librairie utilisee pour manipuler les formats spatiaux de type sf
 library(ggplot2)
 
-#récuperer le fichier div 
+#recuperer le fichier div 
 #div est un data.frame et un objet sf : aka un tableau avec une colonne qui
 #contient l information geographique (colonne geometry)
 plot(div)
@@ -656,7 +804,7 @@ div4c7d <- div%>%dplyr::filter(F_DIVISION%in%c("27.4.c" , "27.7.d"))
 divtotal <- div%>%dplyr::filter(F_DIVISION%in%c("27.8.a","27.8.b","27.7.d","27.4.c"))
 
 
-#Test pour filtrer notre carte avec nos zones 8ab, 4c et 7d, soit en faisant des découpages 
+#Test pour filtrer notre carte avec nos zones 8ab, 4c et 7d, soit en faisant des decoupages 
 #selon les zones CIEM d interet
 #Un exemple 
 summary(div)
@@ -752,7 +900,7 @@ T2020_8ab <- kelv_to_celsius(raster::extract(DataTemp2020, div8ab, fun=mean,na.r
 T2020_4c <- kelv_to_celsius(raster::extract(DataTemp2020,div4c, fun=mean,na.rm=T))
 T2020_7d <- kelv_to_celsius(raster::extract(DataTemp2020,div7d, fun=mean,na.rm=T))
 
-#Data.frame avec les valeurs moyennes de SST de 2006 à 2020
+#Data.frame avec les valeurs moyennes de SST de 2006 a 2020
 #8ab
 SST_8ab <- c(T2006_8ab , T2007_8ab , T2008_8ab , T2009_8ab , T2010_8ab , T2011_8ab , T2012_8ab , 
              T2013_8ab , T2014_8ab , T2015_8ab , T2016_8ab , T2017_8ab , T2018_8ab , T2019_8ab , T2020_8ab)
@@ -805,7 +953,7 @@ library(sf) # librairie utilisee pour manipuler les formats spatiaux de type sf
 library(ggplot2)
 
 load("./data/div.rdata")
-load("C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/div (1).rdata")
+load("C:/Users/vmartin/Desktop/Stage/Donnees/Donnees environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/div (1).rdata")
 #div est un data.frame et un objet sf : aka un tableau avec une colonne qui
 #contient l information geographique (colonne geometry)
 
