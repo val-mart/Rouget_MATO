@@ -676,36 +676,178 @@ corchl_1998_2021_8ab_S_log
 #--------------------------------------------------NAO---------------------------------------------------------
 
 #-------------------------------------------------HIVER--------------------------------------------------------
+Data_NAO_1821_2021_2 
+nrow(Data_NAO_1821_2021_2)
 
+#NAO : 1822_2021 W 
+result_NAO_1822_2021_W <-data.frame(year=rep(NA,200), Mean_NAO_W=rep(NA,200), Sum_NAO_neg_W=rep(NA,200), Sum_NAO_pos_W=rep(NA,200))                      
+
+for(id2 in 1822 : 2021){                                                                                                       
+  i <- id2 - 1821                                                                                                           
+  #id2 <-1825                                                                                                                 
+  winterencours_NAO <- Data_NAO_1821_2021_2 %>% filter (Year == id2) %>% select (january, february, march) 
+  winteravant_NAO <- Data_NAO_1821_2021_2 %>% filter (Year == id2 - 1 ) %>% select(december)
+  winter_NAO <- cbind (winterencours_NAO, winteravant_NAO)
+  winter_NAO <- as.numeric(winter_NAO)
+  signe_W <- substr(winter_NAO,1,1)
+  result_NAO_1822_2021_W$Sum_NAO_neg_W[i] <- sum(signe_W == "-")
+  result_NAO_1822_2021_W$Sum_NAO_pos_W[i] <- 4 - (sum(signe_W == "-"))
+  result_NAO_1822_2021_W$Mean_NAO_W[i] <- sum(winter_NAO, na.rm = TRUE)/4
+  result_NAO_1822_2021_W$year[i] <- id2
+}
+result_NAO_1822_2021_W 
+
+#---------------------------------------GRAPH NAO W : moyenne et somme indice + ---------------------------------------------
+#result_NAO_1822_2021_W
+#result_NAO_1822_2021_W <-data.frame(year=rep(NA,200), Mean_NAO_W=rep(NA,200), Sum_NAO_neg_W=rep(NA,200), Sum_NAO_pos_W=rep(NA,200))  
+
+#Moyenne 1822 a 2021
+ggplot(result_NAO_1822_2021_W , 
+       mapping = aes(x = year, y = Mean_NAO_W)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  ylim(-3, 3) +
+  labs(title = "Evolution de la moyenne des indices NAO lors des hivers de 1822 à 2021",
+       x = "Temps (an)",
+       y = "NAO") + 
+  scale_x_continuous(limits=c(1822 , 2021), breaks = seq(1820, 2021, 10))
+
+#Moyenne 2006 a 2021
+ggplot(result_NAO_1822_2021_W , 
+       mapping = aes(x = year, y = Mean_NAO_W)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  ylim(-3, 3) +
+  labs(title = "Evolution de la moyenne des indices NAO lors des hivers de 2006 à 2021",
+       x = "Temps (an)",
+       y = "NAO") + 
+  scale_x_continuous(limits=c(2006 , 2021), breaks = seq(2005, 2021, 5))
+
+
+#Somme des NAO mensuel positif 1822 a 2021
+ggplot(result_NAO_1822_2021_W , 
+       mapping = aes(x = year, y = Sum_NAO_pos_W)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  ylim(0, 5) +
+  labs(title = "Evolution du nombre d' indice NAO mensuel positif lors des hivers de 1822 à 2021",
+       x = "Temps (an)",
+       y = "Somme des indices NAO positifs") + 
+  scale_x_continuous(limits=c(1822 , 2021), breaks = seq(1820, 2021, 10))
+
+#Somme des NAO mensuel positif 2006 a 2021
+ggplot(result_NAO_1822_2021_W , 
+       mapping = aes(x = year, y = Sum_NAO_pos_W)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  ylim(0, 5) +
+  labs(title = "Evolution du nombre d' indice NAO mensuel positif lors des hivers de 2006 à 2021",
+       x = "Temps (an)",
+       y = "Somme des indices NAO positifs") + 
+  scale_x_continuous(limits=c(2006 , 2021), breaks = seq(2005, 2021, 5))
+
+#----------------------Test de correlation de Spearman : NAO W : moyenne et somme indice +------------------------------------
+#Moyenne 
+corNAO_1822_2021_W_mean <-cor.test(result_NAO_1822_2021_W$year, result_NAO_1822_2021_W$Mean_NAO_W, method="spearman")
+corNAO_1822_2021_W_mean
+#Positif
+
+#Somme indice + 
+corNAO_1822_2021_W_sum_pos <-cor.test(result_NAO_1822_2021_W$year, result_NAO_1822_2021_W$Sum_NAO_pos_W, method="spearman")
+corNAO_1822_2021_W_sum_pos
+#Positif
 
 
 #--------------------------------------------------NAO---------------------------------------------------------
 
 #-------------------------------------------------PRINTEMPS----------------------------------------------------
 
+#NAO : 1821_2021 S 
+result_NAO_1821_2021_S <-data.frame(year=rep(NA,201), Mean_NAO_S=rep(NA,201), Sum_NAO_neg_S=rep(NA,201), Sum_NAO_pos_S=rep(NA,201))                      
+
+for(id2 in 1821 : 2021){                                                                                                       
+  i <- id2 - 1820                                                                                                           
+  #id2 <-1825                                                                                                                 
+  spring_NAO <- Data_NAO_1821_2021_2 %>% filter (Year == id2) %>% select (april, may, june) 
+  spring_NAO <- as.numeric(spring_NAO)
+  signe_S <- substr(spring_NAO,1,1)
+  result_NAO_1821_2021_S$Sum_NAO_neg_S[i] <- sum(signe_S == "-")
+  result_NAO_1821_2021_S$Sum_NAO_pos_S[i] <- 3 - (sum(signe_S == "-"))
+  result_NAO_1821_2021_S$Mean_NAO_S[i] <- sum(spring_NAO, na.rm = TRUE)/3
+  result_NAO_1821_2021_S$year[i] <- id2
+}
+result_NAO_1821_2021_S
+
+#---------------------------------------GRAPH NAO S : moyenne et somme indice + ---------------------------------------------
+#result_NAO_1821_2021_S
+#result_NAO_1821_2021_S <-data.frame(year=rep(NA,201), Mean_NAO_S=rep(NA,201), Sum_NAO_neg_S=rep(NA,201), Sum_NAO_pos_S=rep(NA,201))
+
+#Moyenne 1821 a 2021
+ggplot(result_NAO_1821_2021_S , 
+       mapping = aes(x = year, y = Mean_NAO_S)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  ylim(-3, 3) +
+  labs(title = "Evolution de la moyenne des indices NAO lors des printemps de 1821 à 2021",
+       x = "Temps (an)",
+       y = "NAO") + 
+  scale_x_continuous(limits=c(1821 , 2021), breaks = seq(1820, 2021, 10))
+
+#Moyenne 2006 a 2021
+ggplot(result_NAO_1821_2021_S , 
+       mapping = aes(x = year, y = Mean_NAO_S)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  ylim(-3, 3) +
+  labs(title = "Evolution de la moyenne des indices NAO lors des printemps de 2006 à 2021",
+       x = "Temps (an)",
+       y = "NAO") + 
+  scale_x_continuous(limits=c(2006 , 2021), breaks = seq(2005, 2021, 5))
+
+
+#Somme des NAO mensuel positif 1822 a 2021
+ggplot(result_NAO_1821_2021_S , 
+       mapping = aes(x = year, y = Sum_NAO_pos_S)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  ylim(0, 4) +
+  labs(title = "Evolution du nombre d' indice NAO mensuel positif lors des printemps de 1821 à 2021",
+       x = "Temps (an)",
+       y = "Somme des indices NAO positifs") + 
+  scale_x_continuous(limits=c(1821 , 2021), breaks = seq(1820, 2021, 10))
+
+#Somme des NAO mensuel positif 2006 a 2021
+ggplot(result_NAO_1821_2021_S, 
+       mapping = aes(x = year, y = Sum_NAO_pos_S)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  ylim(0, 4) +
+  labs(title = "Evolution du nombre d' indice NAO mensuel positif lors des printemps de 2006 à 2021",
+       x = "Temps (an)",
+       y = "Somme des indices NAO positifs") + 
+  scale_x_continuous(limits=c(2006 , 2021), breaks = seq(2005, 2021, 5))
 
 
 
 
+#----------------------Test de correlation de Spearman : NAO S : moyenne et somme indice +------------------------------------
+#Moyenne 
+corNAO_1821_2021_S_mean <-cor.test(result_NAO_1821_2021_S$year, result_NAO_1821_2021_S$Mean_NAO_S, method="spearman")
+corNAO_1821_2021_S_mean
+#Negatif
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#Somme indice + 
+corNAO_1821_2021_S_sum_pos <-cor.test(result_NAO_1821_2021_S$year, result_NAO_1821_2021_S$Sum_NAO_pos_S, method="spearman")
+corNAO_1821_2021_S_sum_pos
+#Negatif
 
 
 
