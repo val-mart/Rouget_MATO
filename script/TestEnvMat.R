@@ -58,10 +58,15 @@ Data_NAO_1821_2021_2 <-  apply(Data_NAO_1821_2021_2,2, as.numeric)
 Data_NAO_1821_2021_2 <- data.frame(Data_NAO_1821_2021_2)
 Data_NAO_1821_2021_2 
 
+
+
+#________________________________________________________________________________________________________________
+#--------------------------------------------HIVER & PRINTEMPS---------------------------------------------------
+#________________________________________________________________________________________________________________
+
+
 #---------CALCUL D UNE VALEUR MOYENNE PAR REGROUPEMET DE CARTES : ICI PAR SAISON HIVER ET PRINTEMPS------------
-
 #--------------------------------------------------SST---------------------------------------------------------
-
 #-------------------------------------------------HIVER--------------------------------------------------------
 
 #Creation un indice hivernal pour les donnees de SST
@@ -298,14 +303,7 @@ corSST_1983_2020_8ab_S
 
 
 
-
-
-
-
-
-
 #--------------------------------------------------Chl---------------------------------------------------------
-
 #-------------------------------------------------HIVER--------------------------------------------------------
 #Creation un indice hivernal pour les donnees de Chl
 nom_map_chl_W<-names(Data_chl_1997_2021) 
@@ -374,7 +372,6 @@ for(id2 in 1998:2021){
 result_chl_1998_2021_4c7d_W
 plot(result_chl_1998_2021_4c7d_W$year, result_chl_1998_2021_4c7d_W$Mean_chl_W)
 
-
 #---------------------------------------------Passage en log : Chl W ---------------------------------------------------------------
 #8ab
 result_chl_1998_2021_8ab_W_log <- result_chl_1998_2021_8ab_W %>% 
@@ -389,7 +386,6 @@ result_chl_1998_2021_4c7d_W_log <- result_chl_1998_2021_4c7d_W %>%
 result_chl_1998_2021_4c7d_W_log
 
 #---------------------------------------GRAPH Chl W (log ou non) 8ab-4c7d---------------------------------------------
-
 #Pas LOG
 result_chl_1998_2021_totalarea_W <-rbind(result_chl_1998_2021_8ab_W , result_chl_1998_2021_4c7d_W)
 result_chl_1998_2021_totalarea_W 
@@ -486,12 +482,8 @@ corchl_1998_2021_8ab_W_log
 corchl_1998_2021_8ab_W
 #Négatif
 
-
-
 #--------------------------------------------------Chl---------------------------------------------------------
-
 #-------------------------------------------------PRINTEMPS----------------------------------------------------
-
 
 #Creation un indice printannier pour les donnees de Chl
 nom_map_chl_S<-names(Data_chl_1997_2021) 
@@ -553,7 +545,6 @@ for(id2 in 1998 : 2021){
 result_chl_1998_2021_4c7d_S
 plot(result_chl_1998_2021_4c7d_S$year, result_chl_1998_2021_4c7d_S$Mean_chl_S)
 
-
 #---------------------------------------------Passage en log : Chl S---------------------------------------------------------------
 #8ab
 result_chl_1998_2021_8ab_S_log <- result_chl_1998_2021_8ab_S %>% 
@@ -567,9 +558,7 @@ result_chl_1998_2021_4c7d_S_log <- result_chl_1998_2021_4c7d_S %>%
   mutate (Ecart_Type_chl_S_log = log(result_chl_1998_2021_4c7d_S$Ecart_Type_chl_S))
 result_chl_1998_2021_4c7d_S_log
 
-
 #---------------------------------------GRAPH Chl S (log ou non) 8ab-4c7d---------------------------------------------
-
 #Pas LOG
 result_chl_1998_2021_totalarea_S <-rbind(result_chl_1998_2021_8ab_S , result_chl_1998_2021_4c7d_S)
 result_chl_1998_2021_totalarea_S 
@@ -602,7 +591,6 @@ ggplot(result_chl_1998_2021_totalarea_S ,
        x = "Temps (an)",
        y = "Concentration en Chlorphylle a (mg/m3)") + 
   scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
-
 
 #LOG
 result_chl_1998_2021_totalarea_S_log <-rbind(result_chl_1998_2021_8ab_S_log , result_chl_1998_2021_4c7d_S_log)
@@ -665,16 +653,7 @@ corchl_1998_2021_8ab_S_log <-cor.test(result_chl_1998_2021_8ab_S_log$year, resul
 corchl_1998_2021_8ab_S_log
 #Positif
 
-
-
-
-
-
-
-
-
 #--------------------------------------------------NAO---------------------------------------------------------
-
 #-------------------------------------------------HIVER--------------------------------------------------------
 Data_NAO_1821_2021_2 
 nrow(Data_NAO_1821_2021_2)
@@ -700,11 +679,13 @@ result_NAO_1822_2021_W
 #---------------------------------------GRAPH NAO W : moyenne et somme indice + ---------------------------------------------
 #result_NAO_1822_2021_W
 #result_NAO_1822_2021_W <-data.frame(year=rep(NA,200), Mean_NAO_W=rep(NA,200), Sum_NAO_neg_W=rep(NA,200), Sum_NAO_pos_W=rep(NA,200))  
+color_mean_W <- ifelse(result_NAO_1822_2021_W$Mean_NAO_W <= 0, "blue","red" )
 
 #Moyenne 1822 a 2021
 ggplot(result_NAO_1822_2021_W , 
-       mapping = aes(x = year, y = Mean_NAO_W)) +
-  geom_point() +
+       mapping = aes(x = year, y = Mean_NAO_W)) + 
+  geom_point(color = color_mean_W) +
+  geom_hline(yintercept=0) +
   geom_line() +   
   geom_smooth() + 
   ylim(-3, 3) +
@@ -715,7 +696,9 @@ ggplot(result_NAO_1822_2021_W ,
 
 #Moyenne 2006 a 2021
 ggplot(result_NAO_1822_2021_W , 
-       mapping = aes(x = year, y = Mean_NAO_W)) +
+       mapping = aes(x = year, y = Mean_NAO_W)) + 
+  geom_point(color = color_mean_W) +    #ne veut pas fonctionner !!!
+  geom_hline(yintercept=0) +
   geom_point() +
   geom_line() +   
   geom_smooth() + 
@@ -763,9 +746,7 @@ corNAO_1822_2021_W_sum_pos
 
 
 #--------------------------------------------------NAO---------------------------------------------------------
-
 #-------------------------------------------------PRINTEMPS----------------------------------------------------
-
 #NAO : 1821_2021 S 
 result_NAO_1821_2021_S <-data.frame(year=rep(NA,201), Mean_NAO_S=rep(NA,201), Sum_NAO_neg_S=rep(NA,201), Sum_NAO_pos_S=rep(NA,201))                      
 
@@ -785,11 +766,13 @@ result_NAO_1821_2021_S
 #---------------------------------------GRAPH NAO S : moyenne et somme indice + ---------------------------------------------
 #result_NAO_1821_2021_S
 #result_NAO_1821_2021_S <-data.frame(year=rep(NA,201), Mean_NAO_S=rep(NA,201), Sum_NAO_neg_S=rep(NA,201), Sum_NAO_pos_S=rep(NA,201))
+color_mean_S <- ifelse(result_NAO_1821_2021_S$Mean_NAO_S<= 0, "blue","red" )
 
 #Moyenne 1821 a 2021
 ggplot(result_NAO_1821_2021_S , 
-       mapping = aes(x = year, y = Mean_NAO_S)) +
-  geom_point() +
+       mapping = aes(x = year, y = Mean_NAO_S))  + 
+  geom_point(color = color_mean_S) +
+  geom_hline(yintercept=0) +
   geom_line() +   
   geom_smooth() + 
   ylim(-3, 3) +
@@ -800,8 +783,9 @@ ggplot(result_NAO_1821_2021_S ,
 
 #Moyenne 2006 a 2021
 ggplot(result_NAO_1821_2021_S , 
-       mapping = aes(x = year, y = Mean_NAO_S)) +
-  geom_point() +
+       mapping = aes(x = year, y = Mean_NAO_S))  + 
+  geom_point(color = color_mean_S) +
+  geom_hline(yintercept=0) +
   geom_line() +   
   geom_smooth() + 
   ylim(-3, 3) +
@@ -834,9 +818,6 @@ ggplot(result_NAO_1821_2021_S,
        x = "Temps (an)",
        y = "Somme des indices NAO positifs") + 
   scale_x_continuous(limits=c(2006 , 2021), breaks = seq(2005, 2021, 5))
-
-
-
 
 #----------------------Test de correlation de Spearman : NAO S : moyenne et somme indice +------------------------------------
 #Moyenne 
@@ -941,32 +922,6 @@ corNAO_1821_2021_S_sum_pos
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-
-
 # test bouclade pour calcul moyenne saisonnière
 
 #2006_2020_C
@@ -986,61 +941,6 @@ result_SST_2006_2020_8ab
 plot(result_SST_2006_2020_8ab$year, result_SST_2006_2020_8ab$Mean_SST)
 
 
-
-
-
-
-
-
-#Trouver des infos sur les donnees
-#file.info(Data_chl_1997_2007)
-#et
-#Data_SST_2006_2020
-#ou 
-#print(Data_SST_2006_2020)
-#L affichage standard de raster affiche les premieres cartes uniquement
-#plot(Data_SST_2006_2020)
-#Plotter une couche precise
-#plot(Data_SST_2006_2020[[5479]])
-#ou
-#a <- raster(Data_SST_2006_2020, layer=5479)
-#plot(a)
-
-#Calcul d une carte moyenne de la variable d interet
-#mData_SST_2006_2020<-mean(Data_SST_2006_2020,na.rm=T) #Long donc ne pas mettre en route
-#Plot avec le package raster
-#plot(mData_SST_2006_2020)
-#ou Plot avec RasterVis
-#levelplot(mData_SST_2006_2020)
-
-
-#---------------------------------------------------------------------------------------------
-
-#-----CALCUL D UNE VALEUR MOYENNE PAR REGROUPEMET DE CARTES : DES EXEMPLES------
-
-#subtr permet de decouper ces noms pour avoir l annee ou le mois ou autre
-#substr("X2009.01.01",2,5) #renvoit les carateres 2 a 8 de la chaîne de caracteres 
-#consideree (pour considere que l annee)
-#stackApply permet d appliquer un operateur statistique sur un ensemble de
-#cartes defini par un vecteur passe dans le deuxieme argument de la fonction
-#ici dans ce cas precis : cacul de la moyenne annuelle
-
-#Ex : Faire des regroupement par mois dans les 100 premieres images
-#Data_SST_2006_2020_month_100<-stackApply(DataTemp[[1:100]],substr(names(Data_SST_2006_2020)[1:100],7,8),mean)
-#levelplot(Data_SST_2006_2020_month_100)
-
-#ou faire des regoupement pour n avoir que janvier 2006
-#id <- substr(names(Data_SST_2006_2020), 2,8)
-#id2 <- which(id == "2006.01")
-#id[id2]
-#id2
-#DataTemp_01_2006<-stackApply(Data_SST_2006_2020[[id2]],substr(names(Data_SST_2006_2020)[id2],7,8),mean)
-#levelplot(DataTemp_01_2006)
-
-#--------------------------------------------------------------------------------------------
-
-#---------CALCUL D UNE VALEUR MOYENNE PAR REGROUPEMET DE CARTES : ICI PAR ANNEE--------------
-#ex : "X2006.01.02" <- ne garder que du caractere 2 a 5
 
 
 #Carte Moyenne annee 1982 et 2020
@@ -1066,95 +966,36 @@ levelplot(Data_SST_1982_C_mean, main = "Temperature moyenne observée en 1982 en
 
 
 
-#-------------Calcul de la moyenne/ecart-type T° zone 8ab de 1982 a 2020---------------------
 
-div8ab <- div%>%dplyr::filter(F_DIVISION%in%c("27.8.a" , "27.8.b"))
 
-#2006_2020_C
-result_SST_2006_2020_8ab <-data.frame(year=rep(NA,15),Mean_SST=rep(NA,15), Ecart_Type_SST=rep(NA,15))                     #permet de creer un tableau vide avec le bon nb de colonnes et de lignes 
-for(id2 in 2006:2020){                                                                                                      #indique le parametre qui va varier 
-  i <- id2 -2005                                                                                                            #permet de donner le numero de la ligne dans le tableau 
-  #id2<-2007                                                                                                                #exemple avec une annee pour tester 
-  divnum <- div8ab                                                                                                          #selection de la zone a extraire 
-  id <- substr(names(Data_SST_2006_2020_C), 2,5)                                                                            #indique ce qu il faut selectionner dans le nom de ma map 
-  idyear <- which(id == id2)                                                                                                #indique qu une partie du nom de ma map doit correspondre a mon annee 
-  map_mean_SST <- stackApply(Data_SST_2006_2020_C[[idyear]],substr(names(Data_SST_2006_2020_C)[idyear], 2,5),mean)                 #selectionne les maps correspondantes et calcule une map moyenne pour chaque annee 
-    result_SST_2006_2020_8ab$Mean_SST[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                               #calcule la moyenne de ces maps moyennes et les mets dans la bonne colonne  
-    result_SST_2006_2020_8ab$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                          #calcule l ecart-type de ces maps moyennes t les mets dans la bonne colonne
-    result_SST_2006_2020_8ab$year[i] <- id2                                                                                          #met l annee dans la colonne correspondante 
+
+
+
+
+
+#________________________________________________________________________________________________________________
+#------------------------------------------------ANNUEL----------------------------------------------------------
+#________________________________________________________________________________________________________________
+#-------------------CALCUL D UNE VALEUR MOYENNE PAR REGROUPEMET DE CARTES : ICI PAR ANNEE----------------------
+
+#-------------------------------------------------SST---------------------------------------------------------
+#---------------------Calcul de la moyenne/ecart-type T° zone 8ab de 1982 a 2020-----------------------------
+
+result_SST_1982_2020_8ab <-data.frame(year=rep(NA,39),Mean_SST=rep(NA,39), Ecart_Type_SST=rep(NA,39))                     
+for(id2 in 1982 : 2020){                                                                                                      
+  i <- id2 - 1981                                                                                                           
+  #id2<-2007                                                                                                               
+  divnum <- div8ab                                                                                                        
+  id <- substr(names(Data_SST_1982_2020_C), 2,5)                                                                            
+  idyear <- which(id == id2)                                                                                               
+  map_mean_SST <- stackApply(Data_SST_1982_2020_C[[idyear]],substr(names(Data_SST_1982_2020_C)[idyear], 2,5),mean)                  
+  result_SST_1982_2020_8ab$Mean_SST[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                              
+  result_SST_1982_2020_8ab$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                          
+  result_SST_1982_2020_8ab$year[i] <- id2                                                                                         
+  result_SST_1982_2020_8ab$area[i] <- "8ab"
 }
-result_SST_2006_2020_8ab
-plot(result_SST_2006_2020_8ab$year, result_SST_2006_2020_8ab$Mean_SST)
-
-#2006_2020_C_winter
-result_SST_2006_2020_8ab_winter <-data.frame(year=rep(NA,15),Mean_SST=rep(NA,15), Ecart_Type_SST=rep(NA,15))                     #permet de creer un tableau vide avec le bon nb de colonnes et de lignes 
-for(id2 in 2006:2020){                                                                                                      #indique le parametre qui va varier 
-  i <- id2 - 2005                                                                                                            #permet de donner le numero de la ligne dans le tableau 
-  id2<- 2007                                                                                                               #exemple avec une annee pour tester 
-  divnum <- div8ab                                                                                                          #selection de la zone a extraire 
-  id <- substr(names(Data_SST_2006_2020_C), 2,5)                                                                            #indique ce qu il faut selectionner dans le nom de ma map 
-  idm <- substr(names(Data_SST_2006_2020_C), 7,8) 
-  idyear <- (id == id2)                                                                                             #indique qu une partie du nom de ma map doit correspondre a mon annee 
-  idmonth <-(idm %in% c("01", "02", "03"))
-  idyear_month <- which((idyear) & (idmonth))
-  
-  
-  map_mean_SST <- stackApply(Data_SST_2006_2020_C[[idyear_month]],substr(names(Data_SST_2006_2020_C)[idyear_month], 2,8), mean)                 #selectionne les maps correspondantes et calcule une map moyenne pour chaque annee 
-  result_SST_2006_2020_8ab_winter$Mean_SST[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                               #calcule la moyenne de ces maps moyennes et les mets dans la bonne colonne  
-  result_SST_2006_2020_8ab_winter$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                          #calcule l ecart-type de ces maps moyennes t les mets dans la bonne colonne
-  result_SST_2006_2020_8ab_winter$year[i] <- id2                                                                                          #met l annee dans la colonne correspondante 
-}
-result_SST_2006_2020_8ab_winter
-plot(result_SST_2006_2020_8ab_winter$year, result_SST_2006_2020_8ab_winter$Mean_SST)
-
-Data_SST_2006_2020_C
-
-id[idyear]
-
-names(Data_SST_2006_2020_C)[idyear_month] 
-idmonth]
-
-
-#1990_2005_C
-result_SST_1990_2005_8ab <-data.frame(year=rep(NA,16),Mean_SST=rep(NA,16), Ecart_Type_SST=rep(NA,16))                            
-for(id2 in 1990:2005){                                                                                                    
-  i <- id2 -1989                                                                                                             
-  #id2<-2002
-  divnum <- div8ab                                                                                                          
-  id <- substr(names(Data_SST_1990_2005_C), 2,5)                                                                                
-  idyear <- which(id == id2)                                                                                                
-  map_mean_SST <- stackApply(Data_SST_1990_2005_C[[idyear]],substr(names(Data_SST_1990_2005_C)[idyear], 2,5),mean)                  
-  result_SST_1990_2005_8ab$Mean_SST[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                          
-  result_SST_1990_2005_8ab$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                       
-  result_SST_1990_2005_8ab$year[i] <- id2                                                                                           
-}
-result_SST_1990_2005_8ab
-plot(result_SST_1990_2005_8ab$year, result_SST_1990_2005_8ab$Mean_SST)
-
-
-#1982_1989_C
-result_SST_1982_1989_8ab <-data.frame(year=rep(NA,8),Mean_SST=rep(NA,8), Ecart_Type_SST=rep(NA,8))                            
-for(id2 in 1982:1989){                                                                                                    
-  i <- id2 -1981                                                                                                             
-  #id2<-1982
-  divnum <- div8ab                                                                                                          
-  id <- substr(names(Data_SST_1982_1989_C), 2,5)                                                                                
-  idyear <- which(id == id2)                                                                                                
-  map_mean_SST <- stackApply(Data_SST_1982_1989_C[[idyear]],substr(names(Data_SST_1982_1989_C)[idyear], 2,5),mean)                  
-  result_SST_1982_1989_8ab$Mean_SST[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                          
-  result_SST_1982_1989_8ab$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                       
-  result_SST_1982_1989_8ab$year[i] <- id2                                                                                           
-}
-result_SST_1982_1989_8ab 
-plot(result_SST_1990_2005_8ab$year, result_SST_1990_2005_8ab$Mean_SST)
-
-
-#Fusion des 3 tableaux ensemble pour rassembler de 1982 a 2020
-
-result_SST_1982_2020_8ab <- rbind(result_SST_1982_1989_8ab, result_SST_1990_2005_8ab, result_SST_2006_2020_8ab)
 result_SST_1982_2020_8ab
-result_SST_1982_2020_8ab <- mutate(result_SST_1982_2020_8ab, div = "8ab")
-result_SST_1982_2020_8ab
+plot(result_SST_1982_2020_8ab$year, result_SST_1982_2020_8ab$Mean_SST)
 
 #-----------------------Graphiques series temporelles moyenne SST 8ab-----------------------------------
 #1982 a 2020
@@ -1170,11 +1011,10 @@ ggplot(result_SST_1982_2020_8ab,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") + 
-  scale_x_continuous(limits=c(1982, 2020), breaks = seq(1982, 2020, 5))
-
+  scale_x_continuous(limits=c(1982, 2020), breaks = seq(1980, 2020, 5))
 
 #2006 a 2020
-ggplot(result_SST_2006_2020_8ab, 
+ggplot(result_SST_1982_2020_8ab, 
        mapping = aes(x = year, y = Mean_SST)) +
   geom_point() +
   geom_line() +   
@@ -1185,82 +1025,27 @@ ggplot(result_SST_2006_2020_8ab,
        subtitle = "Zones geographiques de pêche : 8a et 8b ",
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
-       y = "Temperature moyenne de surface (°C)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-
-
-
-
+       y = "Temperature moyenne de surface (°C)") +
+  scale_x_continuous(limits=c(2005, 2020), breaks = seq(2005, 2020, 1))
 
 #------------------------------------ZONE 4C ET 7D-------------------------------------------- 
 #-------------Calcul de la moyenne/ecart-type T° zone 4c7d de 1982 a 2020---------------------
 
-div4c7d <- div%>%dplyr::filter(F_DIVISION%in%c("27.4.c" , "27.7.d"))
-
-#2006_2020_C
-result_SST_2006_2020_4c7d <-data.frame(year=rep(NA,15),Mean_SST=rep(NA,15), Ecart_Type_SST=rep(NA,15))                      
-for(id2 in 2006:2020){                                                                                                      
-  i <- id2 -2005                                                                                                            
-  #id2<-2007                                                                                                            
+result_SST_1982_2020_4c7d <-data.frame(year=rep(NA,39),Mean_SST=rep(NA,39), Ecart_Type_SST=rep(NA,39))                     
+for(id2 in 1982 : 2020){                                                                                                       
+  i <- id2 - 1981                                                                                                             
+  #id2<-2007                                                                                                                
   divnum <- div4c7d                                                                                                          
-  id <- substr(names(Data_SST_2006_2020_C), 2,5)                                                                           
-  idyear <- which(id == id2)                                                                                              
-  map_mean_SST <- stackApply(Data_SST_2006_2020_C[[idyear]],substr(names(Data_SST_2006_2020_C)[idyear], 2,5),mean)                 
-  result_SST_2006_2020_4c7d$Mean_SST[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                              
-  result_SST_2006_2020_4c7d$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                        
-  result_SST_2006_2020_4c7d$year[i] <- id2                                                                                           
-}
-result_SST_2006_2020_4c7d
-plot(result_SST_2006_2020_4c7d$year, result_SST_2006_2020_4c7d$Mean_SST)
-
-#1990_2005_C
-result_SST_1990_2005_4c7d <-data.frame(year=rep(NA,16),Mean_SST=rep(NA,16), Ecart_Type_SST=rep(NA,16))                      
-for(id2 in 1990:2005){                                                                                                      
-  i <- id2 -1989                                                                                                            
-  #id2<-2007                                                                                                            
-  divnum <- div4c7d                                                                                                          
-  id <- substr(names(Data_SST_1990_2005_C), 2,5)                                                                           
-  idyear <- which(id == id2)                                                                                              
-  map_mean_SST <- stackApply(Data_SST_1990_2005_C[[idyear]],substr(names(Data_SST_1990_2005_C)[idyear], 2,5),mean)                 
-  result_SST_1990_2005_4c7d$Mean_SST[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                              
-  result_SST_1990_2005_4c7d$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                        
-  result_SST_1990_2005_4c7d$year[i] <- id2                                                                                           
-}
-result_SST_1990_2005_4c7d
-plot(result_SST_1990_2005_4c7d$year, result_SST_1990_2005_4c7d$Mean_SST)
-
-
-#1982_1989_C
-result_SST_1982_1989_4c7d <-data.frame(year=rep(NA,8),Mean_SST=rep(NA,8), Ecart_Type_SST=rep(NA,8))                            
-for(id2 in 1982:1989){                                                                                                    
-  i <- id2 -1981                                                                                                             
-  #id2<-1982
-  divnum <- div4c7d                                                                                                          
-  id <- substr(names(Data_SST_1982_1989_C), 2,5)                                                                                
+  id <- substr(names(Data_SST_1982_2020_C), 2,5)                                                                            
   idyear <- which(id == id2)                                                                                                
-  map_mean_SST <- stackApply(Data_SST_1982_1989_C[[idyear]],substr(names(Data_SST_1982_1989_C)[idyear], 2,5),mean)                  
-  result_SST_1982_1989_4c7d$Mean_SST[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                          
-  result_SST_1982_1989_4c7d$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                       
-  result_SST_1982_1989_4c7d$year[i] <- id2                                                                                           
+  map_mean_SST <- stackApply(Data_SST_1982_2020_C[[idyear]],substr(names(Data_SST_1982_2020_C)[idyear], 2,5),mean)                
+  result_SST_1982_2020_4c7d$Mean_SST[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                                
+  result_SST_1982_2020_4c7d$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                         
+  result_SST_1982_2020_4c7d$year[i] <- id2
+  result_SST_1982_2020_4c7d$area[i] <- "4c7d"
 }
-result_SST_1982_1989_4c7d 
-plot(result_SST_1982_1989_4c7d$year, result_SST_1982_1989_4c7d$Mean_SST)
-
-
-#Fusion des 3 tableaux ensemble pour rassembler de 1982 a 2020
-
-result_SST_1982_2020_4c7d <- rbind(result_SST_1982_1989_4c7d, result_SST_1990_2005_4c7d, result_SST_2006_2020_4c7d)
 result_SST_1982_2020_4c7d
-result_SST_1982_2020_4c7d<- mutate(result_SST_1982_2020_4c7d, div = "4c7d")
-
-
-
-result_SST_1982_2020 <- rbind(result_SST_1982_2020_4c7d, result_SST_1982_2020_8ab)
-result_SST_1982_2020
-
-
-
-
+plot(result_SST_1982_2020_4c7d$year, result_SST_1982_2020_4c7d$Mean_SST)
 
 #-----------------------Graphiques series temporelles moyenne SST 4c7d-----------------------------------
 #1982 a 2020
@@ -1276,8 +1061,7 @@ ggplot(result_SST_1982_2020_4c7d,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") + 
-  scale_x_continuous(limits=c(1982, 2020), breaks = seq(1982, 2020, 5))
-
+  scale_x_continuous(limits=c(1982, 2020), breaks = seq(1980, 2020, 5))
 
 #2006 a 2020
 ggplot(result_SST_1982_2020_4c7d, 
@@ -1292,15 +1076,16 @@ ggplot(result_SST_1982_2020_4c7d,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") +
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  scale_x_continuous(limits=c(2005, 2020), breaks = seq(2005, 2020, 1))
 
-
-
-#-----------------------Graphiques series temporelles moyenne SST 8ab/4c7d-----------------------------------
+#--------------------Graphiques series temporelles moyenne SST : 2 zones 8ab et 4c7d--------------------------------
+#Fusion des deux tableau 8ab et 4c7d
+result_SST_1982_2020_totalarea <- rbind(result_SST_1982_2020_4c7d, result_SST_1982_2020_8ab)
+result_SST_1982_2020_totalarea
 
 #1982 a 2020
-ggplot(result_SST_1982_2020, 
-       mapping = aes(x = year, y = Mean_SST, color=div)) +
+ggplot(result_SST_1982_2020_totalarea, 
+       mapping = aes(x = year, y = Mean_SST, color=area)) +
   geom_point() +
   geom_line() +   
   geom_smooth() + 
@@ -1309,13 +1094,12 @@ ggplot(result_SST_1982_2020,
   labs(title = "Evolution de la moyenne de la SST dans le Golf de Gascogne et Manche/Mer du Nord  entre 1982 et 2020",
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
-       y = "Temperature moyenne de surface (°C)") 
-#+ scale_x_continuous(limits=c(1982, 2020), breaks = seq(1982, 2020, 5))
-
+       y = "Temperature moyenne de surface (°C)") + 
+  scale_x_continuous(limits=c(1982, 2020), breaks = seq(1980, 2020, 5))
 
 #2006 a 2020
-ggplot(result_SST_1982_2020, 
-       mapping = aes(x = year, y = Mean_SST, color=div)) +
+ggplot(result_SST_1982_2020_totalarea, 
+       mapping = aes(x = year, y = Mean_SST, color=area)) +
   geom_point() +
   geom_line() +   
   geom_smooth() + 
@@ -1325,184 +1109,88 @@ ggplot(result_SST_1982_2020,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  scale_x_continuous(limits=c(2005, 2020), breaks = seq(2005, 2020, 1))
 
+#----------------------Test de correlation de Spearman : SST year 1982 2020-------------------------------------------------
+#4c7d
+corSST_1982_2020_4c7d <-cor.test(result_SST_1982_2020_4c7d$year, result_SST_1982_2020_4c7d$Mean_SST, method="spearman")
+corSST_1982_2020_4c7d
+#Positif
 
-#
+#8ab
+corSST_1982_2020_8ab <-cor.test(result_SST_1982_2020_8ab$year, result_SST_1982_2020_8ab$Mean_SST, method="spearman")
+corSST_1982_2020_8ab
+#Positif
 
+#-------------------------------------------------Chl---------------------------------------------------------
 
+#-------------------Calcul de la moyenne/ecart-type [Chl a] zones 8ab de 1997 a 2021-------------------------
 
-
-
-
-
-
-#---------CALCUL D UNE VALEUR MOYENNE PAR REGROUPEMET DE CARTES : ICI PAR ANNEE--------------
-#ex : "X1997.01.01" <- ne garder que du caractere 2 a 5
-plot(Data_chl_1997_2007)
-plot(Data_chl_2008_2019)
-plot(Data_chl_2020_2021)
-
-#-------------Calcul de la moyenne/ecart-type [Chl a] zones 8ab de 1997 a 2021---------------------
-
-div8ab <- div%>%dplyr::filter(F_DIVISION%in%c("27.8.a" , "27.8.b"))
-
-#2020_2021
-result_chl_2020_2021_8ab <-data.frame(year=rep(NA,2),Mean_chl=rep(NA,2), Ecart_Type_chl=rep(NA,2))                    
-for(id2 in 2020:2021){                                                                                                    
-  i <- id2 -2019                                                                                                           
+Data_chl_1997_2021
+#1998_2020
+result_chl_1998_2020_8ab <-data.frame(year=rep(NA,23),Mean_chl=rep(NA,23), Ecart_Type_chl=rep(NA,23))                    
+for(id2 in 1998 : 2020){                                                                                                    
+  i <- id2 -1997                                                                                                          
   #id2<-2020                                                                                                                
   divnum <- div8ab                                                                                                          
-  id <- substr(names(Data_chl_2020_2021), 2,5)                                                                            
+  id <- substr(names(Data_chl_1997_2021), 2,5)                                                                            
   idyear <- which(id == id2)                                                                                                
-  map_mean_chl <- stackApply(Data_chl_2020_2021[[idyear]],substr(names(Data_chl_2020_2021)[idyear], 2,5),mean)                 
-  result_chl_2020_2021_8ab$Mean_chl[i] <- raster::extract(map_mean_chl,  divnum, fun=mean,na.rm=T)                                
-  result_chl_2020_2021_8ab$Ecart_Type_chl[i]  <- raster::extract(map_mean_chl,  divnum, fun=sd,na.rm=T)                          
-  result_chl_2020_2021_8ab$year[i] <- id2                                                                                         
+  map_mean_chl <- stackApply(Data_chl_1997_2021[[idyear]],substr(names(Data_chl_1997_2021)[idyear], 2,5),mean)                 
+  result_chl_1998_2020_8ab$Mean_chl[i] <- raster::extract(map_mean_chl,  divnum, fun=mean,na.rm=T)                                
+  result_chl_1998_2020_8ab$Ecart_Type_chl[i]  <- raster::extract(map_mean_chl,  divnum, fun=sd,na.rm=T)                          
+  result_chl_1998_2020_8ab$year[i] <- id2
+  result_chl_1998_2020_8ab$area[i] <- "8ab"
 }
-result_chl_2020_2021_8ab
-plot(result_chl_2020_2021_8ab$year, result_chl_2020_2021_8ab$Mean_chl)
-
-#2008_2019
-result_chl_2008_2019_8a <-data.frame(year=rep(NA,12),Mean_chl=rep(NA,12), Ecart_Type_chl=rep(NA,12))                     
-for(id2 in 2008:2019){                                                                                                      
-  i <- id2 -2007                                                                                                            
-  #id2<-2020                                                                                                                 
-  divnum <- div8ab                                                                                                           
-  id <- substr(names(Data_chl_2008_2019), 2,5)                                                                            
-  idyear <- which(id == id2)                                                                                               
-  map_mean_chl <- stackApply(Data_chl_2008_2019[[idyear]],substr(names(Data_chl_2008_2019)[idyear], 2,5),mean)                 
-  result_chl_2008_2019_8ab$Mean_chl[i] <- raster::extract(map_mean_chl,  divnum, fun=mean,na.rm=T)                                
-  result_chl_2008_2019_8ab$Ecart_Type_chl[i]  <- raster::extract(map_mean_chl,  divnum, fun=sd,na.rm=T)                         
-  result_chl_2008_2019_8ab$year[i] <- id2                                                                                           
-}
-result_chl_2008_2019_8ab
-plot(result_chl_2008_2019_8ab$year, result_chl_2008_2019_8ab$Mean_chl)
-
-#1997_2007
-result_chl_1997_2007_8ab <-data.frame(year=rep(NA,11),Mean_chl=rep(NA,11), Ecart_Type_chl=rep(NA,11))                     
-for(id2 in 1997:2007){                                                                                                      
-  i <- id2 -1996                                                                                                            
-  #id2<-2020                                                                                                                 
-  divnum <- div8ab                                                                                                           
-  id <- substr(names(Data_chl_1997_2007), 2,5)                                                                            
-  idyear <- which(id == id2)                                                                                               
-  map_mean_chl <- stackApply(Data_chl_1997_2007[[idyear]],substr(names(Data_chl_1997_2007)[idyear], 2,5),mean)                 
-  result_chl_1997_2007_8ab$Mean_chl[i] <- raster::extract(map_mean_chl,  divnum, fun=mean,na.rm=T)                                
-  result_chl_1997_2007_8ab$Ecart_Type_chl[i]  <- raster::extract(map_mean_chl,  divnum, fun=sd,na.rm=T)                         
-  result_chl_1997_2007_8ab$year[i] <- id2                                                                                           
-}
-result_chl_1997_2007_8ab
-plot(result_chl_1997_2007_8ab$year, result_chl_1997_2007_8ab$Mean_chl)
-
-
-
-
-result_chl_1997_2021_8ab <- rbind(result_chl_1997_2007_8ab, result_chl_2008_2019_8ab, result_chl_2020_2021_8ab)
-
-result_chl_1997_2021_8ab <- mutate(result_chl_1997_2021_8ab, div = "8ab")
-result_chl_1997_2021_8ab
-
-#-------------Calcul de la moyenne/ecart-type [Chl a] zones 4c7d de 1997 a 2021---------------------
-
-
-
-#2020_2021
-result_chl_2020_2021_4c7d <-data.frame(year=rep(NA,2),Mean_chl=rep(NA,2), Ecart_Type_chl=rep(NA,2))                      
-for(id2 in 2020:2021){                                                                                                      
-  i <- id2 -2019                                                                                                            
-  #id2<-2020                                                                                                            
-  divnum <- div4c7d                                                                                                          
-  id <- substr(names(Data_chl_2020_2021), 2,5)                                                                           
-  idyear <- which(id == id2)                                                                                              
-  map_mean_chl <- stackApply(Data_chl_2020_2021[[idyear]],substr(names(Data_chl_2020_2021)[idyear], 2,5),mean)                 
-  result_chl_2020_2021_4c7d$Mean_chl[i] <- raster::extract(map_mean_chl,  divnum, fun=mean,na.rm=T)                              
-  result_chl_2020_2021_4c7d$Ecart_Type_chl[i]  <- raster::extract(map_mean_chl,  divnum, fun=sd,na.rm=T)                        
-  result_chl_2020_2021_4c7d$year[i] <- id2                                                                                           
-}
-result_chl_2020_2021_4c7d
-plot(result_chl_2020_2021_4c7d$year, result_chl_2020_2021_4c7d$Mean_chl)
-
-#2008_2019
-result_chl_2008_2019_4c7d <-data.frame(year=rep(NA,12),Mean_chl=rep(NA,12), Ecart_Type_chl=rep(NA,12))                     
-for(id2 in 2008:2019){                                                                                                      
-  i <- id2 -2007                                                                                                            
-  #id2<-2020                                                                                                                 
-  divnum <- div4c7d                                                                                                           
-  id <- substr(names(Data_chl_2008_2019), 2,5)                                                                            
-  idyear <- which(id == id2)                                                                                               
-  map_mean_chl <- stackApply(Data_chl_2008_2019[[idyear]],substr(names(Data_chl_2008_2019)[idyear], 2,5),mean)                 
-  result_chl_2008_2019_4c7d$Mean_chl[i] <- raster::extract(map_mean_chl,  divnum, fun=mean,na.rm=T)                                
-  result_chl_2008_2019_4c7d$Ecart_Type_chl[i]  <- raster::extract(map_mean_chl,  divnum, fun=sd,na.rm=T)                         
-  result_chl_2008_2019_4c7d$year[i] <- id2                                                                                           
-}
-result_chl_2008_2019_4c7d
-plot(result_chl_2008_2019_4c7d$year, result_chl_2008_2019_4c7d$Mean_chl)
-
-#1997_2007
-result_chl_1997_2007_4c7d <-data.frame(year=rep(NA,11),Mean_chl=rep(NA,11), Ecart_Type_chl=rep(NA,11))                     
-for(id2 in 1997:2007){                                                                                                      
-  i <- id2 -1996                                                                                                            
-  #id2<-2020                                                                                                                 
-  divnum <- div4c7d                                                                                                           
-  id <- substr(names(Data_chl_1997_2007), 2,5)                                                                            
-  idyear <- which(id == id2)                                                                                               
-  map_mean_chl <- stackApply(Data_chl_1997_2007[[idyear]],substr(names(Data_chl_1997_2007)[idyear], 2,5),mean)                 
-  result_chl_1997_2007_4c7d$Mean_chl[i] <- raster::extract(map_mean_chl,  divnum, fun=mean,na.rm=T)                                
-  result_chl_1997_2007_4c7d$Ecart_Type_chl[i]  <- raster::extract(map_mean_chl,  divnum, fun=sd,na.rm=T)                         
-  result_chl_1997_2007_4c7d$year[i] <- id2                                                                                           
-}
-result_chl_1997_2007_4c7d
-plot(result_chl_1997_2007_4c7d$year, result_chl_1997_2007_4c7d$Mean_chl)
-
-
-
-
-result_chl_1997_2021_4c7d <- rbind(result_chl_1997_2007_4c7d, result_chl_2008_2019_4c7d, result_chl_2020_2021_4c7d)
-result_chl_1997_2021_4c7d <- mutate(result_chl_1997_2021_4c7d, div = "4c7d")
-result_chl_1997_2021_4c7d
-
-#suppression des annees 1997 ET 2021 qui ne sont pas completes
-result_chl_1998_2020_8ab <- result_chl_1997_2021_8ab[-c(1,25), ]
 result_chl_1998_2020_8ab
+plot(result_chl_1998_2020_8ab$year, result_chl_1998_2020_8ab$Mean_chl)
 
-result_chl_1998_2020_4c7d <- result_chl_1997_2021_4c7d[-c(1,25), ]
+#-------------Calcul de la moyenne/ecart-type [Chl a] zones 4c7d de 1998 a 2021---------------------
+
+result_chl_1998_2020_4c7d <-data.frame(year=rep(NA,23),Mean_chl=rep(NA,23), Ecart_Type_chl=rep(NA,23))                     
+for(id2 in 1998 : 2020){                                                                                                    
+  i <- id2 -1997                                                                                                               
+  #id2<-2007                                                                                                                
+  divnum <- div4c7d                                                                                                          
+  id <- substr(names(Data_chl_1997_2021), 2,5)                                                                            
+  idyear <- which(id == id2)                                                                                                
+  map_mean_SST <- stackApply(Data_chl_1997_2021[[idyear]],substr(names(Data_chl_1997_2021)[idyear], 2,5),mean)                
+  result_chl_1998_2020_4c7d$Mean_chl[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                                
+  result_chl_1998_2020_4c7d$Ecart_Type_chl[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                         
+  result_chl_1998_2020_4c7d$year[i] <- id2
+  result_chl_1998_2020_4c7d$area[i] <- "4c7d"
+}
 result_chl_1998_2020_4c7d
+plot(result_chl_1998_2020_4c7d$year, result_chl_1998_2020_4c7d$Mean_chl)
 
-result_chl_1998_2020 <- rbind(result_chl_1998_2020_8ab, result_chl_1998_2020_4c7d)
-result_chl_1998_2020
+#Fusion des deux tableau 8ab et 4c7d
+result_chl_1998_2020_totalarea <- rbind(result_chl_1998_2020_8ab, result_chl_1998_2020_4c7d)
+result_chl_1998_2020_totalarea
 
+#Rajout de deux colonnes : passage en log de mean et sd
+#8ab + 4c7d 
+result_chl_1998_2020_totalarea_log <- result_chl_1998_2020_totalarea %>% 
+  mutate (Mean_chl_log = log(result_chl_1998_2020_totalarea$Mean_chl)) %>%
+  mutate (Ecart_Type_chl_log = log(result_chl_1998_2020_totalarea$Ecart_Type_chl))
+result_chl_1998_2020_totalarea_log
 
-result_chl_1998_2020_log <- result_chl_1998_2020 %>% 
-  mutate (Mean_chl_log = log(result_chl_1998_2020$Mean_chl)) %>%
-  mutate (Ecart_Type_chl_log = log(result_chl_1998_2020$Ecart_Type_chl))
-result_chl_1998_2020_log
-
-
-
+#8ab 
 result_chl_1998_2020_8ab_log <- result_chl_1998_2020_8ab %>% 
   mutate (Mean_chl_log = log(result_chl_1998_2020_8ab$Mean_chl)) %>%
   mutate (Ecart_Type_chl_log = log(result_chl_1998_2020_8ab$Ecart_Type_chl))
 result_chl_1998_2020_8ab_log
-plot(result_chl_1998_2020_8ab_log$Mean_chl)
-plot(result_chl_1998_2020_8ab_log$Mean_chl_log)
 
+#4c7d
 result_chl_1998_2020_4c7d_log <- result_chl_1998_2020_4c7d %>% 
   mutate (Mean_chl_log = log(result_chl_1998_2020_4c7d$Mean_chl)) %>%
   mutate (Ecart_Type_chl_log = log(result_chl_1998_2020_4c7d$Ecart_Type_chl))
 result_chl_1998_2020_4c7d_log
-plot(result_chl_1998_2020_4c7d_log$Mean_chl)
-plot(result_chl_1998_2020_4c7d_log$Mean_chl_log)
-
-
-
-
 
 #-----------------------Graphiques series temporelles moyenne Chl a 8ab/4c7d-----------------------------------
 
+#PAS LOG 
 #1998 a 2020
-ggplot(result_chl_1998_2020, 
-       mapping = aes(x = year, y = Mean_chl, color=div)) +
+ggplot(result_chl_1998_2020_totalarea, 
+       mapping = aes(x = year, y = Mean_chl, color=area)) +
   geom_point() +
   geom_line() +   
   geom_smooth() + 
@@ -1512,12 +1200,12 @@ ggplot(result_chl_1998_2020,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Concentration en chlorophylle a (mg/m-3)") + 
-  scale_x_continuous(limits=c(1998, 2020), breaks = seq(1998, 2020, 5))
+  scale_x_continuous(limits=c(1998, 2020), breaks = seq(1995, 2020, 5))
 
 
 #2006 a 2020
-ggplot(result_chl_1998_2020, 
-       mapping = aes(x = year, y = Mean_chl, color=div)) +
+ggplot(result_chl_1998_2020_totalarea, 
+       mapping = aes(x = year, y = Mean_chl, color=area)) +
   geom_point() +
   geom_line() +   
   geom_smooth() + 
@@ -1527,11 +1215,12 @@ ggplot(result_chl_1998_2020,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Concentration en chlorophylle a (mg/m-3)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2005, 2020, 1))
 
-#1998 a 2020 LOG
-ggplot(result_chl_1998_2020_log, 
-       mapping = aes(x = year, y = Mean_chl_log, color=div)) +
+#LOG
+#1998 a 2020 
+ggplot(result_chl_1998_2020_totalarea_log, 
+       mapping = aes(x = year, y = Mean_chl_log, color=area)) +
   geom_point() +
   geom_line() +   
   geom_smooth() + 
@@ -1541,12 +1230,12 @@ ggplot(result_chl_1998_2020_log,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Concentration en chlorophylle a (log10)") + 
-  scale_x_continuous(limits=c(1998, 2020), breaks = seq(1998, 2020, 5))
+  scale_x_continuous(limits=c(1998, 2020), breaks = seq(1995, 2020, 5))
 
 
 #2006 a 2020 LOG
-ggplot(result_chl_1998_2020_log, 
-       mapping = aes(x = year, y = Mean_chl_log, color=div)) +
+ggplot(result_chl_1998_2020_totalarea_log, 
+       mapping = aes(x = year, y = Mean_chl_log, color=area)) +
   geom_point() +
   geom_line() +   
   geom_smooth() + 
@@ -1556,72 +1245,60 @@ ggplot(result_chl_1998_2020_log,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Concentration en chlorophylle a (log10)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-#
-plot(result_chl_1998_2020$Mean_chl)
-plot(result_chl_1998_2020_log$Mean_chl_log)
-plot(result_chl_1998_2020_8ab$Mean_chl)
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2005, 2020, 1))
 
-
-#----------------------Test de correlation de Spearman : donne une idee de la tendance--------------------------
-
-#-----------------------------------------------SST---------------------------------------------------------------
-#4c7d
-corSST_1982_2020_4c7d <-cor.test(result_SST_1982_2020_4c7d$year, result_SST_1982_2020_4c7d$Mean_SST, method="spearman")
-corSST_1982_2020_4c7d
-
-#8ab
-corSST_1982_2020_8ab <-cor.test(result_SST_1982_2020_8ab$year, result_SST_1982_2020_8ab$Mean_SST, method="spearman")
-corSST_1982_2020_8ab
-
-
-# #-------------------------------------------Chlorophylle a----------------------------------------------------------- 
+#----------------------Test de correlation de Spearman : Chl a 8ab/4c7d (LOG ou pas)----------------------------------------------- 
+#PAS LOG 
 #4c7d
 corChl_1998_2020_4c7d <-cor.test(result_chl_1998_2020_4c7d$year, result_chl_1998_2020_4c7d$Mean_chl, method="spearman")
 corChl_1998_2020_4c7d
-
-corChl_1998_2020_4c7d_log <- cor.test(result_chl_1998_2020_4c7d_log$year, result_chl_1998_2020_4c7d_log$Mean_chl_log, method ="spearman")
-corChl_1998_2020_4c7d
+#Negatif 
 
 #8ab
 corChl_1998_2020_8ab <-cor.test(result_chl_1998_2020_8ab$year, result_chl_1998_2020_8ab$Mean_chl, method="spearman")
 corChl_1998_2020_8ab
+#Positif 
 
+#LOG 
+#4c7d
+corChl_1998_2020_4c7d_log <- cor.test(result_chl_1998_2020_4c7d_log$year, result_chl_1998_2020_4c7d_log$Mean_chl_log, method ="spearman")
+corChl_1998_2020_4c7d_log
+#Negatif 
+
+#8ab
 corChl_1998_2020_8ab_log <- cor.test(result_chl_1998_2020_8ab_log$year, result_chl_1998_2020_8ab_log$Mean_chl_log, method ="spearman")
-corChl_1998_2020_8ab
+corChl_1998_2020_8ab_log
+#Positif
 
+#---------------------------------------- NAO---------------------------------------------------------
+#----------------------------NAO toutes zones annuel 1821 a 2021--------------------------------------
+Data_NAO_1821_2021_2
+#Il existe déjà une colonne avec les moyennes annuelles 
+Data_NAO_1821_2021_2$annual
 
+#Création d'un vecteur qui colore les points en bleu si le NAO est < 0 et rouge si > 0
+color_mean_annual <- ifelse(Data_NAO_1821_2021_2$annual <= 0, "blue","red" )
 
-#---------------------------TRAITEMENT DES DONNEES NAO DANS L ETUDE DU ROUGET BARBERT--------------------------------------
+result_NAO_1821_2021_annual <-data.frame(year=rep(NA,200), Sum_NAO_neg_annual=rep(NA,200), Sum_NAO_pos_annual=rep(NA,200))                      
+for(id2 in 1821 : 2021){                                                                                                       
+  i <- id2 - 1821                                                                                                           
+  #id2 <-1825                                                                                                                 
+  NAO_months_year <- Data_NAO_1821_2021_2 %>% filter (Year == id2) %>% select (january, february, march, april, may, june, july, august, 
+                                                                                 september, october, november, december) 
+  NAO_months_year <- as.numeric(NAO_months_year)
+  signe_annual <- substr(NAO_months_year,1,1)
+  result_NAO_1821_2021_annual$Sum_NAO_neg_annual[i] <- sum(signe_annual == "-")
+  result_NAO_1821_2021_annual$Sum_NAO_pos_annual[i] <- 12 - (sum(signe_annual == "-"))
+  result_NAO_1821_2021_annual$year[i] <- id2
+}
+result_NAO_1821_2021_annual  
 
-#Extraction donnees
-Data_NAO_1821_2021 <- read.table("C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/NAO/nao.dat.txt", quote="\"", comment.char="")
-
-#Ajout de nom de colonnes 
-colnames(Data_NAO_1821_2021) <- c("Year", "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december", "annual")
-Data_NAO_1821_2021
-
-#Creation d un nouveau jeu de donnees sans la valeur annuelle et calcul de la valeur moyenne manuellement pour comparer 
-#et avoir 
-
-#install.packages("matrixStats")
-
-Data_NAO_1821_2021_2 <-  sapply(Data_NAO_1821_2021,as.character)
-Data_NAO_1821_2021_2 <- ifelse(Data_NAO_1821_2021_2=="-99.99",NA, Data_NAO_1821_2021_2)
-Data_NAO_1821_2021_2 <-  apply(Data_NAO_1821_2021_2,2, as.numeric)
-Data_NAO_1821_2021_2 <- data.frame(Data_NAO_1821_2021_2)
-Data_NAO_1821_2021_2 
-
-Data_NAO_1821_2021_2 <- Data_NAO_1821_2021_2%>%
-  dplyr::mutate(Annual_mean = rowMeans(Data_NAO_1821_2021_2[,2:13]))
-Data_NAO_1821_2021_2 
-
-a <- ifelse(Data_NAO_1821_2021_2$Annual_mean <= 0, "blue","red" )
-
+#-----------------------Graphiques series temporelles moyenne + somme signe + : Chl a 8ab/4c7d-----------------------------------
 #1821_2021
 ggplot(Data_NAO_1821_2021_2, 
-       mapping = aes(x = Year, y = Annual_mean)) +
-  geom_point(color=a) +
+       mapping = aes(x = Year, y = annual)) +
+  geom_point(color=color_mean_annual) +
+  geom_hline(yintercept=0) +
   geom_line() +   
   geom_smooth() + 
   #geom_errorbar(aes(ymin = Mean_chl - Ecart_Type_chl, ymax = Mean_chl + Ecart_Type_chl), width = 0.5) + 
@@ -1635,8 +1312,9 @@ ggplot(Data_NAO_1821_2021_2,
 
 #2006_2021
 ggplot(Data_NAO_1821_2021_2, 
-       mapping = aes(x = Year, y = Annual_mean)) +
-  geom_point(color=a) +
+       mapping = aes(x = Year, y = annual)) +
+  geom_point(color=color_mean_annual) +
+  geom_hline(yintercept=0) +
   geom_line() +   
   geom_smooth() + 
   #geom_errorbar(aes(ymin = Mean_chl - Ecart_Type_chl, ymax = Mean_chl + Ecart_Type_chl), width = 0.5) + 
@@ -1648,6 +1326,37 @@ ggplot(Data_NAO_1821_2021_2,
   scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020))+ 
   theme_bw()
 
+#1821_2021
+ggplot(result_NAO_1821_2021_annual, 
+       mapping = aes(x = year, y = Sum_NAO_pos_annual)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  ylim(0, 12) +
+  labs(title = "Evolution de la somme des indices NAO positifs annuelle entre 1821 et 2021",
+       x = "Temps (an)",
+       y = "Somme indices NAO positifs") + 
+  scale_x_continuous(limits=c(1821, 2021), breaks = seq(1820, 2020, 10))+ 
+  theme_bw()
+
+#2006_2021
+ggplot(result_NAO_1821_2021_annual, 
+       mapping = aes(x = year, y = Sum_NAO_pos_annual)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  ylim(0, 12) +
+  labs(title = "Evolution de la somme des indices NAO positifs annuelle entre 1821 et 2021",
+       x = "Temps (an)",
+       y = "Somme indices NAO positifs") + 
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2005, 2020, 1))+ 
+  theme_bw()
+
+#----------------------Test de correlation de Spearman : NAO year 1821 2021-------------------------------------------------
+#annual
+corData_NAO_1821_2021 <-cor.test(Data_NAO_1821_2021_2$Year, Data_NAO_1821_2021_2$annual, method="spearman")
+corData_NAO_1821_2021
+#Negatif 
 
 #
 
@@ -1688,19 +1397,7 @@ ggplot(Data_NAO_1821_2021_2,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+#----------------------------PAS D'IMPORTANCE + BONUS------------------------------------- 
 #----GRAPHIQUES MOYENNE ANNUEL SST (°C & °K) SUR L ENSEMBLE DE LA ZONE en 2006-2020-----
 kelv_to_celsius <- function(temp) { celsius <- (temp - 273.15) }
 id <- substr(names(DataTemp), 2,5)
@@ -1908,27 +1605,6 @@ SST_4c <- c(T2006_4c , T2007_4c , T2008_4c , T2009_4c , T2010_4c , T2011_4c , T2
 table_SST_4c <- data.frame(year, SST_4c)
 table_SST_4c
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #----------------------------------------------------------------------------------------------------
 #On peut aissu extraire la moyenne image par image avec cellStats 
 #ici calcul de la valeur moyenne de chaque image annuelle
@@ -1955,8 +1631,6 @@ ggplot()+
   coord_sf(ylim=c(30,80),xlim=c(-40,50))+
   borders("world")
 
-
-
 +geom_sf(data=div,aes(geometry=geometry,fill=F_DIVISION))+coord_sf()+borders("world")
 #extract permet de resumer l information des images par polygones (ici la
 #moyenne)
@@ -1968,9 +1642,6 @@ uu<-raster::extract(DataTemp,div,fun="mean",na.rm=T)
 div8ab<-div%>%dplyr::filter(F_DIVISION%in%c("27.8.a","27.8.b"))
 div4c<-div%>%dplyr::filter(F_DIVISION%in%c("27.4.c"))
 div7d<-div%>%dplyr::filter(F_DIVISION%in%c("27.7.d"))
-
-
-
 
 plot(div8ab["F_DIVISION"])
 #ou avec ggplot
@@ -1987,9 +1658,6 @@ ggplot()+
   borders("world")
 #ensuite extrat en utilisant div1
 uu<-extract(DataTemp2009,div8ab,fun="mean",na.rm=T)
-
-
-
 
 #------------------------------------------------------
 #library(cartography)
@@ -2047,3 +1715,91 @@ uu<-extract(DataTemp2009,div8ab,fun="mean",na.rm=T)
 #  coord_sf(xlim = c(-9,8), ylim = c(43,54)) 
 
 #-----------------------------------------------------------------------------------
+
+
+#Trouver des infos sur les donnees
+#file.info(Data_chl_1997_2007)
+#et
+#Data_SST_2006_2020
+#ou 
+#print(Data_SST_2006_2020)
+#L affichage standard de raster affiche les premieres cartes uniquement
+#plot(Data_SST_2006_2020)
+#Plotter une couche precise
+#plot(Data_SST_2006_2020[[5479]])
+#ou
+#a <- raster(Data_SST_2006_2020, layer=5479)
+#plot(a)
+
+#Calcul d une carte moyenne de la variable d interet
+#mData_SST_2006_2020<-mean(Data_SST_2006_2020,na.rm=T) #Long donc ne pas mettre en route
+#Plot avec le package raster
+#plot(mData_SST_2006_2020)
+#ou Plot avec RasterVis
+#levelplot(mData_SST_2006_2020)
+
+
+#---------------------------------------------------------------------------------------------
+
+#-----CALCUL D UNE VALEUR MOYENNE PAR REGROUPEMET DE CARTES : DES EXEMPLES------
+
+#subtr permet de decouper ces noms pour avoir l annee ou le mois ou autre
+#substr("X2009.01.01",2,5) #renvoit les carateres 2 a 8 de la chaîne de caracteres 
+#consideree (pour considere que l annee)
+#stackApply permet d appliquer un operateur statistique sur un ensemble de
+#cartes defini par un vecteur passe dans le deuxieme argument de la fonction
+#ici dans ce cas precis : cacul de la moyenne annuelle
+
+#Ex : Faire des regroupement par mois dans les 100 premieres images
+#Data_SST_2006_2020_month_100<-stackApply(DataTemp[[1:100]],substr(names(Data_SST_2006_2020)[1:100],7,8),mean)
+#levelplot(Data_SST_2006_2020_month_100)
+
+#ou faire des regoupement pour n avoir que janvier 2006
+#id <- substr(names(Data_SST_2006_2020), 2,8)
+#id2 <- which(id == "2006.01")
+#id[id2]
+#id2
+#DataTemp_01_2006<-stackApply(Data_SST_2006_2020[[id2]],substr(names(Data_SST_2006_2020)[id2],7,8),mean)
+#levelplot(DataTemp_01_2006)
+
+# test bouclade pour calcul moyenne saisonnière
+
+#2006_2020_C
+rez <-data.frame(year=rep(NA,15),Mean_SST=rep(NA,15), Ecart_Type_SST=rep(NA,15))                     #permet de creer un tableau vide avec le bon nb de colonnes et de lignes 
+for(id2 in 2006:2020){                                                                                                      #indique le parametre qui va varier 
+  i <- id2 -2005                                                                                                            #permet de donner le numero de la ligne dans le tableau 
+  #id2<-2007                                                                                                                #exemple avec une annee pour tester 
+  divnum <- div8ab                                                                                                          #selection de la zone a extraire 
+  id <- substr(names(Data_SST_2006_2020_C), 2,5)                                                                            #indique ce qu il faut selectionner dans le nom de ma map 
+  idyear <- which(id == id2)                                                                                                #indique qu une partie du nom de ma map doit correspondre a mon annee 
+  map_mean_SST <- stackApply(Data_SST_2006_2020_C[[idyear]],substr(names(Data_SST_2006_2020_C)[idyear], 2,5),mean)                 #selectionne les maps correspondantes et calcule une map moyenne pour chaque annee 
+  result_SST_2006_2020_8ab$Mean_SST[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                               #calcule la moyenne de ces maps moyennes et les mets dans la bonne colonne  
+  result_SST_2006_2020_8ab$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                          #calcule l ecart-type de ces maps moyennes t les mets dans la bonne colonne
+  result_SST_2006_2020_8ab$year[i] <- id2                                                                                          #met l annee dans la colonne correspondante 
+}
+result_SST_2006_2020_8ab
+plot(result_SST_2006_2020_8ab$year, result_SST_2006_2020_8ab$Mean_SST)
+
+
+
+
+#Carte Moyenne annee 1982 et 2020
+
+#2020
+idyear <- substr(names(Data_SST_2006_2020_C), 2,5)
+id2020 <- which(idyear == "2020")
+idyear[id2020]
+id2020
+
+Data_SST_2020_C_mean<-stackApply(Data_SST_2006_2020_C[[id2020]],substr(names(Data_SST_2006_2020_C)[id2020],2,5),mean)
+levelplot(Data_SST_2020_C_mean, main = "Temperature moyenne observée en 2020 en Altantique Nord-Ouest")
+
+#1982
+idyear2 <- substr(names(Data_SST_1982_1989_C), 2,5)
+id1982 <- which(idyear2 == "1982")
+idyear2[id1982]
+id1982
+
+Data_SST_1982_C_mean <-stackApply(Data_SST_1982_1989_C[[id1982]],substr(names(Data_SST_1982_1989_C)[id1982],2,5),mean)
+levelplot(Data_SST_1982_C_mean, main = "Temperature moyenne observée en 1982 en Altantique Nord-Ouest")
+
