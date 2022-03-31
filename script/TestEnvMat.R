@@ -840,139 +840,6 @@ corNAO_1821_2021_S_sum_pos
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# test bouclade pour calcul moyenne saisonnière
-
-#2006_2020_C
-rez <-data.frame(year=rep(NA,15),Mean_SST=rep(NA,15), Ecart_Type_SST=rep(NA,15))                     #permet de creer un tableau vide avec le bon nb de colonnes et de lignes 
-for(id2 in 2006:2020){                                                                                                      #indique le parametre qui va varier 
-  i <- id2 -2005                                                                                                            #permet de donner le numero de la ligne dans le tableau 
-  #id2<-2007                                                                                                                #exemple avec une annee pour tester 
-  divnum <- div8ab                                                                                                          #selection de la zone a extraire 
-  id <- substr(names(Data_SST_2006_2020_C), 2,5)                                                                            #indique ce qu il faut selectionner dans le nom de ma map 
-  idyear <- which(id == id2)                                                                                                #indique qu une partie du nom de ma map doit correspondre a mon annee 
-  map_mean_SST <- stackApply(Data_SST_2006_2020_C[[idyear]],substr(names(Data_SST_2006_2020_C)[idyear], 2,5),mean)                 #selectionne les maps correspondantes et calcule une map moyenne pour chaque annee 
-  result_SST_2006_2020_8ab$Mean_SST[i] <- raster::extract(map_mean_SST,  divnum, fun=mean,na.rm=T)                               #calcule la moyenne de ces maps moyennes et les mets dans la bonne colonne  
-  result_SST_2006_2020_8ab$Ecart_Type_SST[i]  <- raster::extract(map_mean_SST,  divnum, fun=sd,na.rm=T)                          #calcule l ecart-type de ces maps moyennes t les mets dans la bonne colonne
-  result_SST_2006_2020_8ab$year[i] <- id2                                                                                          #met l annee dans la colonne correspondante 
-}
-result_SST_2006_2020_8ab
-plot(result_SST_2006_2020_8ab$year, result_SST_2006_2020_8ab$Mean_SST)
-
-
-
-
-#Carte Moyenne annee 1982 et 2020
-
-#2020
-idyear <- substr(names(Data_SST_2006_2020_C), 2,5)
-id2020 <- which(idyear == "2020")
-idyear[id2020]
-id2020
-
-Data_SST_2020_C_mean<-stackApply(Data_SST_2006_2020_C[[id2020]],substr(names(Data_SST_2006_2020_C)[id2020],2,5),mean)
-levelplot(Data_SST_2020_C_mean, main = "Temperature moyenne observée en 2020 en Altantique Nord-Ouest")
-
-#1982
-idyear2 <- substr(names(Data_SST_1982_1989_C), 2,5)
-id1982 <- which(idyear2 == "1982")
-idyear2[id1982]
-id1982
-
-Data_SST_1982_C_mean <-stackApply(Data_SST_1982_1989_C[[id1982]],substr(names(Data_SST_1982_1989_C)[id1982],2,5),mean)
-levelplot(Data_SST_1982_C_mean, main = "Temperature moyenne observée en 1982 en Altantique Nord-Ouest")
-
-
-
-
-
-
-
-
-
-
-
 #________________________________________________________________________________________________________________
 #------------------------------------------------ANNUEL----------------------------------------------------------
 #________________________________________________________________________________________________________________
@@ -1361,6 +1228,134 @@ corData_NAO_1821_2021
 #
 
 
+#------------------------------CARTES MOYENNES HIVER ------------------------------------------------------
+
+#---------------------------------------------SST--------------------------------------------------------
+
+idyear_and_month_SST<- substr(names(Data_SST_1982_2020_C), 2,8)
+
+#2020
+idwinter2020 <- which(idyear_and_month_SST %in% c("2020.01" , "2020.02", "2020.03", "2019.12"))
+idyear_and_month_SST[idwinter2020]
+idwinter2020
+
+mean_SST_winter_2020 <- calc(Data_SST_1982_2020_C[[idwinter2020]], fun = mean)
+map_mean_SST_winter2020 <- levelplot(mean_SST_winter2020_2 , main = "Temperature moyenne de surface observée lors de l'hiver 2020 en Altantique Nord-Ouest")
+map_mean_SST_winter2020
+
+#1983
+idwinter1983 <- which(idyear_and_month %in% c("1983.01" , "1983.02", "1983.03", "1982.12"))
+idyear_and_month[idwinter1983]
+idwinter1983
+
+mean_SST_winter_1983 <- calc(Data_SST_1982_2020_C[[idwinter1983]], fun = mean)
+map_mean_SST_winter_1983<- levelplot(mean_SST_winter_1983 , main = "Temperature moyenne de surface observée lors de l'hiver 1983 en Altantique Nord-Ouest")
+map_mean_SST_winter_1983
+
+
+#---------------------------------------------Chl--------------------------------------------------------
+
+idyear_and_month_chl<- substr(names(Data_chl_1997_2021), 2,8)
+
+#2020
+idwinter2021 <- which(idyear_and_month_chl %in% c("2021.01" , "2021.02", "2021.03", "2020.12"))
+idyear_and_month_chl[idwinter2021]
+idwinter2021
+
+mean_chl_winter_2021 <- calc(Data_chl_1997_2021[[idwinter2021]], fun = mean)
+map_mean_chl_winter_2021 <- plot(mean_chl_winter_2021 , main = "Concentration en chlorophylle a observée lors de l'hiver 2021 en Altantique Nord-Ouest")
+
+
+#1983
+idwinter1998 <- which(idyear_and_month_chl %in% c("1998.01" , "1998.02", "1998.03", "1997.12"))
+idyear_and_month_chl[idwinter1998]
+idwinter1998
+
+mean_chl_winter_1998 <- calc(Data_chl_1997_2021[[idwinter1998]], fun = mean)
+map_mean_chl_winter_1998<- plot(mean_chl_winter_1998, main = "Concentration en chlorophylle a observée lors de l'hiver 1998 en Altantique Nord-Ouest")
+
+
+#
+
+
+
+
+
+
+#------------------------------CARTES MOYENNES ANNUEL ------------------------------------------------------
+
+#---------------------------------------------SST--------------------------------------------------------
+
+#2020
+idyear <- substr(names(Data_SST_2006_2020_C), 2,5)
+id2020 <- which(idyear == "2020")
+idyear[id2020]
+id2020
+
+Data_SST_2020_C_mean<-stackApply(Data_SST_2006_2020_C[[id2020]],substr(names(Data_SST_2006_2020_C)[id2020],2,5),mean)
+levelplot(Data_SST_2020_C_mean, main = "Temperature moyenne observée en 2020 en Altantique Nord-Ouest")
+
+#1982
+idyear2 <- substr(names(Data_SST_1982_1989_C), 2,5)
+id1982 <- which(idyear2 == "1982")
+idyear2[id1982]
+id1982
+
+Data_SST_1982_C_mean <-stackApply(Data_SST_1982_1989_C[[id1982]],substr(names(Data_SST_1982_1989_C)[id1982],2,5),mean)
+levelplot(Data_SST_1982_C_mean, main = "Temperature moyenne observée en 1982 en Altantique Nord-Ouest")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1615,6 +1610,8 @@ table_SST_4c
 #pour extraire une valeur moyenne sur un polygone
 library(sf) # librairie utilisee pour manipuler les formats spatiaux de type sf
 library(ggplot2)
+
+levelplot(Data_chl_1997_2021)
 
 load("./data/div.rdata")
 load("C:/Users/vmartin/Desktop/Stage/Donnees/Donnees environnementales/Tempe_GulfStream_NorthSea_1982_2020_n54e8s43w-9/div (1).rdata")
