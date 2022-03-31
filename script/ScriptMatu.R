@@ -1,9 +1,13 @@
-#library
+#install.packages("tidyr")
+library(tidyr)
+#install.packages("sizeMat")
+library(sizeMat)
+#install.packages("questionr")
+library("questionr")
+#install.packages("readxl")
 library(readxl)
 #install.packages("dplyr")
 library(dplyr)
-#install.packages("tidyr")
-library(tidyr)
 #install.packages("ggplot2")
 library(ggplot2)
 #install.packages("hablar")
@@ -14,32 +18,31 @@ library(stringr)
 library("forcats")
 #install.packages("plotrix")
 library("plotrix")
+#install.packages(fmsb)
+library(fmsb)
+
+#Packages non utiles : graph 3D
+#-----Package gg3D
+#install.packages("devtools")
+#devtools::install_github("AckerDWM/gg3D")
+#library("ggplot2")
+#library("gg3D")
+#-----Package rgl
+#install.packages("rgl")
+#devtools::install_github("AckerDWM/gg3D")
+#library("rgl")
+#-----Package plot3D
+#install.packages("plot3D")
+#library("plot3D")
 
 
 DataMatu <- readRDS("C:/Users/vmartin/Desktop/Stage/R/Maturity/RprojMaturity/Data/ca.rds")
 
-#------------------TRI DES DONNEES ET TRAVAIL EXPLORATOIRE----------------------
+#------------------------------TRI DES DONNEES----------------------------------
 
-#Filter l'espece + Area 
+#Filter l'espece 
 DataMatu_MU <- DataMatu %>% 
   filter(spp == "Mullus surmuletus") 
-
-#Barplot sexe
-ggplot(DataMatu_MU, mapping = aes(x = sex)) + geom_bar()
-
-#Tableau age
-table(DataMatu_MU$age)
-
-#Barplot echelles de maturite
-ggplot(DataMatu_MU, mapping = aes(x = matScale)) + geom_bar()
-
-#Barplot stades de maturite
-ggplot(DataMatu_MU, mapping = aes(x = matStage)) + geom_bar()
-
-#Barplot  area
-ggplot(DataMatu_MU, mapping = aes(x = area)) + geom_bar()
-table(DataMatu_MU$year,DataMatu_MU$area)
-
 
 #Quelques données aberrantes dans les valeurs de longeur !!!! Au delà de 500 mm 
 #Concentre sur l'année 2010, zone 8.a (23/159)
@@ -71,9 +74,37 @@ DataMatu_MUR <- DataMatu_MU %>%
                                  "4b" =  c("27.4.b"), 
                                  "8c-d" = c("27.8.c", "27.8.d")))
 
+#Simplification des stade de maturite 
+DataMatu_MUR2 <- DataMatu_MUR %>% 
+  mutate(mat=ifelse(sex == "I","Immature",
+                    ifelse (matStage == "1", "Immature",
+                            ifelse (matStage == "2", "Immature",
+                                    ifelse (matStage == "2a", "Immature", "Mature")))))
+
+#pb3 <-select(DataMatu_MUR2, sex, mat, lenCls, matStage)
+#pb4 <- pb3 %>%
+#  filter(sex=="I")
+
+#-----------------------TRAVAIL EXPLORATOIRE (qui a permis le tri des données)-------------------------
+
+#Barplot sexe
+ggplot(DataMatu_MU, mapping = aes(x = sex)) + geom_bar()
+
+#Tableau age
+table(DataMatu_MU$age)
+
+#Barplot echelles de maturite
+ggplot(DataMatu_MU, mapping = aes(x = matScale)) + geom_bar()
+
+#Barplot stades de maturite
+ggplot(DataMatu_MU, mapping = aes(x = matStage)) + geom_bar()
+
+#Barplot  area
+ggplot(DataMatu_MU, mapping = aes(x = area)) + geom_bar()
+table(DataMatu_MU$year,DataMatu_MU$area)
+
 ggplot(DataMatu_MUR, mapping = aes(x = newarea)) + geom_bar()
 #Pas mal d'info pour 7.d-e, 8.a-b et 4.c-b #on va se concentrer dessus 
-
 
 #Quelques tableaux 
 table(DataMatu_MUR$matStage,DataMatu_MUR$year)
@@ -135,19 +166,10 @@ ggplot(DataMatu_MUR %>%
 
 #-----------------En simplifiant les stades de maturite-------------------------
 
-DataMatu_MUR2 <- DataMatu_MUR %>% 
-  mutate(mat=ifelse(sex == "I","Immature",
-                    ifelse (matStage == "1", "Immature",
-                            ifelse (matStage == "2", "Immature",
-                                    ifelse (matStage == "2a", "Immature", "Mature")))))
 #Tableaux stade de maturite
 table(DataMatu_MUR2$mat)
 table(DataMatu_MUR2$mat,DataMatu_MUR2$newarea)
 
-
-#pb3 <-select(DataMatu_MUR2, sex, mat, lenCls, matStage)
-#pb4 <- pb3 %>%
-#  filter(sex=="I")
 #-------------------------------Femelle-----------------------------------------
 #8a-b
 ggplot(DataMatu_MUR2 %>% 
@@ -650,15 +672,17 @@ ggplot(data = DataMatu_MUR_M_ST %>%
   geom_smooth()
 
 
+
+
+
+
+
+
+
+
+
+
 #---------------------------CALCUL DES L50--------------------------------------
-
-#install.packages("sizeMat")
-library(sizeMat)
-#install.packages("questionr")
-library("questionr")
-library(fmsb)
-library(tidyr)
-
 #function to compute L50{{{
 fl50<-function(data,niter=1000,graph=T){
   #print(unique(data$year))
@@ -709,8 +733,6 @@ fl50<-function(data,niter=1000,graph=T){
   return(estimate)
 }
 
-
-
 #------------Tri des donnees pour rendre le jeu de donnees plus digerable------- 
 #Desactiver le package raster pour cette ligne sinon conflict pour la commande 
 #select entre les deux packages
@@ -724,6 +746,882 @@ Data_MUR_L50 <- DataMatu_MUR2 %>%
 
 table(Data_MUR_L50$newarea)
 table(Data_MUR_L50$year)
+table(Data_MUR_L50$sex)
+
+#-------Graphique de la proportion de mature/immature et valeur L50------------- 
+#---------------------pour chaque année 2006-2020-------------------------------
+
+#------------------Boucle pour calculer le L50 et afficher le R²---------------- 
+
+idyear<-2006:2020
+#--------------------------Femelle avec Immature -------------------------------
+#------------------------zone CIEM 8ab version boucle---------------------------
+result_L50_FI_8ab<-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-3
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_L50%>%
+    filter(sex=="F" | sex =="I")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="8a-b")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fl50(datatmpyear,niter=100,graph=T)
+    #reztmp$L50
+    result_L50_FI_8ab$L50[i] <- median(reztmp$L50)
+    result_L50_FI_8ab$R2[i] <- reztmp$R2
+    result_L50_FI_8ab$Ecart_Type[i]  <- sd(reztmp$L50)
+  
+  }
+  result_L50_FI_8ab$year[i] <- currentyear 
+}
+result_L50_FI_8ab
+
+ggplot(result_L50_FI_8ab, 
+       mapping = aes(x = year, y = L50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 400) +
+  labs(title = "Evolution de la L50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)")  
+  #scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+#--------------------------Femelle avec Immature -------------------------------
+#------------------------zones CIEM 4c-7d version boucle------------------------
+result_L50_FI_4c7d <-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-1
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_L50%>%
+    filter(sex=="F"| sex =="I")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="4c-7d")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fl50(datatmpyear,niter=100,graph=T)
+    #reztmp$L50
+    result_L50_FI_4c7d$L50[i] <- median(reztmp$L50)
+    result_L50_FI_4c7d$R2[i]  <- reztmp$R2
+    result_L50_FI_4c7d$Ecart_Type[i]  <- sd(reztmp$L50)
+    
+  }
+  result_L50_FI_4c7d$year[i] <- currentyear 
+}
+
+result_L50_FI_4c7d
+
+ggplot(result_L50_FI_4c7d, 
+         mapping = aes(x = year, y = L50)) +
+         geom_point() +
+         geom_line() +   
+         geom_smooth() + 
+         geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 400) +
+  labs(title = "Evolution de la L50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+
+
+
+#-------------------------Femelle sans Immature --------------------------------
+#------------------------zone CIEM 8ab version boucle---------------------------
+result_L50_F_8ab<-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-3
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_L50%>%
+    filter(sex=="F")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="8a-b")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fl50(datatmpyear,niter=100,graph=T)
+    #reztmp$L50
+    result_L50_F_8ab$L50[i] <- median(reztmp$L50)
+    result_L50_F_8ab$R2[i] <- reztmp$R2
+    result_L50_F_8ab$Ecart_Type[i]  <- sd(reztmp$L50)
+    
+  }
+  result_L50_F_8ab$year[i] <- currentyear 
+}
+
+result_L50_F_8ab
+
+ggplot(result_L50_F_8ab, 
+       mapping = aes(x = year, y = L50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 400) +
+  labs(title = "Evolution de la L50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)")  
+#scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+#-------------------------Femelle sans Immature --------------------------------
+#------------------------zones CIEM 4c-7d version boucle------------------------
+
+result_L50_F_4c7d <-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-1
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_L50%>%
+    filter(sex=="F")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="4c-7d")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fl50(datatmpyear,niter=100,graph=T)
+    #reztmp$L50
+    result_L50_F_4c7d$L50[i] <- median(reztmp$L50)
+    result_L50_F_4c7d$R2[i]  <- reztmp$R2
+    result_L50_F_4c7d$Ecart_Type[i]  <- sd(reztmp$L50)
+    
+  }
+  result_L50_F_4c7d$year[i] <- currentyear 
+}
+result_L50_F_4c7d
+
+ggplot(result_L50_F_4c7d, 
+       mapping = aes(x = year, y = L50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 400) +
+  labs(title = "Evolution de la L50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+
+#
+
+comparaison_L50_F_and_FI_8ab <- cbind(result_L50_F_8ab, result_L50_FI_8ab) 
+comparaison_L50_F_and_FI_8ab
+
+
+comparaison_L50_F_and_FI_4c7d <- cbind(result_L50_F_4c7d, result_L50_FI_4c7d) 
+comparaison_L50_F_and_FI_4c7d
+
+
+idyear<-2006:2020
+#----------------------------------Male-----------------------------------------
+
+#----------------------------Male avec Immature --------------------------------
+#------------------------zone CIEM 8ab version boucle---------------------------
+result_L50_MI_8ab<-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-3
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_L50%>%
+    filter(sex=="M" | sex =="I")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="8a-b")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fl50(datatmpyear,niter=100,graph=T)
+    #reztmp$L50
+    result_L50_MI_8ab$L50[i] <- median(reztmp$L50)
+    result_L50_MI_8ab$R2[i] <- reztmp$R2
+    result_L50_MI_8ab$Ecart_Type[i]  <- sd(reztmp$L50)
+    
+  }
+  result_L50_MI_8ab$year[i] <- currentyear 
+}
+
+result_L50_MI_8ab
+
+ggplot(result_L50_MI_8ab, 
+       mapping = aes(x = year, y = L50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 400) +
+  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+#-----------------------------Male avec Immature -------------------------------
+#------------------------zones CIEM 4c-7d version boucle------------------------
+
+result_L50_MI_4c7d <-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-1
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_L50%>%
+    filter(sex=="M" | sex =="I")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="4c-7d")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fl50(datatmpyear,niter=100,graph=T)
+    #reztmp$L50
+    result_L50_MI_4c7d$L50[i] <- median(reztmp$L50)
+    result_L50_MI_4c7d$R2[i]  <- reztmp$R2
+    result_L50_MI_4c7d$Ecart_Type[i]  <- sd(reztmp$L50)
+    
+  }
+  result_L50_MI_4c7d$year[i] <- currentyear 
+}
+result_L50_MI_4c7d
+
+ggplot(result_L50_MI_4c7d, 
+       mapping = aes(x = year, y = L50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 400) +
+  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+
+#----------------------------Male sans Immature --------------------------------
+#------------------------zone CIEM 8ab version boucle---------------------------
+
+#
+result_L50_M_8ab<-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-3
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_L50%>%
+    filter(sex=="M")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="8a-b")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fl50(datatmpyear,niter=100,graph=T)
+    #reztmp$L50
+    result_L50_M_8ab$L50[i] <- median(reztmp$L50)
+    result_L50_M_8ab$R2[i] <- reztmp$R2
+    result_L50_M_8ab$Ecart_Type[i]  <- sd(reztmp$L50)
+    
+  }
+  result_L50_M_8ab$year[i] <- currentyear 
+}
+
+result_L50_M_8ab
+
+ggplot(result_L50_M_8ab, 
+       mapping = aes(x = year, y = L50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 400) +
+  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+#--------------------------Male sans Immature ----------------------------------
+#------------------------zones CIEM 4c-7d version boucle------------------------
+
+result_L50_M_4c7d <-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-1
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_L50%>%
+    filter(sex=="M" | sex =="I")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="4c-7d")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fl50(datatmpyear,niter=100,graph=T)
+    #reztmp$L50
+    result_L50_M_4c7d$L50[i] <- median(reztmp$L50)
+    result_L50_M_4c7d$R2[i]  <- reztmp$R2
+    result_L50_M_4c7d$Ecart_Type[i]  <- sd(reztmp$L50)
+    
+  }
+  result_L50_M_4c7d$year[i] <- currentyear 
+}
+result_L50_M_4c7d
+
+ggplot(result_L50_M_4c7d, 
+       mapping = aes(x = year, y = L50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 400) +
+  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+
+
+
+#
+
+comparaison_L50_M_and_MI_8ab <- cbind(result_L50_M_8ab, result_L50_MI_8ab) 
+comparaison_L50_M_and_MI_8ab
+
+
+comparaison_L50_M_and_MI_4c7d <- cbind(result_L50_M_4c7d, result_L50_MI_4c7d) 
+comparaison_L50_M_and_MI_4c7d
+
+
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#------------------Boucle pour calculer le a50 et afficher le R²---------------- 
+
+#---------------------------CALCUL DES a50--------------------------------------
+
+
+fa50<-function(data,niter=1000,graph=T){
+  #print(unique(data$year))
+  model_glm <- glm(mature ~ age, data = data, family = binomial(link = "logit"))
+  smry_model <- summary(model_glm)
+  n_coef   <- list()
+  for(i in seq_len(niter)){
+    new_data   <- data[sample(nrow(data), replace = TRUE), ]
+    model_boot <- glm(mature ~ age, data = new_data, family = binomial(link = "logit"))
+    glm_coef   <- coef(model_boot)
+    n_coef     <- rbind(n_coef, glm_coef)
+  }
+  A    <- as.numeric(n_coef[,1])
+  B    <- as.numeric(n_coef[,2])
+  a50  <- -A/B
+  create_x <- cbind(1, data$age)
+  x_fq     <- as.matrix(create_x) %*% t(as.matrix(cbind(A,B)))
+  pred_fq  <- 1 / (1 + exp(-x_fq))
+  qtl      <- round(matrixStats::rowQuantiles(pred_fq, probs = c(0.025, 0.5, 0.975)), 3)
+  fitted   <- qtl[, 2]
+  lower    <- qtl[, 1]
+  upper    <- qtl[, 3]
+  #output
+  x_input <- data$age
+  y_input <- as.numeric(as.character(data$mature))
+  m_p     <- tapply(y_input, x_input, mean)
+  wide    <- quantile(a50, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+  # R-square Nagelkerke method
+  model1 <- glm(y_input ~ x_input, family = binomial(link = "logit"))
+  # R-square Nagelkerke method
+  R2     <- nagelkerkeR2(model1)
+  dat1<-data.frame(x=sort(unique(x_input)), y=m_p)#,year=rep(unique(data$year),each=age(m_p)))
+  dat2<-data.frame(x=sort(x_input))#,year=rep(unique(data$year),each=age(fitted)),fitted=sort(fitted),lower=sort(lower),upper=sort(upper))
+  #tidyr::pivot_longer(3:5)
+  estimate <- list(model = smry_model, parameters_A = A, parameters_B = B, a50 = a50, 
+                   lower = lower, fitted = fitted,  upper = upper,dat1=dat1,dat2=dat2,a50=a50,R2=R2)
+  if(graph){
+    plot(sort(unique(x_input)), m_p, xlab = "", ylab = "", pch = 19, col = "darkgrey")
+    lines(sort(x_input), sort(fitted), col = "blue", lwd = 1)
+    lines(sort(x_input), sort(lower), col = "blue", lwd = 1, lty = 2)
+    lines(sort(x_input), sort(upper), col = "blue", lwd = 1, lty = 2)
+    lines(c(wide[2], wide[2]), c(0, 0.5), col = "red", lwd = 1, lty = 2)
+    lines(c(0, wide[2]), c(0.5, 0.5), col = "red", lwd = 1, lty = 2)
+    points(wide[2], 0.5, pch = 19, col = "red", cex = 1.25)
+    legend("topleft", c(as.expression(bquote(bold(L[50] == .(round(wide[2], 1))))), 
+                        as.expression(bquote(bold(R^2 == .(round(R2, 2)))))), bty = "n")
+  }
+  return(estimate)
+}
+
+#------------Tri des donnees pour rendre le jeu de donnees plus digerable------- 
+Data_MUR_a50 <- DataMatu_MUR2 %>%
+  mutate(mat=ifelse(mat == "Immature", "0","1"))%>%  
+  select(lenCls, mat, sex, year, newarea, age)%>% 
+  rename.variable("lenCls", "length")%>%
+  rename.variable("mat", "mature")%>%
+  mutate(newarea = fct_collapse (newarea, "4c-7d" =  c("4c", "7d")))%>%
+  drop_na()
+  
+
+table(Data_MUR_a50$newarea)
+table(Data_MUR_a50$year)
+table(Data_MUR_a50$year, Data_MUR_a50$age)
+table(Data_MUR_a50$sex)
+
+#------------------Boucle pour calculer le a50 et afficher le R²---------------- 
+
+idyear<-2006:2020
+#--------------------------Femelle avec Immature -------------------------------
+#------------------------zone CIEM 8ab version boucle---------------------------
+result_a50_FI_8ab<-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-3
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_a50%>%
+    filter(sex=="F" | sex =="I")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="8a-b")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fa50(datatmpyear,niter=100,graph=T)
+    #reztmp$a50
+    result_a50_FI_8ab$a50[i] <- median(reztmp$a50)
+    result_a50_FI_8ab$R2[i] <- reztmp$R2
+    result_a50_FI_8ab$Ecart_Type[i]  <- sd(reztmp$a50)
+    
+  }
+  result_a50_FI_8ab$year[i] <- currentyear 
+}
+result_a50_FI_8ab
+
+ggplot(result_a50_FI_8ab, 
+       mapping = aes(x = year, y = a50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 5) +
+  labs(title = "Evolution de la a50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)")  
+#scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+#--------------------------Femelle avec Immature -------------------------------
+#------------------------zones CIEM 4c-7d version boucle------------------------
+result_a50_FI_4c7d <-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-1
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_a50%>%
+    filter(sex=="F"| sex =="I")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="4c-7d")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fa50(datatmpyear,niter=100,graph=T)
+    #reztmp$a50
+    result_a50_FI_4c7d$a50[i] <- median(reztmp$a50)
+    result_a50_FI_4c7d$R2[i]  <- reztmp$R2
+    result_a50_FI_4c7d$Ecart_Type[i]  <- sd(reztmp$a50)
+    
+  }
+  result_a50_FI_4c7d$year[i] <- currentyear 
+}
+
+result_a50_FI_4c7d
+
+ggplot(result_a50_FI_4c7d, 
+       mapping = aes(x = year, y = a50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 5) +
+  labs(title = "Evolution de la a50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+
+
+
+#-------------------------Femelle sans Immature --------------------------------
+#------------------------zone CIEM 8ab version boucle---------------------------
+result_a50_F_8ab<-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-3
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_a50%>%
+    filter(sex=="F")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="8a-b")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fa50(datatmpyear,niter=100,graph=T)
+    #reztmp$a50
+    result_a50_F_8ab$a50[i] <- median(reztmp$a50)
+    result_a50_F_8ab$R2[i] <- reztmp$R2
+    result_a50_F_8ab$Ecart_Type[i]  <- sd(reztmp$a50)
+    
+  }
+  result_a50_F_8ab$year[i] <- currentyear 
+}
+
+result_a50_F_8ab
+
+ggplot(result_a50_F_8ab, 
+       mapping = aes(x = year, y = a50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 5) +
+  labs(title = "Evolution de la a50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)")  
+#scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+#-------------------------Femelle sans Immature --------------------------------
+#------------------------zones CIEM 4c-7d version boucle------------------------
+
+result_a50_F_4c7d <-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-1
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_a50%>%
+    filter(sex=="F")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="4c-7d")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fa50(datatmpyear,niter=100,graph=T)
+    #reztmp$a50
+    result_a50_F_4c7d$a50[i] <- median(reztmp$a50)
+    result_a50_F_4c7d$R2[i]  <- reztmp$R2
+    result_a50_F_4c7d$Ecart_Type[i]  <- sd(reztmp$a50)
+    
+  }
+  result_a50_F_4c7d$year[i] <- currentyear 
+}
+result_a50_F_4c7d
+
+ggplot(result_a50_F_4c7d, 
+       mapping = aes(x = year, y = a50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 5) +
+  labs(title = "Evolution de la a50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+
+#
+
+comparaison_a50_F_and_FI_8ab <- cbind(result_a50_F_8ab, result_a50_FI_8ab) 
+comparaison_a50_F_and_FI_8ab
+
+
+comparaison_a50_F_and_FI_4c7d <- cbind(result_a50_F_4c7d, result_a50_FI_4c7d) 
+comparaison_a50_F_and_FI_4c7d
+
+
+idyear<-2006:2020
+#----------------------------------Male-----------------------------------------
+
+#----------------------------Male avec Immature --------------------------------
+#------------------------zone CIEM 8ab version boucle---------------------------
+result_a50_MI_8ab<-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-3
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_a50%>%
+    filter(sex=="M" | sex =="I")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="8a-b")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fa50(datatmpyear,niter=100,graph=T)
+    #reztmp$a50
+    result_a50_MI_8ab$a50[i] <- median(reztmp$a50)
+    result_a50_MI_8ab$R2[i] <- reztmp$R2
+    result_a50_MI_8ab$Ecart_Type[i]  <- sd(reztmp$a50)
+    
+  }
+  result_a50_MI_8ab$year[i] <- currentyear 
+}
+
+result_a50_MI_8ab
+
+ggplot(result_a50_MI_8ab, 
+       mapping = aes(x = year, y = a50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 5) +
+  labs(title = "Evolution de la a50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+#-----------------------------Male avec Immature -------------------------------
+#------------------------zones CIEM 4c-7d version boucle------------------------
+
+result_a50_MI_4c7d <-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-1
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_a50%>%
+    filter(sex=="M" | sex =="I")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="4c-7d")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fa50(datatmpyear,niter=100,graph=T)
+    #reztmp$a50
+    result_a50_MI_4c7d$a50[i] <- median(reztmp$a50)
+    result_a50_MI_4c7d$R2[i]  <- reztmp$R2
+    result_a50_MI_4c7d$Ecart_Type[i]  <- sd(reztmp$a50)
+    
+  }
+  result_a50_MI_4c7d$year[i] <- currentyear 
+}
+result_a50_MI_4c7d
+
+ggplot(result_a50_MI_4c7d, 
+       mapping = aes(x = year, y = a50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 5) +
+  labs(title = "Evolution de la a50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+
+#----------------------------Male sans Immature --------------------------------
+#------------------------zone CIEM 8ab version boucle---------------------------
+
+#
+result_a50_M_8ab<-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-3
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_a50%>%
+    filter(sex=="M")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="8a-b")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fa50(datatmpyear,niter=100,graph=T)
+    #reztmp$a50
+    result_a50_M_8ab$a50[i] <- median(reztmp$a50)
+    result_a50_M_8ab$R2[i] <- reztmp$R2
+    result_a50_M_8ab$Ecart_Type[i]  <- sd(reztmp$a50)
+    
+  }
+  result_a50_M_8ab$year[i] <- currentyear 
+}
+
+result_a50_M_8ab
+
+ggplot(result_a50_M_8ab, 
+       mapping = aes(x = year, y = a50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 5) +
+  labs(title = "Evolution de la a50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+#--------------------------Male sans Immature ----------------------------------
+#------------------------zones CIEM 4c-7d version boucle------------------------
+
+result_a50_M_4c7d <-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
+
+for(i in 1:15){
+  #i<-1
+  currentyear<-idyear[i]
+  datatmpyear <- Data_MUR_a50%>%
+    filter(sex=="M" | sex =="I")%>%
+    filter(year==currentyear)%>%
+    filter(newarea=="4c-7d")%>%
+    mutate(mature=as.factor(mature)) 
+  if(nrow(datatmpyear)>2){
+    reztmp <-fa50(datatmpyear,niter=100,graph=T)
+    #reztmp$a50
+    result_a50_M_4c7d$a50[i] <- median(reztmp$a50)
+    result_a50_M_4c7d$R2[i]  <- reztmp$R2
+    result_a50_M_4c7d$Ecart_Type[i]  <- sd(reztmp$a50)
+    
+  }
+  result_a50_M_4c7d$year[i] <- currentyear 
+}
+result_a50_M_4c7d
+
+ggplot(result_a50_M_4c7d, 
+       mapping = aes(x = year, y = a50)) +
+  geom_point() +
+  geom_line() +   
+  geom_smooth() + 
+  geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
+  ylim(0, 5) +
+  labs(title = "Evolution de la a50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+       subtitle = "Zones geographiques de pêche : 4c et 7d",
+       caption = "Barres d'erreur: écart-type",
+       x = "Temps (an)",
+       y = "Longueur moyenne de l'individu à maturité (mm)") + 
+  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+
+
+
+
+#
+
+comparaison_a50_M_and_MI_8ab <- cbind(result_a50_M_8ab, result_a50_MI_8ab) 
+comparaison_a50_M_and_MI_8ab
+
+
+comparaison_a50_M_and_MI_4c7d <- cbind(result_a50_M_4c7d, result_a50_MI_4c7d) 
+comparaison_a50_M_and_MI_4c7d
+
+
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#-------------------------------------------------------------------------------
+#--------------------------CALUCUL DE TOUT MANUELLEMENT-------------------------
+#-------------------------------------------------------------------------------
 
 #----------------------------------Femelle--------------------------------------
 #-------Graphique de la proportion de mature/immature et valeur L50------------- 
@@ -775,389 +1673,6 @@ tabL50area_F
 
 ggplot(tabL50area_F ,aes(x=area,y=L50area_F))+
   geom_point()
-
-
-
-#-------Graphique de la proportion de mature/immature et valeur L50------------- 
-#---------------------pour chaque année 2006-2020-------------------------------
-
-#----------------------------Exemple version boucle-----------------------------
-
-#exemple 
-result<-data.frame(id=rep(NA,10),a=rep(NA,10))
-
-for(i in 1:10){
-  a<-i+1
-  result[i,1]<-i
-  result[i,2]<-a
-}
-
-#------------------Boucle pour calculer le L50 et afficher le R²---------------- 
-
-idyear<-2006:2020
-#--------------------------------Femelle----------------------------------------
-
-#------------------------zone CIEM 8ab version boucle---------------------------
-result_L50_F_8ab<-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
-  #i<-3
-  currentyear<-idyear[i]
-  datatmpyear <- Data_MUR_L50%>%
-    filter(sex=="F" | sex =="I")%>%
-    filter(year==currentyear)%>%
-    filter(newarea=="8a-b")%>%
-    mutate(mature=as.factor(mature)) 
-  if(nrow(datatmpyear)>2){
-    reztmp <-fl50(datatmpyear,niter=100,graph=T)
-    #reztmp$L50
-    result_L50_F_8ab$L50[i] <- median(reztmp$L50)
-    result_L50_F_8ab$R2[i] <- reztmp$R2
-    result_L50_F_8ab$Ecart_Type[i]  <- sd(reztmp$L50)
-  
-  }
-  result_L50_F_8ab$year[i] <- currentyear 
-}
-
-result_L50_F_8ab
-
-ggplot(result_L50_F_8ab, 
-       mapping = aes(x = year, y = L50)) +
-  geom_point() +
-  geom_line() +   
-  geom_smooth() + 
-  geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
-  ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
-       subtitle = "Zones geographiques de pêche : 4c et 7d",
-       caption = "Barres d'erreur: écart-type",
-       x = "Temps (an)",
-       y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-
-#------------------------zones CIEM 4c-7d version boucle------------------------
-
-result_L50_F_4c7d <-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
-
-for(i in 1:15){
-  #i<-1
-  currentyear<-idyear[i]
-  datatmpyear <- Data_MUR_L50%>%
-    filter(sex=="F" | sex =="I")%>%
-    filter(year==currentyear)%>%
-    filter(newarea=="4c-7d")%>%
-    mutate(mature=as.factor(mature)) 
-  if(nrow(datatmpyear)>2){
-    reztmp <-fl50(datatmpyear,niter=100,graph=T)
-    #reztmp$L50
-    result_L50_F_4c7d$L50[i] <- median(reztmp$L50)
-    result_L50_F_4c7d$R2[i]  <- reztmp$R2
-    result_L50_F_4c7d$Ecart_Type[i]  <- sd(reztmp$L50)
-    
-  }
-  result_L50_F_4c7d$year[i] <- currentyear 
-}
-result_L50_F_4c7d
-
-ggplot(result_L50_F_4c7d, 
-         mapping = aes(x = year, y = L50)) +
-         geom_point() +
-         geom_line() +   
-         geom_smooth() + 
-         geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
-  ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
-       subtitle = "Zones geographiques de pêche : 4c et 7d",
-       caption = "Barres d'erreur: écart-type",
-       x = "Temps (an)",
-       y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-
-
-
-#------------------Boucle pour calculer le a50 et afficher le R²---------------- 
-
-idyear<-2006:2020
-#--------------------------------Femelle----------------------------------------
-
-#------------------------zone CIEM 8ab version boucle---------------------------
-result_a50_F_8ab<-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
-  #i<-3
-  currentyear<-idyear[i]
-  datatmpyear <- Data_MUR_L50%>%
-    filter(sex=="F" | sex =="I")%>%
-    filter(year==currentyear)%>%
-    filter(newarea=="8a-b")%>%
-    mutate(mature=as.factor(mature)) 
-  if(nrow(datatmpyear)>2){
-    reztmp <-fa50(datatmpyear,niter=100,graph=T)
-    #reztmp$L50
-    result_a50_F_8ab$a50[i] <- median(reztmp$a50)
-    result_a50_F_8ab$R2[i] <- reztmp$R2
-    result_a50_F_8ab$Ecart_Type[i]  <- sd(reztmp$a50)
-    
-  }
-  result_a50_F_8ab$year[i] <- currentyear 
-}
-
-result_a50_F_8ab
-
-ggplot(result_a50_F_8ab, 
-       mapping = aes(x = year, y = a50)) +
-  geom_point() +
-  geom_line() +   
-  geom_smooth() + 
-  geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
-  ylim(0, 7) +
-  labs(title = "Evolution de la L50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
-       subtitle = "Zones geographiques de pêche : 4c et 7d",
-       caption = "Barres d'erreur: écart-type",
-       x = "Temps (an)",
-       y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-
-#------------------------zones CIEM 4c-7d version boucle------------------------
-
-result_a50_F_4c7d<-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
-  #i<-3
-  currentyear<-idyear[i]
-  datatmpyear <- Data_MUR_L50%>%
-    filter(sex=="F" | sex =="I")%>%
-    filter(year==currentyear)%>%
-    filter(newarea=="4c-7d")%>%
-    mutate(mature=as.factor(mature)) 
-  if(nrow(datatmpyear)>2){
-    reztmp <-fa50(datatmpyear,niter=100,graph=T)
-    #reztmp$L50
-    result_a50_F_4c7d$a50[i] <- median(reztmp$a50)
-    result_a50_F_4c7d$R2[i] <- reztmp$R2
-    result_a50_F_4c7d$Ecart_Type[i]  <- sd(reztmp$a50)
-    
-  }
-  result_a50_F_4c7d$year[i] <- currentyear 
-}
-
-result_a50_F_4c7d
-
-ggplot(result_a50_F_4c7d, 
-       mapping = aes(x = year, y = a50)) +
-  geom_point() +
-  geom_line() +   
-  geom_smooth() + 
-  geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
-  ylim(0, 7) +
-  labs(title = "Evolution de la L50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
-       subtitle = "Zones geographiques de pêche : 4c et 7d",
-       caption = "Barres d'erreur: écart-type",
-       x = "Temps (an)",
-       y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-
-
-
-
-
-
-
-#
-
-
-idyear<-2006:2020
-#----------------------------------Male-----------------------------------------
-
-#------------------------zone CIEM 8ab version boucle---------------------------
-result_L50_F_8ab<-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
-  #i<-3
-  currentyear<-idyear[i]
-  datatmpyear <- Data_MUR_L50%>%
-    filter(sex=="M" | sex =="I")%>%
-    filter(year==currentyear)%>%
-    filter(newarea=="8a-b")%>%
-    mutate(mature=as.factor(mature)) 
-  if(nrow(datatmpyear)>2){
-    reztmp <-fl50(datatmpyear,niter=100,graph=T)
-    #reztmp$L50
-    result_L50_F_8ab$L50[i] <- median(reztmp$L50)
-    result_L50_F_8ab$R2[i] <- reztmp$R2
-    result_L50_F_8ab$Ecart_Type[i]  <- sd(reztmp$L50)
-    
-  }
-  result_L50_F_8ab$year[i] <- currentyear 
-}
-
-result_L50_F_8ab
-
-ggplot(result_L50_F_8ab, 
-       mapping = aes(x = year, y = L50)) +
-  geom_point() +
-  geom_line() +   
-  geom_smooth() + 
-  geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
-  ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2020",
-       subtitle = "Zones geographiques de pêche : 4c et 7d",
-       caption = "Barres d'erreur: écart-type",
-       x = "Temps (an)",
-       y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-
-#------------------------zones CIEM 4c-7d version boucle------------------------
-
-result_L50_F_4c7d <-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
-
-for(i in 1:15){
-  #i<-1
-  currentyear<-idyear[i]
-  datatmpyear <- Data_MUR_L50%>%
-    filter(sex=="M" | sex =="I")%>%
-    filter(year==currentyear)%>%
-    filter(newarea=="4c-7d")%>%
-    mutate(mature=as.factor(mature)) 
-  if(nrow(datatmpyear)>2){
-    reztmp <-fl50(datatmpyear,niter=100,graph=T)
-    #reztmp$L50
-    result_L50_F_4c7d$L50[i] <- median(reztmp$L50)
-    result_L50_F_4c7d$R2[i]  <- reztmp$R2
-    result_L50_F_4c7d$Ecart_Type[i]  <- sd(reztmp$L50)
-    
-  }
-  result_L50_F_4c7d$year[i] <- currentyear 
-}
-result_L50_F_4c7d
-
-ggplot(result_L50_F_4c7d, 
-       mapping = aes(x = year, y = L50)) +
-  geom_point() +
-  geom_line() +   
-  geom_smooth() + 
-  geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
-  ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2020",
-       subtitle = "Zones geographiques de pêche : 4c et 7d",
-       caption = "Barres d'erreur: écart-type",
-       x = "Temps (an)",
-       y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-
-
-
-#------------------Boucle pour calculer le a50 et afficher le R²---------------- 
-
-idyear<-2006:2020
-#--------------------------------Femelle----------------------------------------
-
-#------------------------zone CIEM 8ab version boucle---------------------------
-result_a50_F_8ab<-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
-  #i<-3
-  currentyear<-idyear[i]
-  datatmpyear <- Data_MUR_L50%>%
-    filter(sex=="M" | sex =="I")%>%
-    filter(year==currentyear)%>%
-    filter(newarea=="8a-b")%>%
-    mutate(mature=as.factor(mature)) 
-  if(nrow(datatmpyear)>2){
-    reztmp <-fa50(datatmpyear,niter=100,graph=T)
-    #reztmp$L50
-    result_a50_F_8ab$a50[i] <- median(reztmp$a50)
-    result_a50_F_8ab$R2[i] <- reztmp$R2
-    result_a50_F_8ab$Ecart_Type[i]  <- sd(reztmp$a50)
-    
-  }
-  result_a50_F_8ab$year[i] <- currentyear 
-}
-
-result_a50_F_8ab
-
-ggplot(result_a50_F_8ab, 
-       mapping = aes(x = year, y = a50)) +
-  geom_point() +
-  geom_line() +   
-  geom_smooth() + 
-  geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
-  ylim(0, 7) +
-  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2020",
-       subtitle = "Zones geographiques de pêche : 4c et 7d",
-       caption = "Barres d'erreur: écart-type",
-       x = "Temps (an)",
-       y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-
-#------------------------zones CIEM 4c-7d version boucle------------------------
-
-result_a50_F_4c7d<-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
-  #i<-3
-  currentyear<-idyear[i]
-  datatmpyear <- Data_MUR_L50%>%
-    filter(sex=="M" | sex =="I")%>%
-    filter(year==currentyear)%>%
-    filter(newarea=="4c-7d")%>%
-    mutate(mature=as.factor(mature)) 
-  if(nrow(datatmpyear)>2){
-    reztmp <-fa50(datatmpyear,niter=100,graph=T)
-    #reztmp$L50
-    result_a50_F_4c7d$a50[i] <- median(reztmp$a50)
-    result_a50_F_4c7d$R2[i] <- reztmp$R2
-    result_a50_F_4c7d$Ecart_Type[i]  <- sd(reztmp$a50)
-    
-  }
-  result_a50_F_4c7d$year[i] <- currentyear 
-}
-
-result_a50_F_4c7d
-
-ggplot(result_a50_F_4c7d, 
-       mapping = aes(x = year, y = a50)) +
-  geom_point() +
-  geom_line() +   
-  geom_smooth() + 
-  geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
-  ylim(0, 7) +
-  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2020",
-       subtitle = "Zones geographiques de pêche : 4c et 7d",
-       caption = "Barres d'erreur: écart-type",
-       x = "Temps (an)",
-       y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-
-
-
-
-
-
-
-#
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #---------------------------zone CIEM 8ab---------------------------------------
@@ -2253,75 +2768,6 @@ ggplot(tabL50year_M_4c,aes(x=year,y=L50year_M_4c))+
 #ajouter le nb de mature/immature pour chaque individu 
 #mettre un critère ? 
 
-
-
-#---------------------------CALCUL DES a50--------------------------------------
-
-#install.packages("sizeMat")
-library(sizeMat)
-#install.packages("questionr")
-library("questionr")
-
-fa50<-function(data,niter=1000,graph=T){
-  #print(unique(data$year))
-  model_glm <- glm(mature ~ age, data = data, family = binomial(link = "logit"))
-  smry_model <- summary(model_glm)
-  n_coef   <- list()
-  for(i in seq_len(niter)){
-    new_data   <- data[sample(nrow(data), replace = TRUE), ]
-    model_boot <- glm(mature ~ age, data = new_data, family = binomial(link = "logit"))
-    glm_coef   <- coef(model_boot)
-    n_coef     <- rbind(n_coef, glm_coef)
-  }
-  A    <- as.numeric(n_coef[,1])
-  B    <- as.numeric(n_coef[,2])
-  a50  <- -A/B
-  create_x <- cbind(1, data$age)
-  x_fq     <- as.matrix(create_x) %*% t(as.matrix(cbind(A,B)))
-  pred_fq  <- 1 / (1 + exp(-x_fq))
-  qtl      <- round(matrixStats::rowQuantiles(pred_fq, probs = c(0.025, 0.5, 0.975)), 3)
-  fitted   <- qtl[, 2]
-  lower    <- qtl[, 1]
-  upper    <- qtl[, 3]
-  #output
-  x_input <- data$age
-  y_input <- as.numeric(as.character(data$mature))
-  m_p     <- tapply(y_input, x_input, mean)
-  wide    <- quantile(a50, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
-  # R-square Nagelkerke method
-  model1 <- glm(y_input ~ x_input, family = binomial(link = "logit"))
-  # R-square Nagelkerke method
-  R2     <- nagelkerkeR2(model1)
-  dat1<-data.frame(x=sort(unique(x_input)), y=m_p)#,year=rep(unique(data$year),each=age(m_p)))
-  dat2<-data.frame(x=sort(x_input))#,year=rep(unique(data$year),each=age(fitted)),fitted=sort(fitted),lower=sort(lower),upper=sort(upper))
-  #tidyr::pivot_longer(3:5)
-  estimate <- list(model = smry_model, parameters_A = A, parameters_B = B, a50 = a50, 
-                   lower = lower, fitted = fitted,  upper = upper,dat1=dat1,dat2=dat2,a50=a50,R2=R2)
-  if(graph){
-    plot(sort(unique(x_input)), m_p, xlab = "", ylab = "", pch = 19, col = "darkgrey")
-    lines(sort(x_input), sort(fitted), col = "blue", lwd = 1)
-    lines(sort(x_input), sort(lower), col = "blue", lwd = 1, lty = 2)
-    lines(sort(x_input), sort(upper), col = "blue", lwd = 1, lty = 2)
-    lines(c(wide[2], wide[2]), c(0, 0.5), col = "red", lwd = 1, lty = 2)
-    lines(c(0, wide[2]), c(0.5, 0.5), col = "red", lwd = 1, lty = 2)
-    points(wide[2], 0.5, pch = 19, col = "red", cex = 1.25)
-    legend("topleft", c(as.expression(bquote(bold(L[50] == .(round(wide[2], 1))))), 
-                        as.expression(bquote(bold(R^2 == .(round(R2, 2)))))), bty = "n")
-  }
-  return(estimate)
-}
-
-#------------Tri des donnees pour rendre le jeu de donnees plus digerable------- 
-Data_MUR_a50 <- DataMatu_MUR2 %>%
-  mutate(mat=ifelse(mat == "Immature", "0","1"))%>%  
-  select(lenCls, mat, sex, year, newarea, age)%>% 
-  rename.variable("lenCls", "length")%>%
-  rename.variable("mat", "mature")%>% 
-  drop_na()
-
-table(Data_MUR_a50$newarea)
-table(Data_MUR_a50$year)
-table(Data_MUR_a50$year, Data_MUR_a50$age)
 
 
 
@@ -3763,11 +4209,7 @@ ggplot(data = DataMatu_MUR_M_NdeR %>%
 
 #-------------------------------Plot en 3D--------------------------------------
 
-#-----Package gg3D
-#install.packages("devtools")
-#devtools::install_github("AckerDWM/gg3D")
-library("ggplot2")
-library("gg3D")
+
 
 ggplot(data = DataMatu_MUR_F_NdeR, 
        mapping = aes(x = year, y = meanLen, z = meanAge , color=mat)) +
@@ -3785,19 +4227,12 @@ ggplot(data = DataMatu_MUR_F_NdeR,
 
 
 
-#-----Package rgl
-#install.packages("rgl")
-#devtools::install_github("AckerDWM/gg3D")
-library("rgl")
 plot3d(DataMatu_MUR_F_NdeR$year,
        DataMatu_MUR_F_NdeR$meanLen,
        DataMatu_MUR_F_NdeR$meanAge,
        xlab="year", ylab="mean of length" ,zlab="mean of age", 
        col = DataMatu_MUR_F_NdeR$mat) #ne fonctionne pas
 
-#-----Package plot3D
-#install.packages("plot3D")
-library("plot3D")
 
 x <- DataMatu_MUR_F_NdeR$year
 y <- DataMatu_MUR_F_NdeR$meanLen
