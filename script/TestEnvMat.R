@@ -148,7 +148,7 @@ ggplot(result_SST_1983_2020_totalarea_W ,
   geom_line() +   
   geom_smooth() + 
   geom_errorbar(aes(ymin = Mean_SST_W - Ecart_Type_SST_W , ymax = Mean_SST_W + Ecart_Type_SST_W ), width = 0.5) + 
-  ylim(0, 18) +
+  ylim(10, 16) +
   labs(title = "Evolution de la moyenne de la SST dans le Golf de Gascogne 
        et Manche/Mer du Nord lors des hivers 1983 à 2020",
        caption = "Barres d erreur: ecart-type",
@@ -269,7 +269,8 @@ ggplot(result_SST_1983_2020_totalarea_S ,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Temperature moyenne de surface (°C)") + 
-  scale_x_continuous(limits=c(1983, 2020), breaks = seq(1983, 2020, 5))
+  scale_x_continuous(limits=c(1983, 2020), breaks = seq(1983, 2020, 5)) +
+  facet_grid(~area)
 
 ggplot(result_SST_1983_2020_totalarea_S , 
        mapping = aes(x = year, y = Mean_SST_S, color=area)) +
@@ -403,7 +404,8 @@ ggplot(result_chl_1998_2021_totalarea_W ,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Concentration en Chlorphylle a (mg/m3)") + 
-  scale_x_continuous(limits=c(1998 , 2021), breaks = seq(1998 , 2021, 5))
+  scale_x_continuous(limits=c(1998 , 2021), breaks = seq(1998 , 2021, 5)) +
+  scale_y_log10()
 
 ggplot(result_chl_1998_2021_totalarea_W , 
        mapping = aes(x = year, y = Mean_chl_W, color=area)) +
@@ -576,7 +578,8 @@ ggplot(result_chl_1998_2021_totalarea_S ,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Concentration en Chlorphylle a (mg/m3)") + 
-  scale_x_continuous(limits=c(1998 , 2021), breaks = seq(1998 , 2021, 5))
+  scale_x_continuous(limits=c(1998 , 2021), breaks = seq(1998 , 2021, 5)) +
+  scale_y_log10()
 
 ggplot(result_chl_1998_2021_totalarea_S , 
        mapping = aes(x = year, y = Mean_chl_S, color=area)) +
@@ -590,7 +593,8 @@ ggplot(result_chl_1998_2021_totalarea_S ,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Concentration en Chlorphylle a (mg/m3)") + 
-  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1)) +
+  scale_y_log10()
 
 #LOG
 result_chl_1998_2021_totalarea_S_log <-rbind(result_chl_1998_2021_8ab_S_log , result_chl_1998_2021_4c7d_S_log)
@@ -801,7 +805,7 @@ ggplot(result_NAO_1821_2021_S ,
   geom_point() +
   geom_line() +   
   geom_smooth() + 
-  ylim(0, 4) +
+  ylim(0, 3) +
   labs(title = "Evolution du nombre d' indice NAO mensuel positif lors des printemps de 1821 à 2021",
        x = "Temps (an)",
        y = "Somme des indices NAO positifs") + 
@@ -813,7 +817,7 @@ ggplot(result_NAO_1821_2021_S,
   geom_point() +
   geom_line() +   
   geom_smooth() + 
-  ylim(0, 4) +
+  ylim(0, 3) +
   labs(title = "Evolution du nombre d' indice NAO mensuel positif lors des printemps de 2006 à 2021",
        x = "Temps (an)",
        y = "Somme des indices NAO positifs") + 
@@ -872,7 +876,7 @@ ggplot(result_SST_1982_2020_8ab,
   geom_line() +   
   geom_smooth() + 
   geom_errorbar(aes(ymin = Mean_SST - Ecart_Type_SST, ymax = Mean_SST + Ecart_Type_SST), width = 0.5) + 
-  ylim(0, 18) +
+  ylim(12, 18) +
   labs(title = "Evolution de la moyenne de la SST dans le Golf de Gascogne entre 1982 et 2020",
        subtitle = "Zones geographiques de pêche : 8a et 8b ",
        caption = "Barres d erreur: ecart-type",
