@@ -105,8 +105,8 @@ Moy_saison_SST_1983_2020_W
 #Moy_saison_SST_1983_2020_W_2 <- system.file("Moy_saison_SST_1983_2020.tif", package="terra")
 
 # SST : W 1983 2020  ---> 8ab
-result_SST_1983_2020_8ab_W <-data.frame(year=rep(NA,38), Mean_SST_W=rep(NA,38), Ecart_Type_SST_W=rep(NA,38))                      
-for(id2 in 1983:2020){                                                                                                       
+#result_SST_1983_2020_8ab_W <-data.frame(year=rep(NA,38), Mean_SST_W=rep(NA,38), Ecart_Type_SST_W=rep(NA,38))                      
+#for(id2 in 1983:2020){                                                                                                       
   i <- id2 -1982                                                                                                           
   #id2<-2007                                                                                                                 
   id <- substr(names(Moy_saison_SST_1983_2020_W), 8,11)
@@ -116,13 +116,15 @@ for(id2 in 1983:2020){
   result_SST_1983_2020_8ab_W$Ecart_Type_SST_W[i]  <- raster::extract(map_mean_SST_W, div8ab, fun=sd,na.rm=T)
   result_SST_1983_2020_8ab_W$year[i] <- id2
   result_SST_1983_2020_8ab_W$area[i] <- "8ab"
-}
+#}
 result_SST_1983_2020_8ab_W
+saveRDS(result_SST_1983_2020_8ab_W, file = "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Results/result_SST_1983_2020_8ab_W.rds")
+
 plot(result_SST_1983_2020_8ab_W$year, result_SST_1983_2020_8ab_W$Mean_SST_W)
 
 # SST : W 1983 2020  ---> 4c7d
-result_SST_1983_2020_4c7d_W <-data.frame(year=rep(NA,38), Mean_SST_W=rep(NA,38), Ecart_Type_SST_W=rep(NA,38))                      
-for(id2 in 1983:2020){                                                                                                       
+#result_SST_1983_2020_4c7d_W <-data.frame(year=rep(NA,38), Mean_SST_W=rep(NA,38), Ecart_Type_SST_W=rep(NA,38))                      
+#for(id2 in 1983:2020){                                                                                                       
   i <- id2 -1982                                                                                                           
   #id2<-2007                                                                                                                 
   id <- substr(names(Moy_saison_SST_1983_2020_W), 8,11)
@@ -132,8 +134,10 @@ for(id2 in 1983:2020){
   result_SST_1983_2020_4c7d_W$Ecart_Type_SST_W[i]  <- raster::extract(map_mean_SST_W, div4c7d, fun=sd,na.rm=T)
   result_SST_1983_2020_4c7d_W$year[i] <- id2
   result_SST_1983_2020_4c7d_W$area[i] <- "4c7d"
-}
+#}
 result_SST_1983_2020_4c7d_W
+saveRDS(result_SST_1983_2020_4c7d_W, file = "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Results/result_SST_1983_2020_4c7d_W.rds")
+
 plot(result_SST_1983_2020_4c7d_W$year, result_SST_1983_2020_4c7d_W$Mean_SST_W)
 
 
@@ -221,8 +225,8 @@ Moy_saison_SST_1982_2020_S
 
 
 # SST : S 1982 2020  ---> 8ab
-result_SST_1982_2020_8ab_S <-data.frame(year=rep(NA,39), Mean_SST_S=rep(NA,39), Ecart_Type_SST_S=rep(NA,39))                      
-for(id2 in 1982:2020){                                                                                                       
+#result_SST_1982_2020_8ab_S <-data.frame(year=rep(NA,39), Mean_SST_S=rep(NA,39), Ecart_Type_SST_S=rep(NA,39))                      
+#for(id2 in 1982:2020){                                                                                                       
   i <- id2 -1981                                                                                                          
   #id2<-2007                                                                                                                 
   id <- substr(names(Moy_saison_SST_1982_2020_S), 8,11)
@@ -232,13 +236,15 @@ for(id2 in 1982:2020){
   result_SST_1982_2020_8ab_S$Ecart_Type_SST_S[i]  <- raster::extract(map_mean_SST_S, div8ab, fun=sd,na.rm=T)
   result_SST_1982_2020_8ab_S$year[i] <- id2
   result_SST_1982_2020_8ab_S$area[i] <- "8ab"
-}
+#}
 result_SST_1982_2020_8ab_S
+saveRDS(result_SST_1982_2020_8ab_S, file = "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Results/result_SST_1982_2020_8ab_S.rds")
+
 plot(result_SST_1982_2020_8ab_S$year, result_SST_1982_2020_8ab_S$Mean_SST_S)
 
 # SST : S 1982 2020  ---> 4c7d
-result_SST_1982_2020_4c7d_S <-data.frame(year=rep(NA,39), Mean_SST_S=rep(NA,39), Ecart_Type_SST_S=rep(NA,39))                      
-for(id2 in 1982:2020){                                                                                                       
+#result_SST_1982_2020_4c7d_S <-data.frame(year=rep(NA,39), Mean_SST_S=rep(NA,39), Ecart_Type_SST_S=rep(NA,39))                      
+#for(id2 in 1982:2020){                                                                                                       
   i <- id2 -1981                                                                                                           
   #id2<-2007                                                                                                                 
   id <- substr(names(Moy_saison_SST_1982_2020_S), 8,11)
@@ -248,8 +254,10 @@ for(id2 in 1982:2020){
   result_SST_1982_2020_4c7d_S$Ecart_Type_SST_S[i]  <- raster::extract(map_mean_SST_S, div4c7d, fun=sd,na.rm=T)
   result_SST_1982_2020_4c7d_S$year[i] <- id2
   result_SST_1982_2020_4c7d_S$area[i] <- "4c7d"
-}
+#}
 result_SST_1982_2020_4c7d_S
+saveRDS(result_SST_1982_2020_4c7d_S, file = "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Results/result_SST_1982_2020_4c7d_S.rds")
+
 plot(result_SST_1982_2020_4c7d_S$year, result_SST_1982_2020_4c7d_S$Mean_SST_S)
 
 #---------------------------------------GRAPH STT S 8ab-4c7d---------------------------------------------
@@ -342,8 +350,8 @@ Moy_saison_chl_1998_2021_W
 #Moy_saison_SST_1983_2020_W_2 <- system.file("Moy_saison_SST_1983_2020.tif", package="terra")
 
 # chl : W 1998 2020  ---> 8ab
-result_chl_1998_2021_8ab_W <-data.frame(year=rep(NA,24), Mean_chl_W=rep(NA,24), Ecart_Type_chl_W=rep(NA,24), area=rep(NA,24))                      
-for(id2 in 1998:2021){                                                                                                       
+#result_chl_1998_2021_8ab_W <-data.frame(year=rep(NA,24), Mean_chl_W=rep(NA,24), Ecart_Type_chl_W=rep(NA,24), area=rep(NA,24))                      
+#for(id2 in 1998:2021){                                                                                                       
   i <- id2 - 1997                                                                                                          
   #id2<-2007                                                                                                                 
   id <- substr(names(Moy_saison_chl_1997_2021_W), 8,11)
@@ -353,13 +361,16 @@ for(id2 in 1998:2021){
   result_chl_1998_2021_8ab_W$Ecart_Type_chl_W[i]  <- raster::extract(map_mean_chl_W, div8ab, fun=sd,na.rm=T)
   result_chl_1998_2021_8ab_W$year[i] <- id2
   result_chl_1998_2021_8ab_W$area[i] <- "8ab"
-}
+#}
 result_chl_1998_2021_8ab_W
+saveRDS(result_chl_1998_2021_8ab_W, "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Results/result_chl_1998_2021_8ab_W.rds")
+
 plot(result_chl_1998_2021_8ab_W$year, result_chl_1998_2021_8ab_W$Mean_chl_W)
 
+
 # chl : W 1983 2020  ---> 4c7d
-result_chl_1998_2021_4c7d_W <-data.frame(year=rep(NA,24), Mean_chl_W=rep(NA,24), Ecart_Type_chl_W=rep(NA,24), area=rep(NA,24))                      
-for(id2 in 1998:2021){                                                                                                       
+#result_chl_1998_2021_4c7d_W <-data.frame(year=rep(NA,24), Mean_chl_W=rep(NA,24), Ecart_Type_chl_W=rep(NA,24), area=rep(NA,24))                      
+#for(id2 in 1998:2021){                                                                                                       
   i <- id2 - 1997                                                                                                          
   #id2<-2007                                                                                                                 
   id <- substr(names(Moy_saison_chl_1997_2021_W), 8,11)
@@ -369,29 +380,18 @@ for(id2 in 1998:2021){
   result_chl_1998_2021_4c7d_W$Ecart_Type_chl_W[i]  <- raster::extract(map_mean_chl_W, div4c7d, fun=sd,na.rm=T)
   result_chl_1998_2021_4c7d_W$year[i] <- id2
   result_chl_1998_2021_4c7d_W$area[i] <- "4c7d"
-}
+#}
 result_chl_1998_2021_4c7d_W
+saveRDS(result_chl_1998_2021_4c7d_W, file = "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Results/result_chl_1998_2021_4c7d_W.rds")
+
 plot(result_chl_1998_2021_4c7d_W$year, result_chl_1998_2021_4c7d_W$Mean_chl_W)
 
-#---------------------------------------------Passage en log : Chl W ---------------------------------------------------------------
-#8ab
-result_chl_1998_2021_8ab_W_log <- result_chl_1998_2021_8ab_W %>% 
-  mutate (Mean_chl_W_log = log10(result_chl_1998_2021_8ab_W$Mean_chl_W)) %>%
-  mutate (Ecart_Type_chl_W_log = log10(result_chl_1998_2021_8ab_W$Ecart_Type_chl_W))
-result_chl_1998_2021_8ab_W_log
 
-#4c7d
-result_chl_1998_2021_4c7d_W_log <- result_chl_1998_2021_4c7d_W %>% 
-  mutate (Mean_chl_W_log = log10(result_chl_1998_2021_4c7d_W$Mean_chl_W)) %>%
-  mutate (Ecart_Type_chl_W_log = log10(result_chl_1998_2021_4c7d_W$Ecart_Type_chl_W))
-result_chl_1998_2021_4c7d_W_log
-
-#---------------------------------------GRAPH Chl W (log ou non) 8ab-4c7d---------------------------------------------
-#Pas LOG
 result_chl_1998_2021_totalarea_W <-rbind(result_chl_1998_2021_8ab_W , result_chl_1998_2021_4c7d_W)
-result_chl_1998_2021_totalarea_W 
+result_chl_1998_2021_totalarea_W
 
-#PAS LOG
+#---------------------------------------------GRAPH Chl W 8ab-4c7d---------------------------------------------
+#Graph avec passage en log10
 ggplot(result_chl_1998_2021_totalarea_W , 
        mapping = aes(x = year, y = Mean_chl_W, color=area)) +
   geom_point() +
@@ -410,52 +410,18 @@ ggplot(result_chl_1998_2021_totalarea_W ,
   geom_point() +
   geom_line() +   
   geom_smooth() + 
-  geom_errorbar(aes(ymin = Mean_chl_W - Ecart_Type_chl_W , ymax = Mean_chl_W + Ecart_Type_chl_W ), width = 0.5) + 
+  #geom_errorbar(aes(ymin = Mean_chl_W - Ecart_Type_chl_W , ymax = Mean_chl_W + Ecart_Type_chl_W ), width = 0.5) + 
   ylim(0, 13) +
   labs(title = "Evolution de la moyenne de la Chl dans le Golf de Gascogne 
        et Manche/Mer du Nord lors des hivers 2006 à 2020",
-       caption = "Barres d erreur: ecart-type",
+       #caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Concentration en Chlorphylle a (mg/m3)") + 
   scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))+
   scale_y_log10()
 
 
-#LOG
-result_chl_1998_2021_totalarea_W_log <-rbind(result_chl_1998_2021_8ab_W_log , result_chl_1998_2021_4c7d_W_log)
-result_chl_1998_2021_totalarea_W_log
-
-#LOG
-ggplot(result_chl_1998_2021_totalarea_W_log , 
-       mapping = aes(x = year, y = Mean_chl_W_log, color=area)) +
-  geom_point() +
-  geom_line() +   
-  geom_smooth() + 
-  #geom_errorbar(aes(ymin = Mean_chl_W_log - Ecart_Type_chl_W_log , ymax = Mean_chl_W_log + Ecart_Type_chl_W_log ), width = 0.5) + 
-  ylim(-0.5,1) +
-  labs(title = "Evolution de la moyenne de la Chl dans le Golf de Gascogne 
-       et Manche/Mer du Nord lors des hivers 1998 à 2021",
-       caption = "Barres d erreur: ecart-type",
-       x = "Temps (an)",
-       y = "Concentration en Chlorphylle a (mg/m3)") + 
-  scale_x_continuous(limits=c(1998 , 2021), breaks = seq(1998 , 2021, 5))
-
-ggplot(result_chl_1998_2021_totalarea_W_log , 
-       mapping = aes(x = year, y = Mean_chl_W_log, color=area)) +
-  geom_point() +
-  geom_line() +   
-  geom_smooth() + 
-  #geom_errorbar(aes(ymin = Mean_chl_W_log - Ecart_Type_chl_W_log , ymax = Mean_chl_W_log + Ecart_Type_chl_W_log ), width = 0.5) + 
-  ylim(-0.5,1) +
-  labs(title = "Evolution de la moyenne de la Chl dans le Golf de Gascogne 
-       et Manche/Mer du Nord lors des hivers 2006 à 2020",
-       caption = "Barres d erreur: ecart-type",
-       x = "Temps (an)",
-       y = "Concentration en Chlorphylle a (mg/m3)") + 
-  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
-
 #----------------------Test de correlation de Spearman : STT W 8ab-4c7d-----------------------------------------
-#PAS LOG 
 #4c7d
 result_chl_1998_2021_4c7d_W
 corchl_1998_2021_4c7d_W <-cor.test(result_chl_1998_2021_4c7d_W$year, result_chl_1998_2021_4c7d_W$Mean_chl_W, method="spearman")
@@ -469,19 +435,7 @@ corchl_1998_2021_8ab_W
 #Négatif
 
 
-#PAS LOG 
-#4c7d
-result_chl_1998_2021_4c7d_W_log
-corchl_1998_2021_4c7d_W_log <-cor.test(result_chl_1998_2021_4c7d_W_log$year, result_chl_1998_2021_4c7d_W_log$Mean_chl_W_log, method="spearman")
-corchl_1998_2021_4c7d_W_log
-#Négatif
 
-#8ab
-result_chl_1998_2021_8ab_W_log
-corchl_1998_2021_8ab_W_log <-cor.test(result_chl_1998_2021_8ab_W_log$year, result_chl_1998_2021_8ab_W_log$Mean_chl_W_log, method="spearman")
-corchl_1998_2021_8ab_W_log
-corchl_1998_2021_8ab_W
-#Négatif
 
 #--------------------------------------------------Chl---------------------------------------------------------
 #-------------------------------------------------PRINTEMPS----------------------------------------------------
@@ -515,8 +469,8 @@ names(Moy_saison_chl_1998_2021_S)
 Moy_saison_chl_1998_2021_S
 
 #Chl: S 1983 2020  ---> 8ab
-result_chl_1998_2021_8ab_S <-data.frame(year=rep(NA,24), Mean_chl_S=rep(NA,24), Ecart_Type_chl_S=rep(NA,24))                      
-for(id2 in 1998 : 2021){                                                                                                       
+#result_chl_1998_2021_8ab_S <-data.frame(year=rep(NA,24), Mean_chl_S=rep(NA,24), Ecart_Type_chl_S=rep(NA,24))                      
+#for(id2 in 1998 : 2021){                                                                                                       
   i <- id2 -1997                                                                                                           
   #id2<-2007                                                                                                                 
   id <- substr(names(Moy_saison_chl_1998_2021_S), 8,11)
@@ -526,13 +480,14 @@ for(id2 in 1998 : 2021){
   result_chl_1998_2021_8ab_S$Ecart_Type_chl_S[i]  <- raster::extract(map_mean_chl_S, div8ab, fun=sd,na.rm=T)
   result_chl_1998_2021_8ab_S$year[i] <- id2
   result_chl_1998_2021_8ab_S$area[i] <- "8ab"
-}
+#}
 result_chl_1998_2021_8ab_S
+saveRDS(result_chl_1998_2021_8ab_S, file = "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Results/result_chl_1998_2021_8ab_S.rds")
 plot(result_chl_1998_2021_8ab_S$year, result_chl_1998_2021_8ab_S$Mean_chl_S)
 
 #Chl : S 1983 2020  ---> 4c7d
-result_chl_1998_2021_4c7d_S <-data.frame(year=rep(NA,24), Mean_chl_S=rep(NA,24), Ecart_Type_chl_S=rep(NA,24))                      
-for(id2 in 1998 : 2021){                                                                                                       
+#result_chl_1998_2021_4c7d_S <-data.frame(year=rep(NA,24), Mean_chl_S=rep(NA,24), Ecart_Type_chl_S=rep(NA,24))                      
+#for(id2 in 1998 : 2021){                                                                                                       
   i <- id2 -1997                                                                                                           
   #id2<-2007                                                                                                                 
   id <- substr(names(Moy_saison_chl_1998_2021_S), 8,11)
@@ -542,39 +497,28 @@ for(id2 in 1998 : 2021){
   result_chl_1998_2021_4c7d_S$Ecart_Type_chl_S[i]  <- raster::extract(map_mean_chl_S, div4c7d, fun=sd,na.rm=T)
   result_chl_1998_2021_4c7d_S$year[i] <- id2
   result_chl_1998_2021_4c7d_S$area[i] <- "4c7d"
-}
+#}
 result_chl_1998_2021_4c7d_S
+saveRDS(result_chl_1998_2021_4c7d_S, file = "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Results/result_chl_1998_2021_4c7d_S.rds")
+
 plot(result_chl_1998_2021_4c7d_S$year, result_chl_1998_2021_4c7d_S$Mean_chl_S)
 
-#---------------------------------------------Passage en log : Chl S---------------------------------------------------------------
-#8ab
-result_chl_1998_2021_8ab_S_log <- result_chl_1998_2021_8ab_S %>% 
-  mutate (Mean_chl_S_log = log(result_chl_1998_2021_8ab_S$Mean_chl_S)) %>%
-  mutate (Ecart_Type_chl_S_log = log(result_chl_1998_2021_8ab_S$Ecart_Type_chl_S))
-result_chl_1998_2021_8ab_S_log
+#---------------------------------------------GRAPH Chl S 8ab-4c7d---------------------------------------------
 
-#4c7d
-result_chl_1998_2021_4c7d_S_log <- result_chl_1998_2021_4c7d_S %>% 
-  mutate (Mean_chl_S_log = log(result_chl_1998_2021_4c7d_S$Mean_chl_S)) %>%
-  mutate (Ecart_Type_chl_S_log = log(result_chl_1998_2021_4c7d_S$Ecart_Type_chl_S))
-result_chl_1998_2021_4c7d_S_log
-
-#---------------------------------------GRAPH Chl S (log ou non) 8ab-4c7d---------------------------------------------
-#Pas LOG
 result_chl_1998_2021_totalarea_S <-rbind(result_chl_1998_2021_8ab_S , result_chl_1998_2021_4c7d_S)
 result_chl_1998_2021_totalarea_S 
 
-#PAS LOG
+#Graphs avec passage en log10
 ggplot(result_chl_1998_2021_totalarea_S , 
        mapping = aes(x = year, y = Mean_chl_S, color=area)) +
   geom_point() +
   geom_line() +   
   geom_smooth() + 
-  geom_errorbar(aes(ymin = Mean_chl_S - Ecart_Type_chl_S , ymax = Mean_chl_S + Ecart_Type_chl_S ), width = 0.5) + 
+  #geom_errorbar(aes(ymin = Mean_chl_S - Ecart_Type_chl_S , ymax = Mean_chl_S + Ecart_Type_chl_S ), width = 0.5) + 
   ylim(0, 13) +
   labs(title = "Evolution de la moyenne de la Chl dans le Golf de Gascogne 
        et Manche/Mer du Nord lors des printemps 1998 à 2021",
-       caption = "Barres d erreur: ecart-type",
+       #caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Concentration en Chlorphylle a (mg/m3)") + 
   scale_x_continuous(limits=c(1998 , 2021), breaks = seq(1998 , 2021, 5)) +
@@ -585,48 +529,15 @@ ggplot(result_chl_1998_2021_totalarea_S ,
   geom_point() +
   geom_line() +   
   geom_smooth() + 
-  geom_errorbar(aes(ymin = Mean_chl_S - Ecart_Type_chl_S , ymax = Mean_chl_S + Ecart_Type_chl_S ), width = 0.5) + 
+  #geom_errorbar(aes(ymin = Mean_chl_S - Ecart_Type_chl_S , ymax = Mean_chl_S + Ecart_Type_chl_S ), width = 0.5) + 
   ylim(0, 13) +
   labs(title = "Evolution de la moyenne de la Chl dans le Golf de Gascogne 
        et Manche/Mer du Nord lors des printemps 2006 à 2020",
-       caption = "Barres d erreur: ecart-type",
+       #caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Concentration en Chlorphylle a (mg/m3)") + 
   scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1)) +
   scale_y_log10()
-
-#LOG
-result_chl_1998_2021_totalarea_S_log <-rbind(result_chl_1998_2021_8ab_S_log , result_chl_1998_2021_4c7d_S_log)
-result_chl_1998_2021_totalarea_S_log
-
-#LOG
-ggplot(result_chl_1998_2021_totalarea_S_log , 
-       mapping = aes(x = year, y = Mean_chl_S_log, color=area)) +
-  geom_point() +
-  geom_line() +   
-  geom_smooth() + 
-  #geom_errorbar(aes(ymin = Mean_chl_S_log - Ecart_Type_chl_S_log , ymax = Mean_chl_S_log + Ecart_Type_chl_S_log ), width = 0.5) + 
-  ylim(-1, 4) +
-  labs(title = "Evolution de la moyenne de la Chl dans le Golf de Gascogne 
-       et Manche/Mer du Nord lors des printemps 1998 à 2021",
-       caption = "Barres d erreur: ecart-type",
-       x = "Temps (an)",
-       y = "Concentration en Chlorphylle a (mg/m3)") + 
-  scale_x_continuous(limits=c(1998 , 2021), breaks = seq(1998 , 2021, 5))
-
-ggplot(result_chl_1998_2021_totalarea_S_log , 
-       mapping = aes(x = year, y = Mean_chl_S_log, color=area)) +
-  geom_point() +
-  geom_line() +   
-  geom_smooth() + 
-  #geom_errorbar(aes(ymin = Mean_chl_S_log - Ecart_Type_chl_S_log , ymax = Mean_chl_S_log + Ecart_Type_chl_S_log ), width = 0.5) + 
-  ylim(-1, 4) +
-  labs(title = "Evolution de la moyenne de la Chl dans le Golf de Gascogne 
-       et Manche/Mer du Nord lors des printemps 2006 à 2020",
-       caption = "Barres d erreur: ecart-type",
-       x = "Temps (an)",
-       y = "Concentration en Chlorphylle a (mg/m3)") + 
-  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 #----------------------Test de correlation de Spearman : STT S 8ab-4c7d (log ou non)-----------------------------------------
 #PAS LOG 
@@ -640,20 +551,6 @@ corchl_1998_2021_4c7d_S
 result_chl_1998_2021_8ab_S
 corchl_1998_2021_8ab_S <-cor.test(result_chl_1998_2021_8ab_S$year, result_chl_1998_2021_8ab_S$Mean_chl_S, method="spearman")
 corchl_1998_2021_8ab_S
-#Positif
-
-
-#PAS LOG 
-#4c7d
-result_chl_1998_2021_4c7d_S_log
-corchl_1998_2021_4c7d_S_log <-cor.test(result_chl_1998_2021_4c7d_S_log$year, result_chl_1998_2021_4c7d_S_log$Mean_chl_S_log, method="spearman")
-corchl_1998_2021_4c7d_S_log
-#Positif
-
-#8ab
-result_chl_1998_2021_8ab_S_log
-corchl_1998_2021_8ab_S_log <-cor.test(result_chl_1998_2021_8ab_S_log$year, result_chl_1998_2021_8ab_S_log$Mean_chl_S_log, method="spearman")
-corchl_1998_2021_8ab_S_log
 #Positif
 
 #--------------------------------------------------NAO---------------------------------------------------------
@@ -678,6 +575,7 @@ for(id2 in 1822 : 2021){
   result_NAO_1822_2021_W$year[i] <- id2
 }
 result_NAO_1822_2021_W 
+save(result_NAO_1822_2021_W, file = "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Results/result_NAO_1822_2021_W.rds")
 
 #---------------------------------------GRAPH NAO W : moyenne et somme indice + ---------------------------------------------
 #result_NAO_1822_2021_W
@@ -765,6 +663,8 @@ for(id2 in 1821 : 2021){
   result_NAO_1821_2021_S$year[i] <- id2
 }
 result_NAO_1821_2021_S
+save(result_NAO_1821_2021_S, file = "C:/Users/vmartin/Desktop/Stage/Données/Données environnementales/Results/result_NAO_1821_2021_S.rds")
+
 
 #---------------------------------------GRAPH NAO S : moyenne et somme indice + ---------------------------------------------
 #result_NAO_1821_2021_S
