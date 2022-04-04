@@ -65,14 +65,14 @@ View(DataMatu_MUR)
 
 #Il vaut mieux filtrer au dela de 500 mm
 DataMatu_MUR <- DataMatu_MU %>% 
-  filter(str_detect(area, "^27.")) %>%  
+  filter(str_detect(area, "^27.")) %>%
   filter(lenCls <= 500)%>%
   filter(lenCls !="-1")%>%
   filter(lenCls !="")%>%
   filter(matStage != "F")%>%
   filter(matStage != "NA")%>%
   filter(matStage !="-1")%>%   
-  filter(matStage != "0")%>%    
+  #filter(matStage != "0")%>% # les individus non sexé    
   filter(matStage != "5")%>%
   filter(matStage !="")%>% 
   filter(age !="-1")%>%  
@@ -88,7 +88,7 @@ DataMatu_MUR2 <- DataMatu_MUR %>%
 
 
 table(DataMatu_MUR2$matStage, DataMatu_MUR2$mat)
-
+table(DataMatu_MUR2$sex, DataMatu_MUR2$matStage)
 
 
 #-----------------------TRAVAIL EXPLORATOIRE (qui a permis le tri des données)-------------------------
@@ -108,7 +108,10 @@ ggplot(DataMatu_MUR, mapping = aes(x = matStage)) + geom_bar()
 
 
 #Barplot  area
-ggplot(DataMatu_MU, mapping = aes(x = area)) + geom_bar()
+ggplot(DataMatu_MUR, mapping = aes(x = area)) + 
+  geom_bar()+
+  theme(axis.text.x = element_text(size=8, angle=75),
+        axis.text.y = element_text(size=8, angle=75))
 table(DataMatu_MU$year,DataMatu_MU$area)
 
 ggplot(DataMatu_MUR, mapping = aes(x = newarea)) + geom_bar()
@@ -884,7 +887,7 @@ ggplot(result_L50_MI_8ab,
   geom_smooth() + 
   geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
   ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la L50 chez les males +  immatures de Rouget barbet de roche entre 2006 et 2020",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
@@ -923,7 +926,7 @@ ggplot(result_L50_MI_4c7d,
   geom_smooth() + 
   geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
   ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la L50 chez les males +  immatures de Rouget barbet de roche entre 2006 et 2020",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
@@ -981,7 +984,7 @@ for(i in 1:15){
   #i<-1
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_L50%>%
-    filter(sex=="M" | sex =="I")%>%
+    filter(sex=="M")%>%
     filter(year==currentyear)%>%
     filter(newarea=="4c-7d")%>%
     mutate(mature=as.factor(mature)) 
@@ -1101,7 +1104,7 @@ fa50<-function(data,niter=1000,graph=T){
     lines(c(wide[2], wide[2]), c(0, 0.5), col = "red", lwd = 1, lty = 2)
     lines(c(0, wide[2]), c(0.5, 0.5), col = "red", lwd = 1, lty = 2)
     points(wide[2], 0.5, pch = 19, col = "red", cex = 1.25)
-    legend("topleft", c(as.expression(bquote(bold(L[50] == .(round(wide[2], 1))))), 
+    legend("topleft", c(as.expression(bquote(bold(a[50] == .(round(wide[2], 1))))), 
                         as.expression(bquote(bold(R^2 == .(round(R2, 2)))))), bty = "n")
   }
   return(estimate)
@@ -1157,7 +1160,7 @@ ggplot(result_a50_FI_8ab,
   geom_smooth() + 
   geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
   ylim(0, 5) +
-  labs(title = "Evolution de la a50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la a50 chez les femelles +  immatures de Rouget barbet de roche entre 2006 et 2020",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
@@ -1196,7 +1199,7 @@ ggplot(result_a50_FI_4c7d,
   geom_smooth() + 
   geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
   ylim(0, 5) +
-  labs(title = "Evolution de la a50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la a50 chez les femelles +  immatures de Rouget barbet de roche entre 2006 et 2020",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
@@ -1330,7 +1333,7 @@ ggplot(result_a50_MI_8ab,
   geom_smooth() + 
   geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
   ylim(0, 5) +
-  labs(title = "Evolution de la a50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la a50 chez les males +  immatures de Rouget barbet de roche entre 2006 et 2020",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
@@ -1369,7 +1372,7 @@ ggplot(result_a50_MI_4c7d,
   geom_smooth() + 
   geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
   ylim(0, 5) +
-  labs(title = "Evolution de la a50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la a50 chez les males +  immatures de Rouget barbet de roche entre 2006 et 2020",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",

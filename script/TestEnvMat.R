@@ -376,14 +376,14 @@ plot(result_chl_1998_2021_4c7d_W$year, result_chl_1998_2021_4c7d_W$Mean_chl_W)
 #---------------------------------------------Passage en log : Chl W ---------------------------------------------------------------
 #8ab
 result_chl_1998_2021_8ab_W_log <- result_chl_1998_2021_8ab_W %>% 
-  mutate (Mean_chl_W_log = log(result_chl_1998_2021_8ab_W$Mean_chl_W)) %>%
-  mutate (Ecart_Type_chl_W_log = log(result_chl_1998_2021_8ab_W$Ecart_Type_chl_W))
+  mutate (Mean_chl_W_log = log10(result_chl_1998_2021_8ab_W$Mean_chl_W)) %>%
+  mutate (Ecart_Type_chl_W_log = log10(result_chl_1998_2021_8ab_W$Ecart_Type_chl_W))
 result_chl_1998_2021_8ab_W_log
 
 #4c7d
 result_chl_1998_2021_4c7d_W_log <- result_chl_1998_2021_4c7d_W %>% 
-  mutate (Mean_chl_W_log = log(result_chl_1998_2021_4c7d_W$Mean_chl_W)) %>%
-  mutate (Ecart_Type_chl_W_log = log(result_chl_1998_2021_4c7d_W$Ecart_Type_chl_W))
+  mutate (Mean_chl_W_log = log10(result_chl_1998_2021_4c7d_W$Mean_chl_W)) %>%
+  mutate (Ecart_Type_chl_W_log = log10(result_chl_1998_2021_4c7d_W$Ecart_Type_chl_W))
 result_chl_1998_2021_4c7d_W_log
 
 #---------------------------------------GRAPH Chl W (log ou non) 8ab-4c7d---------------------------------------------
@@ -397,11 +397,9 @@ ggplot(result_chl_1998_2021_totalarea_W ,
   geom_point() +
   geom_line() +   
   geom_smooth() + 
-  geom_errorbar(aes(ymin = Mean_chl_W - Ecart_Type_chl_W , ymax = Mean_chl_W + Ecart_Type_chl_W ), width = 0.5) + 
-  ylim(0, 13) +
+  ylim(-1,7) +
   labs(title = "Evolution de la moyenne de la Chl dans le Golf de Gascogne 
        et Manche/Mer du Nord lors des hivers 1998 à 2021",
-       caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Concentration en Chlorphylle a (mg/m3)") + 
   scale_x_continuous(limits=c(1998 , 2021), breaks = seq(1998 , 2021, 5)) +
@@ -419,7 +417,8 @@ ggplot(result_chl_1998_2021_totalarea_W ,
        caption = "Barres d erreur: ecart-type",
        x = "Temps (an)",
        y = "Concentration en Chlorphylle a (mg/m3)") + 
-  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))+
+  scale_y_log10()
 
 
 #LOG
@@ -433,7 +432,7 @@ ggplot(result_chl_1998_2021_totalarea_W_log ,
   geom_line() +   
   geom_smooth() + 
   #geom_errorbar(aes(ymin = Mean_chl_W_log - Ecart_Type_chl_W_log , ymax = Mean_chl_W_log + Ecart_Type_chl_W_log ), width = 0.5) + 
-  ylim(-1, 4) +
+  ylim(-0.5,1) +
   labs(title = "Evolution de la moyenne de la Chl dans le Golf de Gascogne 
        et Manche/Mer du Nord lors des hivers 1998 à 2021",
        caption = "Barres d erreur: ecart-type",
@@ -447,7 +446,7 @@ ggplot(result_chl_1998_2021_totalarea_W_log ,
   geom_line() +   
   geom_smooth() + 
   #geom_errorbar(aes(ymin = Mean_chl_W_log - Ecart_Type_chl_W_log , ymax = Mean_chl_W_log + Ecart_Type_chl_W_log ), width = 0.5) + 
-  ylim(-1, 4) +
+  ylim(-0.5,1) +
   labs(title = "Evolution de la moyenne de la Chl dans le Golf de Gascogne 
        et Manche/Mer du Nord lors des hivers 2006 à 2020",
        caption = "Barres d erreur: ecart-type",
