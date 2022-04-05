@@ -86,10 +86,54 @@ DataMatu_MUR2 <- DataMatu_MUR %>%
   mutate(mat=ifelse(sex %in%  "I","Immature",
                    ifelse (matStage %in% c("1", "2A", "A"), "Immature", "Mature")))
 
+as.character(DataMatu_MUR$sex)
+DataMatu_MUR3 <- DataMatu_MUR %>% mutate(newsex = sex)
+DataMatu_MUR3 <- DataMatu_MUR %>%
+  mutate(newsexe = slice(as.character(sex)%in%  "I", prop =0.6))
+
+
+Immature <- DataMatu_MUR %>% filter(sex == "I")
+
+Immature$sex
+as.factor(Immature$sex)
+
+femelleimmature <- dplyr :: slice(Immature$sex, prop = 0.6)
+                         
+                         
+                         
+table(DataMatu_MUR$sex, DataMatu_MUR$year)
+
+#
+View(DataMatu_MUR3)
+
 
 table(DataMatu_MUR2$matStage, DataMatu_MUR2$mat)
 table(DataMatu_MUR2$sex, DataMatu_MUR2$matStage)
 
+
+
+#Calcul du sex ratio : 
+table(DataMatu_MUR2$sex, DataMatu_MUR2$year)
+tab_sex_ratio <- data.frame(year=rep(NA,16), nbF =rep(NA,16), nbMF=rep(NA,16), sex_ratio=rep(NA,16))
+
+for(currentyear in 2006:2021){
+  i <- currentyear - 2005
+  #currentyear <- 2009
+  dataF <- DataMatu_MUR2%>%
+    filter(sex=="F")%>%
+    filter(year==currentyear)
+  dataMF <- DataMatu_MUR2%>%
+    filter(sex == "F" | sex == "M")%>%
+    filter(year==currentyear)
+  tab_sex_ratio$nbF[i] <- nrow(dataF)
+  tab_sex_ratio$nbMF[i] <- nrow(dataMF)
+  tab_sex_ratio$ sex_ratio[i] <- nrow(dataF)/nrow(dataMF)
+  tab_sex_ratio$year[i] <- currentyear
+}
+
+tab_sex_ratio
+sex_ratio_value_mean <- mean(tab_sex_ratio$ sex_ratio)
+sex_ratio_value_mean
 
 #-----------------------TRAVAIL EXPLORATOIRE (qui a permis le tri des données)-------------------------
 
