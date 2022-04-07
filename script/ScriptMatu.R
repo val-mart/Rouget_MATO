@@ -61,8 +61,6 @@ table(Probleme_taile$lenCls)
 table(Probleme_taile$lenCls,Probleme_taile$year)
 table(Probleme_taile$lenCls,Probleme_taile$area)
 
-View(DataMatu_MUR)
-
 #Il vaut mieux filtrer au dela de 500 mm
 DataMatu_MUR <- DataMatu_MU %>% 
   filter(str_detect(area, "^27.")) %>%
@@ -86,30 +84,8 @@ DataMatu_MUR2 <- DataMatu_MUR %>%
   mutate(mat=ifelse(sex %in%  "I","Immature",
                    ifelse (matStage %in% c("1", "2A", "A"), "Immature", "Mature")))
 
-as.character(DataMatu_MUR$sex)
-DataMatu_MUR3 <- DataMatu_MUR %>% mutate(newsex = sex)
-DataMatu_MUR3 <- DataMatu_MUR %>%
-  mutate(newsexe = slice(as.character(sex)%in%  "I", prop =0.6))
-
-
-Immature <- DataMatu_MUR %>% filter(sex == "I")
-
-Immature$sex
-as.factor(Immature$sex)
-
-femelleimmature <- dplyr :: slice(Immature$sex, prop = 0.6)
-                         
-                         
-                         
-table(DataMatu_MUR$sex, DataMatu_MUR$year)
-
-#
-View(DataMatu_MUR3)
-
-
 table(DataMatu_MUR2$matStage, DataMatu_MUR2$mat)
 table(DataMatu_MUR2$sex, DataMatu_MUR2$matStage)
-
 
 
 #Calcul du sex ratio : 
@@ -349,7 +325,7 @@ ggplot(data = DataMatu_MUR_F_ST,
   geom_line() +
   geom_smooth() +
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5)+
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2021",
        subtitle = "Toutes zones geographiques de peche proposees confondues",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
@@ -385,7 +361,7 @@ ggplot(data = DataMatu_MUR_F_ST_2,
   facet_wrap(~newarea)+
   geom_line() +  
   geom_smooth()+
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2021",
        subtitle = " zones 8a-b et 4c-7d séparées ",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
@@ -398,7 +374,7 @@ ggplot(data = DataMatu_MUR_F_ST_2,
   facet_wrap(~newarea)+
   geom_line() +
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2021",
        subtitle = " zones 8a-b et 4c-7d séparées ",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
@@ -412,7 +388,7 @@ ggplot(data = DataMatu_MUR_F_ST_2 %>%
   geom_point() +
   geom_line() +  
   geom_smooth()+
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2021",
        subtitle = " zones 8a-b",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
@@ -426,7 +402,7 @@ ggplot(data = DataMatu_MUR_F_ST_2 %>%
   geom_line() +  
   geom_smooth()+
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2021",
        subtitle = "Zones geographiques de peche : 8a-b",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
@@ -440,7 +416,7 @@ ggplot(data = DataMatu_MUR_F_ST_2 %>%
   geom_point() +
   geom_line() +  
   geom_smooth()+
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2021",
        subtitle = " zones 4c-7d",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
@@ -454,7 +430,7 @@ ggplot(data = DataMatu_MUR_F_ST_2 %>%
   geom_line() +  
   geom_smooth()+
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5)+
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2021",
        subtitle = "Zones geographiques de peche : 4c-7d",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
@@ -469,7 +445,7 @@ ggplot(data = DataMatu_MUR_F_ST_2,
   geom_point() + 
   facet_wrap(~newarea)+
   geom_line()+
-  labs(title = "Evolution de la mediane de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la mediane de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2021",
        subtitle = " zones 8a-b et 4c-7d séparées",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
@@ -482,7 +458,7 @@ ggplot(data = DataMatu_MUR_F_ST_2 %>%
   geom_point() +
   geom_line() +  
   geom_smooth()+
-  labs(title = "Evolution de la mediane de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la mediane de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2021",
        subtitle = " zones 8a-b ",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
@@ -495,7 +471,7 @@ ggplot(data = DataMatu_MUR_F_ST_2 %>%
   geom_point() +
   geom_line() +  
   geom_smooth()+
-  labs(title = "Evolution de la mediane de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la mediane de la longeur totale pour les \n individus femelles matures et immatures entre 2006 et 2021",
        subtitle = " zones 4c-7d",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
@@ -525,7 +501,7 @@ ggplot(data = DataMatu_MUR_M_ST,
   geom_line() +
   geom_smooth() +
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5)+
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2021",
        subtitle = "Toutes zones geographiques de peche proposees confondues",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
@@ -567,7 +543,7 @@ ggplot(data = DataMatu_MUR_M_ST_2,
   geom_line() +
   geom_smooth() +
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5)+
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2021",
        subtitle = "zones geographiques 8ab et 4c7d séparées",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
@@ -581,7 +557,7 @@ ggplot(data =DataMatu_MUR_M_ST_2 %>%
   geom_point() +
   geom_line() +  
   geom_smooth()+
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2021",
        subtitle = "zones geographiques 8ab",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
@@ -595,7 +571,7 @@ ggplot(data = DataMatu_MUR_M_ST_2 %>%
   geom_line() +  
   geom_smooth()+
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2021",
        subtitle = "Zones geographiques de peche : 8a-b",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
@@ -609,7 +585,7 @@ ggplot(data = DataMatu_MUR_M_ST_2 %>%
   geom_point() +
   geom_line() +  
   geom_smooth()+
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2021",
        subtitle = "zones geographiques 4c-7d",
        x = "Temps (an)",
        y = "Longueur totale de l'individu (mm)",
@@ -623,7 +599,7 @@ ggplot(data = DataMatu_MUR_M_ST_2 %>%
   geom_line() +  
   geom_smooth()+
   geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5)+
-  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2020",
+  labs(title = "Evolution de la moyenne de la longeur totale pour les \n individus males matures et immatures entre 2006 et 2021",
        subtitle = "Zones geographiques de peche : 4c-7d",
        caption = "Barres d'erreur: erreur standard",
        x = "Temps (an)",
@@ -722,16 +698,15 @@ table(Data_MUR_L50$sex)
 table(Data_MUR_L50$mat, Data_MUR_L50$sex)
 
 #-------Graphique de la proportion de mature/immature et valeur L50------------- 
-#---------------------pour chaque année 2006-2020-------------------------------
+#---------------------pour chaque année 2006-2021-------------------------------
 
 #------------------Boucle pour calculer le L50 et afficher le R²---------------- 
 
-idyear<-2006:2020
+idyear<-2006:2021
 #--------------------------Femelle avec Immature -------------------------------
 #------------------------zone CIEM 8ab version boucle---------------------------
-result_L50_FI_8ab<-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
+#result_L50_FI_8ab<-data.frame(year=rep(NA,16),L50=rep(NA,16), Ecart_Type=rep(NA,16),R2=rep(NA,16))
+#for(i in 1:16){
   #i<-3
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_L50%>%
@@ -748,7 +723,7 @@ for(i in 1:15){
   
   }
   result_L50_FI_8ab$year[i] <- currentyear 
-}
+#}
 result_L50_FI_8ab
 
 ggplot(result_L50_FI_8ab, 
@@ -758,18 +733,17 @@ ggplot(result_L50_FI_8ab,
   geom_smooth() + 
   geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
   ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les femelles et immatures de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la L50 chez les femelles et immatures de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 8a et 8b ",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)")  
-  #scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  #scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 #--------------------------Femelle avec Immature -------------------------------
 #------------------------zones CIEM 4c-7d version boucle------------------------
-result_L50_FI_4c7d <-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
-
-for(i in 1:15){
+#result_L50_FI_4c7d <-data.frame(year=rep(NA,16),L50=rep(NA,16), Ecart_Type=rep(NA,16), R2=rep(NA,16))
+#for(i in 1:16){
   #i<-1
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_L50%>%
@@ -786,7 +760,7 @@ for(i in 1:15){
     
   }
   result_L50_FI_4c7d$year[i] <- currentyear 
-}
+#}
 
 result_L50_FI_4c7d
 
@@ -797,21 +771,20 @@ ggplot(result_L50_FI_4c7d,
          geom_smooth() + 
          geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
   ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les femelles + immatures de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la L50 chez les femelles + immatures de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 
 
 
 #-------------------------Femelle sans Immature --------------------------------
 #------------------------zone CIEM 8ab version boucle---------------------------
-result_L50_F_8ab<-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
+#result_L50_F_8ab<-data.frame(year=rep(NA,16),L50=rep(NA,16), Ecart_Type=rep(NA,16),R2=rep(NA,16))
+#for(i in 1:16){
   #i<-3
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_L50%>%
@@ -828,7 +801,7 @@ for(i in 1:15){
     
   }
   result_L50_F_8ab$year[i] <- currentyear 
-}
+#}
 
 result_L50_F_8ab
 
@@ -839,19 +812,18 @@ ggplot(result_L50_F_8ab,
   geom_smooth() + 
   geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
   ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la L50 chez les femelles de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 8a ",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)")  
-#scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+#scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 #-------------------------Femelle sans Immature --------------------------------
 #------------------------zones CIEM 4c-7d version boucle------------------------
 
-result_L50_F_4c7d <-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
-
-for(i in 1:15){
+#result_L50_F_4c7d <-data.frame(year=rep(NA,16),L50=rep(NA,16), Ecart_Type=rep(NA,16), R2=rep(NA,16))
+#for(i in 1:16){
   #i<-1
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_L50%>%
@@ -868,7 +840,7 @@ for(i in 1:15){
     
   }
   result_L50_F_4c7d$year[i] <- currentyear 
-}
+#}
 result_L50_F_4c7d
 
 ggplot(result_L50_F_4c7d, 
@@ -878,12 +850,12 @@ ggplot(result_L50_F_4c7d,
   geom_smooth() + 
   geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
   ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la L50 chez les femelles de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 
 #
@@ -896,14 +868,13 @@ comparaison_L50_F_and_FI_4c7d <- cbind(result_L50_F_4c7d, result_L50_FI_4c7d)
 comparaison_L50_F_and_FI_4c7d
 
 
-idyear<-2006:2020
+idyear<-2006:2021
 #----------------------------------Male-----------------------------------------
 
 #----------------------------Male avec Immature --------------------------------
 #------------------------zone CIEM 8ab version boucle---------------------------
-result_L50_MI_8ab<-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
+#result_L50_MI_8ab<-data.frame(year=rep(NA,16),L50=rep(NA,16), Ecart_Type=rep(NA,16),R2=rep(NA,16))
+#for(i in 1:16){
   #i<-3
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_L50%>%
@@ -920,7 +891,7 @@ for(i in 1:15){
     
   }
   result_L50_MI_8ab$year[i] <- currentyear 
-}
+#}
 
 result_L50_MI_8ab
 
@@ -931,19 +902,17 @@ ggplot(result_L50_MI_8ab,
   geom_smooth() + 
   geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
   ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les males +  immatures de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la L50 chez les males +  immatures de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 #-----------------------------Male avec Immature -------------------------------
 #------------------------zones CIEM 4c-7d version boucle------------------------
-
-result_L50_MI_4c7d <-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
-
-for(i in 1:15){
+#result_L50_MI_4c7d <-data.frame(year=rep(NA,16),L50=rep(NA,16), Ecart_Type=rep(NA,16), R2=rep(NA,16))
+#for(i in 1:16){
   #i<-1
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_L50%>%
@@ -960,7 +929,7 @@ for(i in 1:15){
     
   }
   result_L50_MI_4c7d$year[i] <- currentyear 
-}
+#}
 result_L50_MI_4c7d
 
 ggplot(result_L50_MI_4c7d, 
@@ -970,21 +939,19 @@ ggplot(result_L50_MI_4c7d,
   geom_smooth() + 
   geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
   ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les males +  immatures de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la L50 chez les males +  immatures de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 
 #----------------------------Male sans Immature --------------------------------
 #------------------------zone CIEM 8ab version boucle---------------------------
 
-#
-result_L50_M_8ab<-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
+#result_L50_M_8ab<-data.frame(year=rep(NA,16),L50=rep(NA,16), Ecart_Type=rep(NA,16),R2=rep(NA,16))
+#for(i in 1:16){
   #i<-3
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_L50%>%
@@ -1001,7 +968,7 @@ for(i in 1:15){
     
   }
   result_L50_M_8ab$year[i] <- currentyear 
-}
+#}
 
 result_L50_M_8ab
 
@@ -1012,19 +979,18 @@ ggplot(result_L50_M_8ab,
   geom_smooth() + 
   geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
   ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 #--------------------------Male sans Immature ----------------------------------
 #------------------------zones CIEM 4c-7d version boucle------------------------
 
-result_L50_M_4c7d <-data.frame(year=rep(NA,15),L50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
-
-for(i in 1:15){
+#result_L50_M_4c7d <-data.frame(year=rep(NA,16),L50=rep(NA,16), Ecart_Type=rep(NA,16), R2=rep(NA,16))
+#for(i in 1:16){
   #i<-1
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_L50%>%
@@ -1041,7 +1007,7 @@ for(i in 1:15){
     
   }
   result_L50_M_4c7d$year[i] <- currentyear 
-}
+#}
 result_L50_M_4c7d
 
 ggplot(result_L50_M_4c7d, 
@@ -1051,14 +1017,12 @@ ggplot(result_L50_M_4c7d,
   geom_smooth() + 
   geom_errorbar(aes(ymin = L50 - Ecart_Type, ymax = L50 + Ecart_Type), width = 0.5) + 
   ylim(0, 400) +
-  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la L50 chez les males de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-
-
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 
 #
@@ -1157,7 +1121,7 @@ fa50<-function(data,niter=1000,graph=T){
 #------------Tri des donnees pour rendre le jeu de donnees plus digerable------- 
 Data_MUR_a50 <- DataMatu_MUR2 %>%
   mutate(mat=ifelse(mat == "Immature", "0","1"))%>%  
-  select(lenCls, mat, sex, year, newarea, age)%>% 
+  dplyr :: select(lenCls, mat, sex, year, newarea, age)%>% 
   rename.variable("lenCls", "length")%>%
   rename.variable("mat", "mature")%>%
   mutate(newarea = fct_collapse (newarea, "4c-7d" =  c("4c", "7d")))%>%
@@ -1167,17 +1131,15 @@ Data_MUR_a50 <- DataMatu_MUR2 %>%
 table(Data_MUR_a50$newarea)
 table(Data_MUR_a50$year)
 table(Data_MUR_a50$year, Data_MUR_a50$age)
-View(table(Data_MUR_a50$sex, Data_MUR_a50$length/10, Data_MUR_a50$newarea))
-View(Data_MUR_a50$sex)
+
 
 #------------------Boucle pour calculer le a50 et afficher le R²---------------- 
 
-idyear<-2006:2020
+idyear<-2006:2021
 #--------------------------Femelle avec Immature -------------------------------
 #------------------------zone CIEM 8ab version boucle---------------------------
-result_a50_FI_8ab<-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
+#result_a50_FI_8ab<-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16),R2=rep(NA,16))
+#for(i in 1:16){
   #i<-3
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_a50%>%
@@ -1194,7 +1156,7 @@ for(i in 1:15){
     
   }
   result_a50_FI_8ab$year[i] <- currentyear 
-}
+#}
 result_a50_FI_8ab
 
 ggplot(result_a50_FI_8ab, 
@@ -1204,18 +1166,17 @@ ggplot(result_a50_FI_8ab,
   geom_smooth() + 
   geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
   ylim(0, 5) +
-  labs(title = "Evolution de la a50 chez les femelles +  immatures de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la a50 chez les femelles +  immatures de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)")  
-#scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+#scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 #--------------------------Femelle avec Immature -------------------------------
 #------------------------zones CIEM 4c-7d version boucle------------------------
-result_a50_FI_4c7d <-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
-
-for(i in 1:15){
+#result_a50_FI_4c7d <-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16), R2=rep(NA,16))
+#for(i in 1:16){
   #i<-1
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_a50%>%
@@ -1232,7 +1193,7 @@ for(i in 1:15){
     
   }
   result_a50_FI_4c7d$year[i] <- currentyear 
-}
+#}
 
 result_a50_FI_4c7d
 
@@ -1243,21 +1204,20 @@ ggplot(result_a50_FI_4c7d,
   geom_smooth() + 
   geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
   ylim(0, 5) +
-  labs(title = "Evolution de la a50 chez les femelles +  immatures de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la a50 chez les femelles +  immatures de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 
 
 
 #-------------------------Femelle sans Immature --------------------------------
 #------------------------zone CIEM 8ab version boucle---------------------------
-result_a50_F_8ab<-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
+#result_a50_F_8ab<-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16),R2=rep(NA,16))
+#for(i in 1:16){
   #i<-3
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_a50%>%
@@ -1274,7 +1234,7 @@ for(i in 1:15){
     
   }
   result_a50_F_8ab$year[i] <- currentyear 
-}
+#}
 
 result_a50_F_8ab
 
@@ -1285,19 +1245,18 @@ ggplot(result_a50_F_8ab,
   geom_smooth() + 
   geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
   ylim(0, 5) +
-  labs(title = "Evolution de la a50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la a50 chez les femelles de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)")  
-#scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+#scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 #-------------------------Femelle sans Immature --------------------------------
 #------------------------zones CIEM 4c-7d version boucle------------------------
 
-result_a50_F_4c7d <-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
-
-for(i in 1:15){
+#result_a50_F_4c7d <-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16), R2=rep(NA,16))
+#for(i in 1:16){
   #i<-1
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_a50%>%
@@ -1314,7 +1273,7 @@ for(i in 1:15){
     
   }
   result_a50_F_4c7d$year[i] <- currentyear 
-}
+#}
 result_a50_F_4c7d
 
 ggplot(result_a50_F_4c7d, 
@@ -1324,13 +1283,12 @@ ggplot(result_a50_F_4c7d,
   geom_smooth() + 
   geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
   ylim(0, 5) +
-  labs(title = "Evolution de la a50 chez les femelles de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la a50 chez les femelles de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 #
 
@@ -1342,14 +1300,13 @@ comparaison_a50_F_and_FI_4c7d <- cbind(result_a50_F_4c7d, result_a50_FI_4c7d)
 comparaison_a50_F_and_FI_4c7d
 
 
-idyear<-2006:2020
+idyear<-2006:2021
 #----------------------------------Male-----------------------------------------
 
 #----------------------------Male avec Immature --------------------------------
 #------------------------zone CIEM 8ab version boucle---------------------------
-result_a50_MI_8ab<-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
-
-for(i in 1:15){
+result_a50_MI_8ab<-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16),R2=rep(NA,16))
+for(i in 1:16){
   #i<-3
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_a50%>%
@@ -1363,11 +1320,10 @@ for(i in 1:15){
     result_a50_MI_8ab$a50[i] <- median(reztmp$a50)
     result_a50_MI_8ab$R2[i] <- reztmp$R2
     result_a50_MI_8ab$Ecart_Type[i]  <- sd(reztmp$a50)
-    
   }
   result_a50_MI_8ab$year[i] <- currentyear 
-}
 
+}
 result_a50_MI_8ab
 
 ggplot(result_a50_MI_8ab, 
@@ -1377,19 +1333,18 @@ ggplot(result_a50_MI_8ab,
   geom_smooth() + 
   geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
   ylim(0, 5) +
-  labs(title = "Evolution de la a50 chez les males +  immatures de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la a50 chez les males +  immatures de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 #-----------------------------Male avec Immature -------------------------------
 #------------------------zones CIEM 4c-7d version boucle------------------------
 
-result_a50_MI_4c7d <-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
-
-for(i in 1:15){
+#result_a50_MI_4c7d <-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16), R2=rep(NA,16))
+#for(i in 1:16){
   #i<-1
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_a50%>%
@@ -1406,7 +1361,7 @@ for(i in 1:15){
     
   }
   result_a50_MI_4c7d$year[i] <- currentyear 
-}
+#}
 result_a50_MI_4c7d
 
 ggplot(result_a50_MI_4c7d, 
@@ -1416,21 +1371,20 @@ ggplot(result_a50_MI_4c7d,
   geom_smooth() + 
   geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
   ylim(0, 5) +
-  labs(title = "Evolution de la a50 chez les males +  immatures de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la a50 chez les males +  immatures de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 
 #----------------------------Male sans Immature --------------------------------
 #------------------------zone CIEM 8ab version boucle---------------------------
 
-#
-result_a50_M_8ab<-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA,15),R2=rep(NA,15))
+result_a50_M_8ab<-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16),R2=rep(NA,16))
 
-for(i in 1:15){
+for(i in 1:16){
   #i<-3
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_a50%>%
@@ -1451,6 +1405,7 @@ for(i in 1:15){
 
 result_a50_M_8ab
 
+
 ggplot(result_a50_M_8ab, 
        mapping = aes(x = year, y = a50)) +
   geom_point() +
@@ -1458,19 +1413,18 @@ ggplot(result_a50_M_8ab,
   geom_smooth() + 
   geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
   ylim(0, 5) +
-  labs(title = "Evolution de la a50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la a50 chez les males de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 #--------------------------Male sans Immature ----------------------------------
 #------------------------zones CIEM 4c-7d version boucle------------------------
 
-result_a50_M_4c7d <-data.frame(year=rep(NA,15),a50=rep(NA,15), Ecart_Type=rep(NA, 15), R2=rep(NA,15))
-
-for(i in 1:15){
+#result_a50_M_4c7d <-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16), R2=rep(NA,16))
+#for(i in 1:16){
   #i<-1
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_a50%>%
@@ -1487,7 +1441,7 @@ for(i in 1:15){
     
   }
   result_a50_M_4c7d$year[i] <- currentyear 
-}
+#}
 result_a50_M_4c7d
 
 ggplot(result_a50_M_4c7d, 
@@ -1497,21 +1451,16 @@ ggplot(result_a50_M_4c7d,
   geom_smooth() + 
   geom_errorbar(aes(ymin = a50 - Ecart_Type, ymax = a50 + Ecart_Type), width = 0.5) + 
   ylim(0, 5) +
-  labs(title = "Evolution de la a50 chez les males de Rouget barbet de roche entre 2006 et 2020",
+  labs(title = "Evolution de la a50 chez les males de Rouget barbet de roche entre 2006 et 2021",
        subtitle = "Zones geographiques de pêche : 4c et 7d",
        caption = "Barres d'erreur: écart-type",
        x = "Temps (an)",
        y = "Longueur moyenne de l'individu à maturité (mm)") + 
-  scale_x_continuous(limits=c(2006, 2020), breaks = seq(2006, 2020, 1))
-
-
-
+  scale_x_continuous(limits=c(2006, 2021), breaks = seq(2006, 2021, 1))
 
 #
-
 comparaison_a50_M_and_MI_8ab <- cbind(result_a50_M_8ab, result_a50_MI_8ab) 
 comparaison_a50_M_and_MI_8ab
-
 
 comparaison_a50_M_and_MI_4c7d <- cbind(result_a50_M_4c7d, result_a50_MI_4c7d) 
 comparaison_a50_M_and_MI_4c7d
@@ -1795,18 +1744,18 @@ rL50_F_2019_8ab<-fl50(L50_F_2019_8ab,niter=100,graph=T)
 rL50_F_2019_8ab$L50
 r_l50_F_8ab <- median(rL50_F_2019_8ab$L50)
 
-#2020                                                #ne fonctione pas très bien 
-L50_F_2020_8ab <- Data_MUR_L50%>%
+#2021                                                #ne fonctione pas très bien 
+L50_F_2021_8ab <- Data_MUR_L50%>%
   filter(sex=="F" | sex =="I")%>%
-  filter(year=="2020")%>%
+  filter(year=="2021")%>%
   filter(newarea=="8a-b")%>%
   mutate(mature=as.factor(mature)) 
-rL50_F_2020_8ab<-fl50(L50_F_2020_8ab,niter=100,graph=T)
-rL50_F_2020_8ab$L50
-s_l50_F_8ab <- median(rL50_F_2020_8ab$L50)
+rL50_F_2021_8ab<-fl50(L50_F_2021_8ab,niter=100,graph=T)
+rL50_F_2021_8ab$L50
+s_l50_F_8ab <- median(rL50_F_2021_8ab$L50)
 
 #------------Tableau et graphiques de la L50 en fonction du temps---------------- 
-year <- (2006:2020)
+year <- (2006:2021)
 L50year_F_8ab <- c("", "", "", "", "", "", k_l50_F_8ab, l_l50_F_8ab, "", "", o_l50_F_8ab, 
                    p_l50_F_8ab, "", r_l50_F_8ab, "")
 tabL50year_F_8ab <- data.frame(year, L50year_F_8ab)
@@ -1967,20 +1916,20 @@ rL50_F_2019_7d<-fl50(L50_F_2019_7d,niter=100,graph=T)
 rL50_F_2019_7d$L50
 r_l50_F_7d <- median(rL50_F_2019_7d$L50)
 
-#2020                                                         #ne fonctionne pas        
-L50_F_2020_7d <- Data_MUR_L50%>%
+#2021                                                         #ne fonctionne pas        
+L50_F_2021_7d <- Data_MUR_L50%>%
   filter(sex=="F" | sex =="I")%>%
-  filter(year=="2020")%>%
+  filter(year=="2021")%>%
   filter(newarea=="7d")%>%
   mutate(mature=as.factor(mature)) 
-rL50_F_2020_7d<-fl50(L50_F_2020_7d,niter=100,graph=T)
-rL50_F_2020_7d$L50
-s_l50_F_7d <- median(rL50_F_2020_7d$L50)
+rL50_F_2021_7d<-fl50(L50_F_2021_7d,niter=100,graph=T)
+rL50_F_2021_7d$L50
+s_l50_F_7d <- median(rL50_F_2021_7d$L50)
 
 
 
 #------------Tableau et graphiques de la L50 en fonction du temps---------------- 
-year <- (2006:2020)
+year <- (2006:2021)
 L50year_F_7d <- c(e_l50_F_7d, "", "", "", i_l50_F_7d, j_l50_F_7d, k_l50_F_7d, "", 
                   "", "", o_l50_F_7d, p_l50_F_7d, q_l50_F_7d, "", "")
 tabL50year_F_7d <- data.frame(year, L50year_F_7d)
@@ -2141,20 +2090,20 @@ rL50_F_2019_4c<-fl50(L50_F_2019_4c,niter=100,graph=T)
 rL50_F_2019_4c$L50
 r_l50_F_4c <- median(rL50_F_2019_4c$L50)
 
-#2020                                                         #ne fonctionne pas        
-L50_F_2020_4c <- Data_MUR_L50%>%
+#2021                                                         #ne fonctionne pas        
+L50_F_2021_4c <- Data_MUR_L50%>%
   filter(sex=="F" | sex =="I")%>%
-  filter(year=="2020")%>%
+  filter(year=="2021")%>%
   filter(newarea=="4c")%>%
   mutate(mature=as.factor(mature)) 
-rL50_F_2020_4c<-fl50(L50_F_2020_4c,niter=100,graph=T)
-rL50_F_2020_4c$L50
-s_l50_F_4c <- median(rL50_F_2020$L50)
+rL50_F_2021_4c<-fl50(L50_F_2021_4c,niter=100,graph=T)
+rL50_F_2021_4c$L50
+s_l50_F_4c <- median(rL50_F_2021$L50)
 
 
 
 #------------Tableau et graphiques de la L50 en fonction du temps---------------- 
-year <- (2006:2020)
+year <- (2006:2021)
 L50year_F_4c <- c("", "", "", "", "","", k_l50_F_4c, "", "", "", "", "", "", "", "")
 tabL50year_F_4c <- data.frame(year, L50year_F_4c)
 tabL50year_F_4c
@@ -2223,7 +2172,7 @@ ggplot(tabL50area_M ,aes(x=area,y=L50area_M))+
 
 
 #-------Graphique de la proportion de mature/immature et valeur L50------------- 
-#---------------------pour chaque année 2006-2020-------------------------------
+#---------------------pour chaque année 2006-2021-------------------------------
 
 #---------------------------zone CIEM 8ab---------------------------------------
 
@@ -2371,18 +2320,18 @@ rL50_M_2019_8ab<-fl50(L50_M_2019_8ab,niter=100,graph=T)
 rL50_M_2019_8ab$L50
 r_l50_M_8ab <- median(rL50_M_2019$L50)
 
-#2020                                                         #ne fonctionne pas 
-L50_M_2020_8ab <- Data_MUR_L50%>%
+#2021                                                         #ne fonctionne pas 
+L50_M_2021_8ab <- Data_MUR_L50%>%
   filter(sex=="M" | sex =="I")%>%
-  filter(year=="2020")%>%
+  filter(year=="2021")%>%
   filter(newarea=="8a-b")%>%
   mutate(mature=as.factor(mature)) 
-rL50_M_2020_8ab<-fl50(L50_M_2020_8ab,niter=100,graph=T)
-rL50_M_2020_8ab$L50
-s_l50_M_8ab <- median(rL50_M_2020$L50)
+rL50_M_2021_8ab<-fl50(L50_M_2021_8ab,niter=100,graph=T)
+rL50_M_2021_8ab$L50
+s_l50_M_8ab <- median(rL50_M_2021$L50)
 
 #------------Tableau et graphiques de la L50 en fonction du temps---------------- 
-year <- (2006:2020)
+year <- (2006:2021)
 L50year_M_8ab <- c("", "","", "", "", "", k_l50_M_8ab, "", "", "", "", p_l50_M_8ab, "", "", "")
 tabL50year_M_8ab <- data.frame(year, L50year_M_8ab)
 tabL50year_M_8ab
@@ -2540,20 +2489,20 @@ rL50_M_2019_7d<-fl50(L50_M_2019_7d,niter=100,graph=T)
 rL50_M_2019_7d$L50
 r_l50_M_7d <- median(rL50_M_2019_7d$L50)
 
-#2020                                                         #ne fonctionne pas        
-L50_M_2020_7d <- Data_MUR_L50%>%
+#2021                                                         #ne fonctionne pas        
+L50_M_2021_7d <- Data_MUR_L50%>%
   filter(sex=="M" | sex =="I")%>%
-  filter(year=="2020")%>%
+  filter(year=="2021")%>%
   filter(newarea=="7d")%>%
   mutate(mature=as.factor(mature)) 
-rL50_M_2020_7d<-fl50(L50_M_2020_7d,niter=100,graph=T)
-rL50_M_2020_7d$L50
-s_l50_M_7d <- median(rL50_M_2020_7d$L50)
+rL50_M_2021_7d<-fl50(L50_M_2021_7d,niter=100,graph=T)
+rL50_M_2021_7d$L50
+s_l50_M_7d <- median(rL50_M_2021_7d$L50)
 
 
 
 #------------Tableau et graphiques de la L50 en fonction du temps---------------- 
-year <- (2006:2020)
+year <- (2006:2021)
 L50year_M_7d <- c("", "", "", "", i_l50_M_7d, j_l50_M_7d, k_l50_M_7d, "", m_l50_M_7d, "", "", "", "", "", "")
 tabL50year_M_7d <- data.frame(year, L50year_M_7d)
 tabL50year_M_7d
@@ -2713,20 +2662,20 @@ rL50_M_2019_4c<-fl50(L50_M_2019_4c,niter=100,graph=T)
 rL50_M_2019_4c$L50
 r_l50_M_4c <- median(rL50_M_2019_4c$L50)
  
-#2020                                                         #ne fonctionne pas  
-L50_M_2020_4c <- Data_MUR_L50%>%
+#2021                                                         #ne fonctionne pas  
+L50_M_2021_4c <- Data_MUR_L50%>%
   filter(sex=="M" | sex =="I")%>%
-  filter(year=="2020")%>%
+  filter(year=="2021")%>%
   filter(newarea=="4c")%>%
   mutate(mature=as.factor(mature)) 
-rL50_M_2020_4c<-fl50(L50_M_2020_4c,niter=100,graph=T)
-rL50_M_2020_4c$L50
-s_l50_M_4c <- median(rL50_M_2020_4c$L50)
+rL50_M_2021_4c<-fl50(L50_M_2021_4c,niter=100,graph=T)
+rL50_M_2021_4c$L50
+s_l50_M_4c <- median(rL50_M_2021_4c$L50)
 
 
 
 #------------Tableau et graphiques de la L50 en fonction du temps---------------- 
-year <- (2006:2020)
+year <- (2006:2021)
 L50year_M_4c <- c("", "", "", "", "", "", "", "", "", "", "" , "", "", "", "", "")
 tabL50year_M_4c <- data.frame(year, L50year_M_4c)
 tabL50year_M_4c
@@ -2793,7 +2742,7 @@ ggplot(taba50area_F ,aes(x=area,y=a50area_F))+
 
 
 #-------Graphique de la proportion de mature/immature et valeur a50------------- 
-#---------------------pour chaque année 2006-2020-------------------------------
+#---------------------pour chaque année 2006-2021-------------------------------
 
 #---------------------------zone CIEM 8ab---------------------------------------
 
@@ -2941,18 +2890,18 @@ ra50_F_2019_8ab<-fa50(a50_F_2019_8ab,niter=100,graph=T)
 ra50_F_2019_8ab$a50
 r_a50_F_8ab <- median(ra50_F_2019$a50)
 
-#2020         
-a50_F_2020_8ab <- Data_MUR_a50%>%
+#2021         
+a50_F_2021_8ab <- Data_MUR_a50%>%
   filter(sex=="F" | sex =="I")%>%
-  filter(year=="2020")%>%
+  filter(year=="2021")%>%
   filter(newarea=="8a-b")%>%
   mutate(mature=as.factor(mature)) 
-ra50_F_2020_8ab<-fa50(a50_F_2020_8ab,niter=100,graph=T)
-ra50_F_2020_8ab$a50
-s_a50_F_8ab <- median(ra50_F_2020$a50)
+ra50_F_2021_8ab<-fa50(a50_F_2021_8ab,niter=100,graph=T)
+ra50_F_2021_8ab$a50
+s_a50_F_8ab <- median(ra50_F_2021$a50)
 
 #------------Tableau et graphiques de la a50 en fonction du temps---------------- 
-year <- (2006:2020)
+year <- (2006:2021)
 a50year_F_8ab <- c("", "", "", "", "", j_a50_F_8ab, k_a50_F_8ab, l_a50_F_8ab, "", "", o_a50_F_8ab, 
                    p_a50_F_8ab, "", r_a50_F_8ab, "")
 taba50year_F_8ab <- data.frame(year, a50year_F_8ab)
@@ -3113,20 +3062,20 @@ ra50_F_2019_7d<-fa50(a50_F_2019_7d,niter=100,graph=T)
 ra50_F_2019_7d$a50
 r_a50_F_7d <- median(ra50_F_2019$a50)
 
-#2020         
-a50_F_2020_7d <- Data_MUR_a50%>%
+#2021         
+a50_F_2021_7d <- Data_MUR_a50%>%
   filter(sex=="F" | sex =="I")%>%
-  filter(year=="2020")%>%
+  filter(year=="2021")%>%
   filter(newarea=="7d")%>%
   mutate(mature=as.factor(mature)) 
-ra50_F_2020_7d<-fa50(a50_F_2020_7d,niter=100,graph=T)
-ra50_F_2020_7d$a50
-s_a50_F_7d <- median(ra50_F_2020$a50)
+ra50_F_2021_7d<-fa50(a50_F_2021_7d,niter=100,graph=T)
+ra50_F_2021_7d$a50
+s_a50_F_7d <- median(ra50_F_2021$a50)
 
 
 
 #------------Tableau et graphiques de la a50 en fonction du temps---------------- 
-year <- (2006:2020)
+year <- (2006:2021)
 a50year_F_7d <- c(e_a50_F_7d, "", "", "", i_a50_F_7d, j_a50_F_7d, k_a50_F_7d, "", 
                   "", "", o_a50_F_7d, p_a50_F_7d, q_a50_F_7d, "", "")
 taba50year_F_7d <- data.frame(year, a50year_F_7d)
@@ -3287,20 +3236,20 @@ ra50_F_2019_4c<-fa50(a50_F_2019_4c,niter=100,graph=T)
 ra50_F_2019_4c$a50
 r_a50_F_4c <- median(ra50_F_2019$a50)
 
-#2020          
-a50_F_2020_4c <- Data_MUR_a50%>%
+#2021          
+a50_F_2021_4c <- Data_MUR_a50%>%
   filter(sex=="F" | sex =="I")%>%
-  filter(year=="2020")%>%
+  filter(year=="2021")%>%
   filter(newarea=="4c")%>%
   mutate(mature=as.factor(mature)) 
-ra50_F_2020_4c<-fa50(a50_F_2020_4c,niter=100,graph=T)
-ra50_F_2020_4c$a50
-s_a50_F_4c <- median(ra50_F_2020$a50)
+ra50_F_2021_4c<-fa50(a50_F_2021_4c,niter=100,graph=T)
+ra50_F_2021_4c$a50
+s_a50_F_4c <- median(ra50_F_2021$a50)
 
 
 
 #------------Tableau et graphiques de la a50 en fonction du temps---------------- 
-year <- (2006:2020)
+year <- (2006:2021)
 a50year_F_4c <- c(e_a50_F_4c, "", "", "", i_a50_F_4c, j_a50_F_4c, k_a50_F_4c, "", "", "", 
                   o_a50_F_4c, p_a50_F_4c, q_a50_F_4c, "", "")
 taba50year_F_4c <- data.frame(year, a50year_F_4c)
@@ -3363,7 +3312,7 @@ ggplot(taba50area_M ,aes(x=area,y=a50area_M))+
 
 
 #-------Graphique de la proportion de mature/immature et valeur a50------------- 
-#---------------------pour chaque année 2006-2020-------------------------------
+#---------------------pour chaque année 2006-2021-------------------------------
 
 #---------------------------zone CIEM 8ab---------------------------------------
 
@@ -3511,18 +3460,18 @@ ra50_M_2019_8ab<-fa50(a50_M_2019_8ab,niter=100,graph=T)
 ra50_M_2019_8ab$a50
 r_a50_M_8ab <- median(ra50_M_2019$a50)
 
-#2020          
-a50_M_2020_8ab <- Data_MUR_a50%>%
+#2021          
+a50_M_2021_8ab <- Data_MUR_a50%>%
   filter(sex=="M" | sex =="I")%>%
-  filter(year=="2020")%>%
+  filter(year=="2021")%>%
   filter(newarea=="8a-b")%>%
   mutate(mature=as.factor(mature)) 
-ra50_M_2020_8ab<-fa50(a50_M_2020_8ab,niter=100,graph=T)
-ra50_M_2020_8ab$a50
-s_a50_M_8ab <- median(ra50_M_2020$a50)
+ra50_M_2021_8ab<-fa50(a50_M_2021_8ab,niter=100,graph=T)
+ra50_M_2021_8ab$a50
+s_a50_M_8ab <- median(ra50_M_2021$a50)
 
 #------------Tableau et graphiques de la a50 en fonction du temps---------------- 
-year <- (2006:2020)
+year <- (2006:2021)
 a50year_M_8ab <- c("", "", g_a50_M_8ab, h_a50_M_8ab, "", "", k_a50_M_8ab, "", "", "", "", p_a50_M_8ab, "", "", "")
 taba50year_M_8ab <- data.frame(year, a50year_M_8ab)
 taba50year_M_8ab
@@ -3682,20 +3631,20 @@ ra50_M_2019_7d<-fa50(a50_M_2019_7d,niter=100,graph=T)
 ra50_M_2019_7d$a50
 r_a50_M_7d <- median(ra50_M_2019$a50)
 
-#2020          
-a50_M_2020_7d <- Data_MUR_a50%>%
+#2021          
+a50_M_2021_7d <- Data_MUR_a50%>%
   filter(sex=="M" | sex =="I")%>%
-  filter(year=="2020")%>%
+  filter(year=="2021")%>%
   filter(newarea=="7d")%>%
   mutate(mature=as.factor(mature)) 
-ra50_M_2020_7d<-fa50(a50_M_2020_7d,niter=100,graph=T)
-ra50_M_2020_7d$a50
-s_a50_M_7d <- median(ra50_M_2020$a50)
+ra50_M_2021_7d<-fa50(a50_M_2021_7d,niter=100,graph=T)
+ra50_M_2021_7d$a50
+s_a50_M_7d <- median(ra50_M_2021$a50)
 
 
 
 #------------Tableau et graphiques de la a50 en fonction du temps---------------- 
-year <- (2006:2020)
+year <- (2006:2021)
 a50year_M_7d <- c("", "", "", "", i_a50_M_7d, j_a50_M_7d, k_a50_M_7d, "", m_a50_M_7d, "", "", "", "", "", "")
 taba50year_M_7d <- data.frame(year, a50year_M_7d)
 taba50year_M_7d
@@ -3855,20 +3804,20 @@ ra50_M_2019_4c<-fa50(a50_M_2019_4c,niter=100,graph=T)
 ra50_M_2019_4c$a50
 r_a50_M_4c <- median(ra50_M_2019$a50)
 
-#2020          
-a50_M_2020_4c <- Data_MUR_a50%>%
+#2021          
+a50_M_2021_4c <- Data_MUR_a50%>%
   filter(sex=="M" | sex =="I")%>%
-  filter(year=="2020")%>%
+  filter(year=="2021")%>%
   filter(newarea=="4c")%>%
   mutate(mature=as.factor(mature)) 
-ra50_M_2020_4c<-fa50(a50_M_2020_4c,niter=100,graph=T)
-ra50_M_2020_4c$a50
-s_a50_M_4c <- median(ra50_M_2020$a50)
+ra50_M_2021_4c<-fa50(a50_M_2021_4c,niter=100,graph=T)
+ra50_M_2021_4c$a50
+s_a50_M_4c <- median(ra50_M_2021$a50)
 
 
 
 #------------Tableau et graphiques de la a50 en fonction du temps---------------- 
-year <- (2006:2020)
+year <- (2006:2021)
 a50year_M_4c <- c("", f_a50_M_4c, g_a50_M_4c, "", "", "", "", "", "", n_a50_M_4c, "" , "", "", "", "")
 taba50year_M_4c <- data.frame(year, a50year_M_4c)
 taba50year_M_4c
@@ -3982,7 +3931,7 @@ ggplot(data = DataMatu_MUR_F_NdeR,
   geom_smooth() +
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5)+
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
-       femelles matures et immatures entre 2006 et 2020",
+       femelles matures et immatures entre 2006 et 2021",
        subtitle = "Toutes zones geographiques de peche proposees confondues",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
@@ -4010,7 +3959,7 @@ ggplot(data = DataMatu_MUR_F_NdeR,
   facet_wrap(~newarea) +
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5)+
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
-       femelles matures et immatures entre 2006 et 2020",
+       femelles matures et immatures entre 2006 et 2021",
        subtitle = "Toutes zones geographiques de peche proposees",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
@@ -4026,7 +3975,7 @@ ggplot(data = DataMatu_MUR_F_NdeR %>%
   geom_smooth()+
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
-       femelles matures et immatures entre 2006 et 2020",
+       femelles matures et immatures entre 2006 et 2021",
        subtitle = "Zones geographiques de peche : 8a-b",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
@@ -4043,7 +3992,7 @@ ggplot(data = DataMatu_MUR_F_NdeR %>%
   geom_smooth()+
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
-       femelles matures et immatures entre 2006 et 2020",
+       femelles matures et immatures entre 2006 et 2021",
        subtitle = "Zones geographiques de peche : 4c",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
@@ -4059,7 +4008,7 @@ ggplot(data = DataMatu_MUR_F_NdeR %>%
   geom_smooth()+
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
-       femelles matures et immatures entre 2006 et 2020",
+       femelles matures et immatures entre 2006 et 2021",
        subtitle = "Zones geographiques de peche : 7d",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
@@ -4089,7 +4038,7 @@ ggplot(data = DataMatu_MUR_M_NdeR,
   geom_smooth() +
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5)+
   labs(title = "Evolution de la moyenne de la longeur totale pour les 
-       individus males matures et immatures entre 2006 et 2020",
+       individus males matures et immatures entre 2006 et 2021",
        subtitle = "Toutes zones geographiques de peche proposees confondues",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
@@ -4118,7 +4067,7 @@ ggplot(data = DataMatu_MUR_M_NdeR,
   facet_wrap(~newarea) +
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5)+
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les 
-  individus males matures et immatures entre 2006 et 2020",
+  individus males matures et immatures entre 2006 et 2021",
        subtitle = "Toutes zones geographiques de peche proposees",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
@@ -4136,7 +4085,7 @@ ggplot(data = DataMatu_MUR_M_NdeR %>%
   geom_smooth()+
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
-       males matures et immatures entre 2006 et 2020",
+       males matures et immatures entre 2006 et 2021",
        subtitle = "Zones geographiques de peche : 8a-b",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
@@ -4154,7 +4103,7 @@ ggplot(data = DataMatu_MUR_M_NdeR %>%
   geom_smooth()+
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
-       males matures et immatures entre 2006 et 2020",
+       males matures et immatures entre 2006 et 2021",
        subtitle = "Zones geographiques de peche : 4c",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
@@ -4172,7 +4121,7 @@ ggplot(data = DataMatu_MUR_M_NdeR %>%
   geom_smooth()+
   #geom_errorbar(aes(ymin = meanLen - stdErrorLen, ymax = meanLen + stdErrorLen), width = 0.5) +
   labs(title = "Evolution de la moyenne de la longeur totale en fonction l'age pour les \n individus 
-       males matures et immatures entre 2006 et 2020",
+       males matures et immatures entre 2006 et 2021",
        subtitle = "Zones geographiques de peche : 7d",
        caption = "Barres d'erreur: erreur standard",
        x = "Age (an)",
