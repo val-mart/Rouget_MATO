@@ -1305,8 +1305,8 @@ idyear<-2006:2021
 
 #----------------------------Male avec Immature --------------------------------
 #------------------------zone CIEM 8ab version boucle---------------------------
-result_a50_MI_8ab<-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16),R2=rep(NA,16))
-for(i in 1:16){
+#result_a50_MI_8ab<-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16),R2=rep(NA,16))
+#for(i in 1:16){
   #i<-3
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_a50%>%
@@ -1315,15 +1315,14 @@ for(i in 1:16){
     filter(newarea=="8a-b")%>%
     mutate(mature=as.factor(mature)) 
   if(nrow(datatmpyear)>2){
-    reztmp <-fa50(datatmpyear,niter=100,graph=T)
+    reztmp <-fa50(datatmpyear,niter=100,graph=F)
     #reztmp$a50
     result_a50_MI_8ab$a50[i] <- median(reztmp$a50)
     result_a50_MI_8ab$R2[i] <- reztmp$R2
     result_a50_MI_8ab$Ecart_Type[i]  <- sd(reztmp$a50)
   }
   result_a50_MI_8ab$year[i] <- currentyear 
-
-}
+#}
 result_a50_MI_8ab
 
 ggplot(result_a50_MI_8ab, 
@@ -1343,8 +1342,8 @@ ggplot(result_a50_MI_8ab,
 #-----------------------------Male avec Immature -------------------------------
 #------------------------zones CIEM 4c-7d version boucle------------------------
 
-#result_a50_MI_4c7d <-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16), R2=rep(NA,16))
-#for(i in 1:16){
+result_a50_MI_4c7d <-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16), R2=rep(NA,16))
+for(i in 1:16){
   #i<-1
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_a50%>%
@@ -1361,7 +1360,7 @@ ggplot(result_a50_MI_8ab,
     
   }
   result_a50_MI_4c7d$year[i] <- currentyear 
-#}
+}
 result_a50_MI_4c7d
 
 ggplot(result_a50_MI_4c7d, 
@@ -1382,9 +1381,8 @@ ggplot(result_a50_MI_4c7d,
 #----------------------------Male sans Immature --------------------------------
 #------------------------zone CIEM 8ab version boucle---------------------------
 
-result_a50_M_8ab<-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16),R2=rep(NA,16))
-
-for(i in 1:16){
+#result_a50_M_8ab<-data.frame(year=rep(NA,16),a50=rep(NA,16), Ecart_Type=rep(NA,16),R2=rep(NA,16))
+#for(i in 1:16){
   #i<-3
   currentyear<-idyear[i]
   datatmpyear <- Data_MUR_a50%>%
@@ -1393,7 +1391,7 @@ for(i in 1:16){
     filter(newarea=="8a-b")%>%
     mutate(mature=as.factor(mature)) 
   if(nrow(datatmpyear)>2){
-    reztmp <-fa50(datatmpyear,niter=100,graph=T)
+    reztmp <-fa50(datatmpyear,niter=100,graph=F)
     #reztmp$a50
     result_a50_M_8ab$a50[i] <- median(reztmp$a50)
     result_a50_M_8ab$R2[i] <- reztmp$R2
@@ -1401,7 +1399,7 @@ for(i in 1:16){
     
   }
   result_a50_M_8ab$year[i] <- currentyear 
-}
+#}
 
 result_a50_M_8ab
 
