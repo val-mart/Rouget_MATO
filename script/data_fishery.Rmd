@@ -1,0 +1,227 @@
+---
+title: "Red mullet fishery data"
+author: "moi"
+date: "11/04/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#library
+require(dplyr)
+require(ggplot2)
+require(kableExtra)
+require(sf)
+require(tidyr)
+```
+
+# Framework
+
+A short report about fishery data and red mullet.
+
+# Landings
+
+Landings from the [SACROIS system](https://sih.ifremer.fr/Debarquements-effort-de-peche/Sacrois).
+
+```{r saclan}
+#require(arrow)
+#ds<-open_dataset("/home/moi2/ifremer/dataCOST/parquet/simplesacrois")
+#french, fao code for red mullet: MUR, area 27
+#navday<-ds%>%filter(PAVILLON=="FRA",ESP_COD_FAO=="MUR",grepl("27.",SECT_COD_SACROIS_NIV3))%>%collect()
+#saveRDS(navday,file="../data_confidential/navday.rds")
+#load the saved data
+#navday<-readRDS("../data_confidential/navday.rds")
+```
+
+## Exploratory analysis
+
+### Data summary
+
+Computation of landings (in tons) and effort (days at sea) by areas, rectangle and fishing gear.
+
+```{r datasummary}
+#classloa<-c("u10","10-12","12-15","15-18","18-24","24-40","o40")
+#lan<-navday%>%
+#	group_by(SEQ_ID,
+#		 MAREE_ID,
+#		 area=SECT_COD_SACROIS_NIV3,
+#		 rect=SECT_COD_SACROIS_NIV5,
+#		 year=AN,
+#		 gear=substr(METIER_DCF_6_COD,1,3),
+#		 classloa=classloa[1+findInterval(LONGUEUR_HT,vec=c(10,12,15,18,24,40))]
+#		 )%>%
+#	summarise(lan_tot=sum(QUANT_POIDS_VIF_SACROIS,na.rm=T)/1000)%>%
+#	ungroup()
+#eff<-navday%>%
+#	select(SEQ_ID,MAREE_ID,fday=totFishDays_seqs)%>%
+#	distinct()%>%
+#	group_by(SEQ_ID,MAREE_ID)%>%
+#	summarise(fday=sum(fday,na.rm=T))%>%
+#	ungroup()
+#laneff<-full_join(lan,eff)%>%group_by(year,area,rect,gear,classloa)%>%
+#	summarise(lan_tot=sum(lan_tot),fday=sum(fday))%>%
+#	ungroup()
+#saveRDS(laneff,file="../data_confidential/laneff.rds")
+laneff<-readRDS(file="../data_confidential/laneff.rds")
+
+```
+
+
+### Landings by area
+
+Landings in ton & percentage, with fishing effort over the period 2000-2022 by area.
+
+```{r tab1}
+tab1<-laneff%>%group_by(area)%>%
+	summarise(lan_tot=sum(lan_tot),fday=sum(fday))%>%
+	mutate(perc_lan=round(100*lan_tot/sum(lan_tot),2))%>%
+	ungroup()%>%
+	arrange(desc(perc_lan))
+kable(tab1)
+```
+
+Landings in ton & percentage, with effort over the period 2000-2022 by fishing gear. 
+
+```{r tab2}
+tab2<-laneff%>%group_by(gear)%>%
+	summarise(lan_tot=sum(lan_tot),fday=sum(fday))%>%
+	mutate(perc_lan=round(100*lan_tot/sum(lan_tot),2))%>%
+	ungroup()%>%
+	arrange(desc(perc_lan))
+kable(tab2)
+```
+
+
+
+Time series of landings in tons by area.
+
+```{r explo2,fig.height=14,fig.width=8}
+#landings by ICES division
+tsarea<-laneff%>%
+	group_by(area=sub("27.","",area),year)%>%
+	summarise(lan_tot=sum(lan_tot,na.rm=T))
+plt1<-ggplot(tsarea,aes(x=year,y=lan_tot))+
+		geom_bar(stat="identity")+
+		facet_grid(area~.,scale="free")+
+		xlab("Year")+ylab("Landings (t)")+
+		theme_bw()+
+		ggtitle("French landings for red mullet")
+print(plt1)
+```
+
+Landings by fishing gear and area 
+
+```{r explo3,fig.height=14,fig.width=8}
+#landings by gear
+tsareamet<-laneff%>%
+	group_by(area=sub("27.","",area),year,gear)%>%
+	summarise(lan_tot=sum(lan_tot,na.rm=T))
+plt1<-ggplot(tsareamet,aes(x=year,y=lan_tot,colour=gear,fill=gear))+
+		geom_bar(stat="identity")+
+		facet_grid(area~.,scale="free")+
+		xlab("Year")+ylab("Landings (t)")+
+		theme_bw()+
+		ggtitle("French landings for red mullet")
+print(plt1)
+```
+
+Idem with effort in fishing days
+
+```{r explo4,fig.height=14,fig.width=8}
+#landings by gear
+tsareamet<-laneff%>%
+	group_by(area=sub("27.","",area),year,gear)%>%
+	summarise(fday=sum(fday))
+plt1<-ggplot(tsareamet,aes(x=year,y=fday,colour=gear,fill=gear))+
+		geom_bar(stat="identity")+
+		facet_grid(area~.,scale="free")+
+		xlab("Year")+ylab("Effort (fishing days)")+
+		theme_bw()+
+		ggtitle("French effort of vessels with red mullet landings")
+print(plt1)
+```
+
+Map of lan and effort
+
+```{r map1,fig.height=14,fig.width=14}
+#load geographical object for mapping
+#rect
+load("../data/geo/rect.rdata")
+#div
+load("../data/geo/div.rdata")
+#prepa geo data
+rect<-rect%>%filter(ICESNAME%in%unique(laneff$rect))%>%
+		transmute(rect=ICESNAME,div=F_DIVISION,label=ICESNAME,geometry)
+rectxy<-st_coordinates(st_centroid(rect))
+rect$x<-round(rectxy[,1],2)
+rect$y<-round(rectxy[,2],2)
+#div
+div<-div%>%
+	transmute(div=F_DIVISION,label=ETIQUETTE,geometry)%>%
+	filter(div%in%unique(rect$div))
+divxy<-st_coordinates(st_centroid(div))
+div$x<-divxy[,1]
+div$y<-divxy[,2]
+#prep laneff for mapping
+rlaneff<-laneff%>%group_by(year,rect)%>%
+	summarise(lan_tot=sum(lan_tot),fday=sum(fday))%>%
+	ungroup()%>%
+	#remove empty rect
+	filter(rect!="")%>%
+	#add rect coordinates
+	left_join(rect,by=c("rect"))
+rx<-c(-13,7)#range(rlaneff$x)
+ry<-c(43,55)#range(rlaneff$y)
+
+pltlanyear<-ggplot()+
+	geom_raster(data=rlaneff,aes(x=x,y=y,fill=lan_tot),stat="identity",alpha=1)+
+	geom_sf(data=div,fill=NA,colour="black",lwd=.3,alpha=.5)+
+	scale_fill_distiller(palette='Spectral',name="Landings (tons)")+
+	facet_wrap(~year,drop=FALSE)+
+	borders("world",fill="grey",colour=NA,alpha=.5)+
+	coord_sf(xlim=rx,ylim=ry)+
+	theme_bw()+
+	ggtitle("French landings for red mullet")+
+	xlab("Longitude")+ylab("Latitude")+
+	theme(legend.position="bottom",
+		      strip.text.y=element_text(size=6,angle=0))
+print(pltlanyear)
+plteffyear<-ggplot()+
+	geom_raster(data=rlaneff,aes(x=x,y=y,fill=fday),stat="identity",alpha=1)+
+	geom_sf(data=div,fill=NA,colour="black",lwd=.3,alpha=.5)+
+	scale_fill_distiller(palette='Spectral',name="Landings (tons)")+
+	facet_wrap(~year,drop=FALSE)+
+	borders("world",fill="grey",colour=NA,alpha=.5)+
+	coord_sf(xlim=rx,ylim=ry)+
+	theme_bw()+
+	ggtitle("Fishings days for french vessels with red mullet landings")+
+	xlab("Longitude")+ylab("Latitude")+
+	theme(legend.position="bottom",
+		      strip.text.y=element_text(size=6,angle=0))
+print(plteffyear)
+```
+
+Data extraction for maturity analysis
+
+```{r dataextract,fig.height=14,fig.width=14}
+matlaneff<-laneff%>%
+		mutate(zone=NA)%>%
+		mutate(zone=ifelse(area%in%c("27.8.a","27.8.b"),"8ab",zone))%>%
+		mutate(zone=ifelse(area%in%c("27.7.d","27.4.c"),"7d4c",zone))%>%
+	   group_by(year,zone)%>%
+	   summarise(lan=sum(lan_tot),fday=sum(fday))%>%
+	   ungroup()%>%
+	   filter(!is.na(zone))%>%
+	   mutate(cpue=lan/fday)
+saveRDS(matlaneff,"../data_confidential/matlaneff.rds")
+#format the data for easy ggploting
+pipo<-pivot_longer(matlaneff,col=3:5)
+ 
+#quick plot
+ggplot(pipo,aes(x=year,y=value))+
+	geom_point()+
+	geom_path()+
+	geom_smooth()+
+	facet_wrap(name~zone,scale="free_y",ncol=2)
+
+```
