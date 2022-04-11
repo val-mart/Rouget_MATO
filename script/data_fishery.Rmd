@@ -53,7 +53,7 @@ Computation of landings (in tons) and effort (days at sea) by areas, rectangle a
 #	summarise(lan_tot=sum(QUANT_POIDS_VIF_SACROIS,na.rm=T)/1000)%>%
 #	ungroup()
 #eff<-navday%>%
-#	select(SEQ_ID,MAREE_ID,fday=totFishDays_seqs)%>%
+#	select(SEQ_ID,MAREE_ID,fday=totSeaDays_seqs)%>%
 #	distinct()%>%
 #	group_by(SEQ_ID,MAREE_ID)%>%
 #	summarise(fday=sum(fday,na.rm=T))%>%
@@ -62,6 +62,7 @@ Computation of landings (in tons) and effort (days at sea) by areas, rectangle a
 #	summarise(lan_tot=sum(lan_tot),fday=sum(fday))%>%
 #	ungroup()
 #saveRDS(laneff,file="../data_confidential/laneff.rds")
+
 laneff<-readRDS(file="../data_confidential/laneff.rds")
 
 ```
