@@ -1,0 +1,54 @@
+---
+title: "Test analyses"
+author: "moi"
+date: "2/1/2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r library, include=FALSE}
+# library 
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+# Framework
+
+Un test pour faire du markdown avec les données ICES.
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r dataread,include=FALSE}
+setwd("/home/moi2/ifremer/example/histodata")
+#data
+histodat<-read.csv("./data/OfficialNominalCatches/ICESCatchDataset2006-2019.csv")
+```
+
+
+```{r datafilter,include=FALSE}
+#filter + correction + long format
+histodat<-histodat%>%filter(Species%in%c("MUR","MUT","MUX"))%>%
+        mutate(X2019=as.numeric(X2019),X2018=as.numeric(X2018))%>%
+        tidyr::pivot_longer(cols=starts_with("X"),names_to="year",values_to="tons")%>%
+        mutate(year=sub("X","",year))
+#time series
+ts1<-histodat%>%group_by(year)%>%summarise(tons=sum(tons,na.rm=T))%>%ungroup()
+```
+
+## Graphiques
+
+
+```{r pressure, echo=FALSE}
+ggplot(ts1,aes(x=year,y=tons))+geom_point()#+geom_line()#+geom_smooth()
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
